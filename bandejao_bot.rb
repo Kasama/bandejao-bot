@@ -29,11 +29,11 @@ class Bot
 			end
 			text = bandejao.get_bandeco day, month, horario
 			results.push Telegram::Bot::Types::InlineQueryResultArticle
-			.new(id: 2, title: "Mostrar cardapio para dia #{day}/#{month}", message_text: text)
+			.new(id: 2, title: "Mostrar cardapio para dia #{day}/#{month}", message_text: text, parse_mode: 'Markdown')
 		end
 		text = bandejao.get_bandeco
 		results.push Telegram::Bot::Types::InlineQueryResultArticle
-		.new(id: 1, title: 'Mostrar cardapio do bandeco', message_text: text)
+		.new(id: 1, title: 'Mostrar cardapio do bandeco', message_text: text, parse_mode: 'Markdown')
 
 		results
 	end
@@ -53,7 +53,7 @@ class Bot
 					else
 						text = bandejao.get_bandeco
 						begin
-							bot.api.send_message(chat_id: message.chat.id, text: text)
+							bot.api.send_message(chat_id: message.chat.id, text: text, parse_mode: 'Markdown')
 						rescue => e
 							puts e
 							puts "Something when wrong in chat"

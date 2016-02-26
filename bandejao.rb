@@ -5,6 +5,7 @@ class Bandejao
 
 	def initialize(pdf)
 		@pdf_file = pdf
+		@last_download = Time.now
 	end
 
 	def zero_pad(str)
@@ -61,15 +62,15 @@ class Bandejao
 
 		if horario.nil?
 			if (time.hour < 13 || (time.hour == 13 && time.min <= 15))
-				"Almoço (#{day}/#{month}):" + lunch
+				"*Almoço (#{day}/#{month})*:" + lunch
 			elsif (time.hour > 20 || (time.hour == 19 && time.min >= 15))
-				"Ja era seu bandeco, fi"
+				"Ja era seu *bandeco*, fi"
 			else
 				"Janta (#{day}/#{month}):" + dinner
 			end
 		else
 			if horario == :almoco
-				"Almoço (#{day}/#{month}):" + lunch
+				"*Almoço* (#{day}/#{month}):" + lunch
 			elsif horario == :janta
 				"Janta (#{day}/#{month}):" + dinner
 			else
@@ -77,6 +78,4 @@ class Bandejao
 			end
 		end
 	end
-
 end
-
