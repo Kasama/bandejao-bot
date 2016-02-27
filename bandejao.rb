@@ -18,11 +18,16 @@ class Bandejao
 
 	def update_pdf
 		pdf_path = CONST::PDF_PATH
-		Net::HTTP.start(CONST::PDF_DOMAIN) do |http|
-			resp = http.get pdf_path
-			open(pdf_file, "w+") do |file|
-				file.write resp.body
+		begin
+			Net::HTTP.start(CONST::PDF_DOMAIN) do |http|
+				resp = http.get pdf_path
+				open(pdf_file, "w+") do |file|
+					file.write resp.body
+				end
 			end
+			return true
+		rescue
+			return false
 		end
 	end
 

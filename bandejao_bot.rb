@@ -73,6 +73,13 @@ class Bot
 					puts "Quitting.."
 					bot_thread.exit
 					quit = true
+				when /download|update/
+					puts "Downloading new pdf..."
+					if bandejao.update_pdf
+						puts "Success!"
+					else
+						puts "Download Failed"
+					end
 			end
 		end
 	end
