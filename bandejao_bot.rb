@@ -65,8 +65,8 @@ class Bot
 
 	def handle_console(bot_thread)
 		quit = false
-		print ">> "
 		until quit do
+			print ">> "
 			cmd = gets.chomp
 			case cmd
 				when /quit/
