@@ -66,8 +66,8 @@ class Bandejao
 			else
 				puts "got false request, downloading pdf and running again"
 			end
-
-			return update_pdf day, month, horario, true unless updated
+			update_pdf
+			return get_bandeco day, month, horario, true unless updated
 		end
 
 		if horario.nil?
