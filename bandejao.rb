@@ -61,11 +61,6 @@ class Bandejao
 		if lunch.length == 0 || dinner.length == 0
 			lunch = "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado"
 			dinner = "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado"
-			if updated
-				puts "got false request after downloading pdf"
-			else
-				puts "got false request, downloading pdf and running again"
-			end
 			update_pdf
 			return get_bandeco day, month, horario, true unless updated
 		end
