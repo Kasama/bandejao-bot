@@ -35,7 +35,7 @@ class Bandejao
 		Time.new
 	end
 
-	def get_bandeco (day = Time.now.day, month = Time.now.month, horario = nil)
+	def get_bandeco (day = Time.now.day, month = Time.now.month, horario = nil, updated = false)
 		reader = PDF::Reader.new(pdf_file)
 
 		day = zero_pad day.to_s
@@ -58,11 +58,16 @@ class Bandejao
 			dinner = dinner + "\n" + cap_dinner
 		end
 
-		if lunch.length == 0
+		if lunch.length == 0 || dinner.length == 0
 			lunch = "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado"
-		end
-		if dinner.length == 0
 			dinner = "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado"
+			if updated
+				puts "got false request after downloading pdf"
+			else
+				puts "got false request, downloading pdf and running again"
+			end
+
+			return update_pdf day, month, horario, true unless updated
 		end
 
 		if horario.nil?

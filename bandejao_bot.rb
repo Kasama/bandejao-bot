@@ -1,8 +1,8 @@
-require File.expand_path './bandejao.rb'
-require File.expand_path './constants.rb'
 require 'net/http'
 require 'pdf-reader'
 require 'telegram/bot'
+require File.expand_path './bandejao.rb'
+require File.expand_path './constants.rb'
 
 class Bot
 	attr_accessor :bandejao
