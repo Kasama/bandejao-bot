@@ -22,14 +22,17 @@ class Bot
 			month = bandejao.zero_pad month
 			extra.chomp!
 			horario = nil
+			horario_text = ''
 			if /almoço|almoco/ === extra
 				horario = :almoco
-			elsif /janta/ === extra
+				horario_text = " no almoço"
+			elsif /jantar?/ === extra
 				horario = :janta
+				horario_text = " no jantar"
 			end
 			text = bandejao.get_bandeco day, month, horario
 			results.push Telegram::Bot::Types::InlineQueryResultArticle
-			.new(id: 2, title: "Mostrar cardapio para dia #{day}/#{month}#{"" + horario.to_s if horario}", message_text: text, parse_mode: 'Markdown')
+			.new(id: 2, title: "Mostrar cardapio para dia #{day}/#{month}#{horario_text}", message_text: text, parse_mode: 'Markdown')
 		end
 		text = bandejao.get_bandeco
 		results.push Telegram::Bot::Types::InlineQueryResultArticle
