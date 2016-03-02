@@ -45,10 +45,13 @@ class Bandejao
 		day_regex = /#{day}\/#{month}(.+\n)+/
 
 		day_meal = nil
+		page_text = ''
 		reader.pages.each do |page|
-			puts page
+			page_text << page.to_s
 			day_meal = day_regex.match page.text if day_meal.nil?
 		end
+		page_text = page_text.gsub(/^$\n/, '')
+		puts page_text
 
 		lunch = ''
 		dinner = ''
@@ -60,8 +63,7 @@ class Bandejao
 		end
 
 		if lunch.length == 0 || dinner.length == 0
-			lunch = "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado"
-			dinner = "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado"
+			dinner = lunch = "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado"
 			update_pdf
 			return get_bandeco day, month, horario, true unless updated
 		end

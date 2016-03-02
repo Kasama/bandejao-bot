@@ -82,6 +82,8 @@ class Bot
 					end
 				when /clear|cls|clc/
 					print "\e[H\e[2J"
+				else
+					puts "Invalid command: #{cmd}"
 			end
 		end
 	end
