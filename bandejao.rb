@@ -51,7 +51,6 @@ class Bandejao
 		end
 		page_text = page_text.gsub(/^$\n/, '')
 		day_meal = day_regex.match page_text
-		puts "'#{day_meal}'"
 
 		lunch = ''
 		dinner = ''
@@ -83,7 +82,7 @@ class Bandejao
 			if horario == :almoco
 				"*Almoço* (#{day}/#{month}):" + lunch
 			elsif horario == :janta
-				"Janta (#{day}/#{month}):" + dinner
+				"*Janta* (#{day}/#{month}):" + dinner
 			else
 				"WTF?"
 			end
