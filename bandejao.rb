@@ -46,6 +46,7 @@ class Bandejao
 
 		day_meal = nil
 		reader.pages.each do |page|
+			puts page
 			day_meal = day_regex.match page.text if day_meal.nil?
 		end
 
