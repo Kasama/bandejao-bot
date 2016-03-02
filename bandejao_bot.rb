@@ -29,7 +29,7 @@ class Bot
 			end
 			text = bandejao.get_bandeco day, month, horario
 			results.push Telegram::Bot::Types::InlineQueryResultArticle
-			.new(id: 2, title: "Mostrar cardapio para dia #{day}/#{month}", message_text: text, parse_mode: 'Markdown')
+			.new(id: 2, title: "Mostrar cardapio para dia #{day}/#{month}#{"" + horario.to_s if horario}", message_text: text, parse_mode: 'Markdown')
 		end
 		text = bandejao.get_bandeco
 		results.push Telegram::Bot::Types::InlineQueryResultArticle
