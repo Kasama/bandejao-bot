@@ -57,7 +57,7 @@ class Bandejao
 		dinner = ''
 
 		day_meal.to_s.lines.each do |l|
-			m = /\s*(.+)\s\s(?=\S)(.+)/.match(l)
+			m = /(?:\d?\d\/\d?\d)?\s*(.+)\s\s(?=\S)(.+)/.match(l)
 			if m
 				cap_lunch, cap_dinner = m.captures
 				lunch = lunch + "\n" + cap_lunch unless /^$/ === cap_lunch
