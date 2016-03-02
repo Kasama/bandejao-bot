@@ -71,7 +71,7 @@ class Bandejao
 		end
 
 		if lunch.length == 0 || dinner.length == 0
-			dinner = lunch = escape_md "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado"
+			dinner = lunch = escape_md "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado\nVocê pode olhar aqui para ter certeza #{CONST::PDF_DOMAIN}#{CONST::PDF_PATH}"
 			update_pdf
 			return get_bandeco day, month, horario, true unless updated
 		end
