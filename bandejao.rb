@@ -42,24 +42,27 @@ class Bandejao
 		month = zero_pad month.to_s
 
 		time = Time.now
-		day_regex = /#{day}\/#{month}(.+\n)+/
+		day_regex = /#{day}\/#{month}\n?(.+\n)+?\S/
 
 		day_meal = nil
 		page_text = ''
 		reader.pages.each do |page|
-			page_text << page.to_s
-			day_meal = day_regex.match page.text if day_meal.nil?
+			page_text << page.text
 		end
 		page_text = page_text.gsub(/^$\n/, '')
-		puts page_text
+		day_meal = day_regex.match page_text
+		puts "'#{day_meal}'"
 
 		lunch = ''
 		dinner = ''
 
 		day_meal.to_s.lines.each do |l|
-			cap_lunch, cap_dinner = /\s+(.+)\s\s(.+)/.match(l).captures
-			lunch = lunch + "\n" + cap_lunch
-			dinner = dinner + "\n" + cap_dinner
+			m = /\s*(.+)\s\s(?=\S)(.+)/.match(l)
+			if m
+				cap_lunch, cap_dinner = m.captures
+				lunch = lunch + "\n" + cap_lunch unless /^$/ === cap_lunch
+				dinner = dinner + "\n" + cap_dinner unless /^$/ === cap_dinner
+			end
 		end
 
 		if lunch.length == 0 || dinner.length == 0
