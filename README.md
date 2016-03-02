@@ -34,7 +34,7 @@ Para contribuir, favor seguir os passos
 
 Licença
 -------
-Esse bot é distribuido sob a licença [MIT][9]. 
+Esse bot é distribuido sob a licença [MIT][9].
 
 [1]: https://core.telegram.org/bots/api
 [2]: https://telegram.org/

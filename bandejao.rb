@@ -16,6 +16,12 @@ class Bandejao
 		end
 	end
 
+	def escape_md(text)
+		text = text.gsub(/\\/, '\\\\')
+		text = text.gsub(/\*/, '\\\*')
+		text = text.gsub(/\_/, '\\\_')
+	end
+
 	def update_pdf
 		pdf_path = CONST::PDF_PATH
 		begin
@@ -65,7 +71,7 @@ class Bandejao
 		end
 
 		if lunch.length == 0 || dinner.length == 0
-			dinner = lunch = "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado"
+			dinner = lunch = escape_md "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado"
 			update_pdf
 			return get_bandeco day, month, horario, true unless updated
 		end
@@ -74,15 +80,15 @@ class Bandejao
 			if (time.hour < 13 || (time.hour == 13 && time.min <= 15))
 				"*Almoço (#{day}/#{month})*:" + lunch
 			elsif (time.hour > 20 || (time.hour == 19 && time.min >= 15))
-				"Ja era seu *bandeco*, fi"
+				"Ja era seu *bandeco*, fi. Use /help para mais opções"
 			else
-				"Janta (#{day}/#{month}):" + dinner
+				"*Janta (#{day}/#{month})*:" + dinner
 			end
 		else
 			if horario == :almoco
-				"*Almoço* (#{day}/#{month}):" + lunch
+				"*Almoço (#{day}/#{month})*:" + lunch
 			elsif horario == :janta
-				"*Janta* (#{day}/#{month}):" + dinner
+				"*Janta (#{day}/#{month})*:" + dinner
 			else
 				"WTF?"
 			end
