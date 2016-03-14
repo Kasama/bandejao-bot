@@ -48,7 +48,8 @@ class Bandejao
 		month = zero_pad month.to_s
 
 		time = Time.now
-		day_regex = /#{day}\/#{month}\n?(.+\n)+?\S/
+		#day_regex = /#{day}\/#{month}\n?(.+\n)+?\S/
+		day_regex = /#{day}\/\d?\d\n?(.+\n)+?\S/
 
 		day_meal = nil
 		page_text = ''
