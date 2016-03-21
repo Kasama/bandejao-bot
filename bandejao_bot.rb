@@ -42,29 +42,31 @@ class Bot
 	end
 
 	def run_bot
-		Telegram::Bot::Client.run(CONST::Token) do |bot|
-			bot.listen do |message|
-				case message
-				when Telegram::Bot::Types::InlineQuery
-					begin
-						results = handle_inline message
-						bot.api.answer_inline_query(inline_query_id: message.id, results: results)
-					rescue => e
-						puts e
-						puts "something went wrong in the inline query"
-					end
-				else
-					case message.text
-					when '/help'
-						text = "Mandando qualquer mensagem para min, eu responderei com o cardápio para o próximo bandejao"
+		loop do
+			Telegram::Bot::Client.run(CONST::Token) do |bot|
+				bot.listen do |message|
+					case message
+					when Telegram::Bot::Types::InlineQuery
+						begin
+							results = handle_inline message
+							bot.api.answer_inline_query(inline_query_id: message.id, results: results)
+						rescue => e
+							puts e
+							puts "something went wrong in the inline query"
+						end
 					else
-						text = bandejao.get_bandeco
-					end
-					begin
-						bot.api.send_message(chat_id: message.chat.id, text: text, parse_mode: 'Markdown')
-					rescue => e
-						puts e
-						puts "Something when wrong in chat"
+						case message.text
+						when '/help'
+							text = "Mandando qualquer mensagem para min, eu responderei com o cardápio para o próximo bandejao"
+						else
+							text = bandejao.get_bandeco
+						end
+						begin
+							bot.api.send_message(chat_id: message.chat.id, text: text, parse_mode: 'Markdown')
+						rescue => e
+							puts e
+							puts "Something when wrong in chat"
+						end
 					end
 				end
 			end
