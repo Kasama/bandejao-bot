@@ -83,6 +83,10 @@ class Bot
 				puts "Quitting.."
 				bot_thread.exit
 				quit = true
+			when /restart|reset/
+				puts "Restarting..."
+				bot_thread.exit
+				exit 1
 			when /download|update/
 				puts "Downloading new pdf..."
 				if bandejao.update_pdf
