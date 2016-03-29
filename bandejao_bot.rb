@@ -60,8 +60,7 @@ class Bot
 		month = nil
 		case message.text
 		when '/help'
-			text = "Mandando qualquer mensagem para min, eu responderei com o cardápio para o próximo bandejao\n\n
-			Alternativamente, os comandos /almoço e /janta seguidos por uma data retornam o cardápio do almoço/janta do dia representado pela data"
+			text = "Mandando qualquer mensagem para min, eu responderei com o cardápio para o próximo bandejao\n\nAlternativamente, os comandos /almoço e /janta seguidos por uma data retornam o cardápio do almoço/janta do dia representado pela data"
 		when /\/almo(?:ç|c)o/
 			horario = :almoco
 		when /\/jantar?/
