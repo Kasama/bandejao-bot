@@ -41,14 +41,20 @@ class Bandejao
 		Time.new
 	end
 
-	def get_bandeco (day = Time.now.day, month = Time.now.month, horario = nil, updated = false)
+	def get_bandeco (day = nil, month = nil, horario = nil, updated = false)
+		day = Time.now.day unless day
+		month = Time.now.month unless month
+		horario = nil unless horario
+
+		day = zero_pad day.to_s
+		month = zero_pad month.to_s
+
 		reader = PDF::Reader.new(pdf_file)
 
 		day = zero_pad day.to_s
 		month = zero_pad month.to_s
 
 		time = Time.now
-		#day_regex = /#{day}\/#{month}\n?(.+\n)+?\S/
 		day_regex = /#{day}\/\d?\d\n?(.+\n)+?\S/
 
 		day_meal = nil
