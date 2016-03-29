@@ -90,6 +90,7 @@ class Bot
 					else
 						text = handle_inchat message
 						begin
+							puts "responding with #{text}"
 							bot.api.send_message(chat_id: message.chat.id, text: text, parse_mode: 'Markdown')
 						rescue => e
 							puts e
