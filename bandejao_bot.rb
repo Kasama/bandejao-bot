@@ -61,7 +61,7 @@ class Bot
 		case message.text
 		when '/help'
 			text = "Mandando qualquer mensagem para min, eu responderei com o cardápio para o próximo bandejao"
-		when /\/almoço/
+		when /\/almo(?:ç|c)o/
 			horario = :almoco
 		when /\/jantar?/
 			horario = :janta
