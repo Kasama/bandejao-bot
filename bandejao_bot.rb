@@ -39,7 +39,7 @@ class Bot
 	def handle_inline(message)
 		results = []
 		msg = message.query
-		if date_regex === msg
+		if @date_regex === msg
 			day, month, extra = /(\d?\d)\/(\d?\d)(.*)/.match(msg).captures
 			text = handle_menu_query day, month, extra
 			title = "Mostrar cardápio para dia #{day}/#{month}#{get_horario_name(extra)}"
@@ -66,7 +66,7 @@ class Bot
 		when /\/jantar?/
 			horario = :janta
 		end
-		if date_regex === message.text
+		if @date_regex === message.text
 			day, month = /(\d?\d)\/(\d?\d)/.match(msg).captures
 		end
 
