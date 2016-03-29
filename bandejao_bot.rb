@@ -67,7 +67,7 @@ class Bot
 			horario = :janta
 		end
 		if @date_regex === message.text
-			day, month = /(\d?\d)\/(\d?\d)/.match(msg).captures
+			day, month = /(\d?\d)\/(\d?\d)/.match(message.text).captures
 		end
 
 		text = bandejao.get_bandeco day, month, horario unless text
@@ -90,7 +90,6 @@ class Bot
 					else
 						text = handle_inchat message
 						begin
-							puts "responding with #{text}"
 							bot.api.send_message(chat_id: message.chat.id, text: text, parse_mode: 'Markdown')
 						rescue => e
 							puts e
