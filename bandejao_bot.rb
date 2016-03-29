@@ -11,7 +11,7 @@ class Bot
 	def initialize
 		@pdf_file = 'bandeco.pdf'
 		@bandejao = Bandejao.new pdf_file
-		@date_regex = /^\d?\d\/\d?\d.*$/
+		@date_regex = /\d?\d\/\d?\d.*$/
 	end
 
 	def handle_menu_query(day, month, time)
