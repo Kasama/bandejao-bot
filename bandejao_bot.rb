@@ -1,6 +1,7 @@
 require 'net/http'
 require 'pdf-reader'
 require 'telegram/bot'
+require 'yaml'
 require File.expand_path './bandejao.rb'
 require File.expand_path './constants.rb'
 
@@ -12,6 +13,7 @@ class Bot
 		@pdf_file = 'bandeco.pdf'
 		@bandejao = Bandejao.new pdf_file
 		@date_regex = /\d?\d\/\d?\d.*$/
+		@users = YAML.load_file(CONST::USERS_FILE);
 	end
 
 	def handle_menu_query(day, month, time)
@@ -65,6 +67,12 @@ class Bot
 			horario = :almoco
 		when /\/jantar?/
 			horario = :janta
+		when /\/cardapio/
+			text = "Cardapio:\n#{CONST::PDF_DOMAIN}#{CONST::PDF_PATH}"
+		when /\/users/
+			if message.from.id == CONST::MASTER_ID
+				text = @users.to_s
+			end
 		end
 		if @date_regex === message.text
 			day, month = /(\d?\d)\/(\d?\d)/.match(message.text).captures
@@ -78,6 +86,9 @@ class Bot
 		loop do
 			Telegram::Bot::Client.run(CONST::Token) do |bot|
 				bot.listen do |message|
+					unless @users[message.from.id]
+						@users[message.from.id] = message.from
+					end
 					case message
 					when Telegram::Bot::Types::InlineQuery
 						begin
@@ -130,12 +141,22 @@ class Bot
 		end
 	end
 
+	def serialize_and_save(obj)
+		File.open(CONST::USERS_FILE, 'w') { |f| f.puts obj.to_yaml }
+	end
+
 	def run
+		@users = YAML.load_file CONST::USERS_FILE
+		if @users.nil?
+			@users = {}
+			serialize_and_save @users
+		end
 		bot_thread = Thread.new do
 			run_bot
 		end
 		handle_console bot_thread
 		bot_thread.join
+		serialize_and_save @users
 	end
 
 end
