@@ -147,7 +147,7 @@ class Bot
 
 	def run
 		@users = YAML.load_file CONST::USERS_FILE
-		if @users.nil?
+		unless @users
 			@users = {}
 			serialize_and_save @users
 		end
