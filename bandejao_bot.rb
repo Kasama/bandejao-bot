@@ -21,9 +21,9 @@ class Bot
 			month = bandejao.zero_pad month
 			time.chomp!
 			horario = nil
-			if /almoço|almoco/ === time
+			if CONST::COMMANDS[:lunch] === time
 				horario = :almoco
-			elsif /jantar?/ === time
+			elsif CONST::COMMANDS[:dinner] === time
 				horario = :janta
 			end
 			bandejao.get_bandeco day, month, horario
@@ -31,9 +31,9 @@ class Bot
 
 	def get_horario_name(extra)
 			horario_text = ''
-			if /almoço|almoco/ === extra
+			if CONST::COMMANDS[:lunch] === extra
 				horario_text = " no almoço"
-			elsif /jantar?/ === extra
+			elsif CONST::COMMANDS[:dinner] === extra
 				horario_text = " no jantar"
 			end
 	end
@@ -61,15 +61,15 @@ class Bot
 		day = nil
 		month = nil
 		case message.text
-		when '/help'
+		when CONST::COMMANDS[:help]
 			text = "Mandando qualquer mensagem para min, eu responderei com o cardápio para o próximo bandejao\n\nAlternativamente, os comandos /almoco e /janta seguidos por uma data retornam o cardápio do almoço/janta do dia representado pela data"
-		when /\/almo(?:ç|c)o/
+		when CONST::COMMANDS[:lunch]
 			horario = :almoco
-		when /\/jantar?/
+		when CONST::COMMANDS[:dinner]
 			horario = :janta
-		when /\/cardapio/
+		when CONST::COMMANDS[:menu]
 			text = "Cardapio:\n#{CONST::PDF_DOMAIN}#{CONST::PDF_PATH}"
-		when /\/users/
+		when CONST::COMMANDS[:users]
 			if message.from.id == CONST::MASTER_ID
 				text = @users.to_s
 			end
@@ -118,22 +118,22 @@ class Bot
 			print ">> "
 			cmd = gets.chomp
 			case cmd
-			when /quit/
+			when CONST::COMMANDS[:quit]
 				puts "Quitting.."
 				bot_thread.exit
 				quit = true
-			when /restart|reset/
+			when CONST::COMMANDS[:restart]
 				puts "Restarting..."
 				bot_thread.exit
 				exit 1
-			when /download|update/
+			when CONST::COMMANDS[:download]
 				puts "Downloading new pdf..."
 				if bandejao.update_pdf
 					puts "Success!"
 				else
 					puts "Download Failed"
 				end
-			when /clear|cls|clc/
+			when CONST::COMMANDS[:clear]
 				print "\e[H\e[2J"
 			else
 				puts "Invalid command: #{cmd}"
