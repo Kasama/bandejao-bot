@@ -133,6 +133,13 @@ class Bot
 				else
 					puts "Download Failed"
 				end
+			when CONST::COMMANDS[:users]
+				@users.each do |k, u|
+					puts "---------"
+					puts u.first_name
+					puts u.last_name
+					puts u.username
+				end
 			when CONST::COMMANDS[:clear]
 				print "\e[H\e[2J"
 			else
