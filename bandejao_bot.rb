@@ -69,7 +69,7 @@ class Bot
 		#	if message.from.id == CONST::MASTER_ID
 		#		text = @users.to_s
 		#	end
-		#else
+		else
 			CONST::COMMANDS.each do |k,v|
 				if v === message.text
 					text = CONST::TEXTS[k]
