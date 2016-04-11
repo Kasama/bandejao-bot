@@ -61,17 +61,19 @@ class Bot
 		day = nil
 		month = nil
 		case message.text
-		when CONST::COMMANDS[:help]
-			text = "Mandando qualquer mensagem para min, eu responderei com o cardápio para o próximo bandejao\n\nAlternativamente, os comandos /almoco e /janta seguidos por uma data retornam o cardápio do almoço/janta do dia representado pela data"
 		when CONST::COMMANDS[:lunch]
 			horario = :almoco
 		when CONST::COMMANDS[:dinner]
 			horario = :janta
-		when CONST::COMMANDS[:menu]
-			text = "Cardapio:\n#{CONST::PDF_DOMAIN}#{CONST::PDF_PATH}"
-		when CONST::COMMANDS[:users]
-			if message.from.id == CONST::MASTER_ID
-				text = @users.to_s
+		#when CONST::COMMANDS[:users]
+		#	if message.from.id == CONST::MASTER_ID
+		#		text = @users.to_s
+		#	end
+		#else
+			CONST::COMMANDS.each do |k,v|
+				if v === message.text
+					text = CONST::TEXTS[k]
+				end
 			end
 		end
 		if @date_regex === message.text
@@ -84,30 +86,35 @@ class Bot
 
 	def run_bot
 		loop do
-			Telegram::Bot::Client.run(CONST::Token) do |bot|
-				bot.listen do |message|
-					unless @users[message.from.id]
-						@users[message.from.id] = message.from
-					end
-					case message
-					when Telegram::Bot::Types::InlineQuery
-						begin
-							results = handle_inline message
-							bot.api.answer_inline_query(inline_query_id: message.id, results: results)
-						rescue => e
-							puts e
-							puts "something went wrong in the inline query"
+			begin
+				Telegram::Bot::Client.run(CONST::Token) do |bot|
+					bot.listen do |message|
+						unless @users[message.from.id]
+							@users[message.from.id] = message.from
 						end
-					else
-						text = handle_inchat message
-						begin
-							bot.api.send_message(chat_id: message.chat.id, text: text, parse_mode: 'Markdown')
-						rescue => e
-							puts e
-							puts "Something when wrong in chat"
+						case message
+						when Telegram::Bot::Types::InlineQuery
+							begin
+								results = handle_inline message
+								bot.api.answer_inline_query(inline_query_id: message.id, results: results)
+							rescue => e
+								puts e
+								puts "something went wrong in the inline query"
+							end
+						else
+							text = handle_inchat message
+							begin
+								bot.api.send_message(chat_id: message.chat.id, text: text, parse_mode: 'Markdown')
+							rescue => e
+								puts e
+								puts "Something when wrong in chat"
+							end
 						end
 					end
 				end
+			rescue => e
+				puts e
+				puts "Something went wrong in the bot communication"
 			end
 		end
 	end
