@@ -15,7 +15,7 @@ module CONST
 		restart: /restart|reset/,
 		download: /download|update/,
 		clear: /clear|cls|clc/,
-		alguem: /alguem/
+		alguem: /alguem/i
 	}
 	TEXTS = {
 		help: "Mandando qualquer mensagem para min, eu responderei com o cardápio para o próximo bandejao\n\nAlternativamente, os comandos /almoco e /janta seguidos por uma data retornam o cardápio do almoço/janta do dia representado pela data",
