@@ -122,7 +122,7 @@ class Bot
 	def handle_console(bot_thread)
 		quit = false
 		until quit do
-			print ">> "
+			print CONST::CONSOLE[:prompt]
 			cmd = gets.chomp
 			case cmd
 			when CONST::COMMANDS[:quit]

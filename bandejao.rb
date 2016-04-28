@@ -5,7 +5,7 @@ class Bandejao
 
 	def initialize(pdf)
 		@pdf_file = pdf
-		@last_download = Time.now
+		@last_download = Time.new 0
 	end
 
 	def zero_pad(str)
@@ -31,6 +31,7 @@ class Bandejao
 					file.write resp.body
 				end
 			end
+			@last_download = Time.now
 			return true
 		rescue
 			return false
@@ -42,6 +43,9 @@ class Bandejao
 	end
 
 	def get_bandeco (day = nil, month = nil, horario = nil, updated = false)
+		if ((Time.now - @last_download)/60/60 > 2)
+			update_pdf
+		end
 		day = Time.now.day unless day
 		month = Time.now.month unless month
 		horario = nil unless horario
@@ -88,7 +92,7 @@ class Bandejao
 			if (time.hour < 13 || (time.hour == 13 && time.min <= 15))
 				"*Almoço (#{day}/#{month})*:" + lunch
 			elsif (time.hour > 20 || (time.hour == 19 && time.min >= 15))
-				 CONST::TEXTS[:fim_bandeco]
+				CONST::TEXTS[:fim_bandeco]
 			else
 				"*Janta (#{day}/#{month})*:" + dinner
 			end
@@ -102,4 +106,5 @@ class Bandejao
 			end
 		end
 	end
+
 end

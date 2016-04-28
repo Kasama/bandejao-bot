@@ -27,8 +27,8 @@ module CONST
 		downloading: "Downloading new pdf...",
 		down_success: "Success!",
 		down_fail: "Download Failed",
-		invalid_command: "Invalid command: "
-		
+		invalid_command: "Invalid command: ",
+		prompt: ">> "
 
 	}
 	TEXTS = {
@@ -40,7 +40,7 @@ module CONST
 		inline_title_next: "Mostrar cardápio do próximo bandejão",
 		inline_title_specific: "Mostrar cardápio para dia ",
 		error_message: "\nOu não tem bandeco nesse dia ou o cardápio ainda não foi atualizado\nVocê pode olhar aqui para ter certeza #{CONST::PDF_DOMAIN}#{CONST::PDF_PATH}\nCaso eu esteja errado, avise o @Kasama",
-		fim_bandeco: "Ja era seu *bandeco*, fi. Use /help para mais opções" 
+		fim_bandeco: "Ja era seu *bandeco*, fi. Use /help para mais opções"
 
 	}
 
