@@ -10,7 +10,7 @@ class Bot
 	attr_accessor :pdf_file
 
 	def initialize
-		@pdf_file = 'bandeco.pdf'
+		@pdf_file = CONST::MENU_FILE
 		@bandejao = Bandejao.new pdf_file
 		@date_regex = /\d?\d\/\d?\d.*$/
 		@users = YAML.load_file(CONST::USERS_FILE);
@@ -32,9 +32,9 @@ class Bot
 	def get_horario_name(extra)
 			horario_text = ''
 			if CONST::COMMANDS[:lunch] === extra
-				horario_text = " no almoço"
+				horario_text = CONST::TEXTS[:inline_lunch_extra]
 			elsif CONST::COMMANDS[:dinner] === extra
-				horario_text = " no jantar"
+				horario_text = CONST::TEXTS[:inline_dinner_extra]
 			end
 	end
 
@@ -44,12 +44,12 @@ class Bot
 		if @date_regex === msg
 			day, month, extra = /(\d?\d)\/(\d?\d)(.*)/.match(msg).captures
 			text = handle_menu_query day, month, extra
-			title = "Mostrar cardápio para dia #{day}/#{month}#{get_horario_name(extra)}"
+			title = CONST::TEXTS[:inline_title_specific] + "#{day}/#{month}#{get_horario_name(extra)}"
 			results.push Telegram::Bot::Types::InlineQueryResultArticle
 				.new(id: 2, title: title, message_text: text, parse_mode: 'Markdown')
 		end
 		text = bandejao.get_bandeco
-		title = 'Mostrar cardápio do proximo bandejão'
+		title = CONST::TEXTS[:inline_title_next]
 		results.push Telegram::Bot::Types::InlineQueryResultArticle
 			.new(id: 1, title: title, message_text: text, parse_mode: 'Markdown')
 		results
@@ -99,7 +99,7 @@ class Bot
 								bot.api.answer_inline_query(inline_query_id: message.id, results: results)
 							rescue => e
 								puts e
-								puts "something went wrong in the inline query"
+								puts CONST::CONSOLE[:inline_problem]
 							end
 						else
 							text = handle_inchat message
@@ -107,14 +107,14 @@ class Bot
 								bot.api.send_message(chat_id: message.chat.id, text: text, parse_mode: 'Markdown')
 							rescue => e
 								puts e
-								puts "Something when wrong in chat"
+								puts CONST::CONSOLE[:chat_problem]
 							end
 						end
 					end
 				end
 			rescue => e
 				puts e
-				puts "Something went wrong in the bot communication"
+				puts CONST::CONSOLE[:bot_problem]
 			end
 		end
 	end
@@ -126,19 +126,19 @@ class Bot
 			cmd = gets.chomp
 			case cmd
 			when CONST::COMMANDS[:quit]
-				puts "Quitting.."
+				puts CONST::CONSOLE[:quitting]
 				bot_thread.exit
 				quit = true
 			when CONST::COMMANDS[:restart]
-				puts "Restarting..."
+				puts CONST::CONSOLE[:restarting]
 				bot_thread.exit
 				exit 1
 			when CONST::COMMANDS[:download]
-				puts "Downloading new pdf..."
+				puts CONST::COMMANDS[:downloading]
 				if bandejao.update_pdf
-					puts "Success!"
+					puts CONST::COMMANDS[:down_success]
 				else
-					puts "Download Failed"
+					puts CONST::COMMANDS[:down_fail]
 				end
 			when CONST::COMMANDS[:users]
 				@users.each do |k, u|
@@ -150,7 +150,7 @@ class Bot
 			when CONST::COMMANDS[:clear]
 				print "\e[H\e[2J"
 			else
-				puts "Invalid command: #{cmd}"
+				puts CONST::COMMANDS[:invalid_command] + cmd
 			end
 		end
 	end

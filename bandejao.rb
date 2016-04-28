@@ -78,7 +78,7 @@ class Bandejao
 		end
 
 		if lunch.length == 0 || dinner.length == 0
-			error_message = "\nOu não tem bandeco dia #{day}/#{month} ou o cardápio ainda não foi atualizado\nVocê pode olhar aqui para ter certeza #{CONST::PDF_DOMAIN}#{CONST::PDF_PATH}"
+			error_message = CONST::TEXTS[:error_message]
 			dinner = lunch = escape_md error_message
 			update_pdf
 			return get_bandeco day, month, horario, true unless updated
@@ -88,7 +88,7 @@ class Bandejao
 			if (time.hour < 13 || (time.hour == 13 && time.min <= 15))
 				"*Almoço (#{day}/#{month})*:" + lunch
 			elsif (time.hour > 20 || (time.hour == 19 && time.min >= 15))
-				"Ja era seu *bandeco*, fi. Use /help para mais opções"
+				 CONST::TEXTS[:fim_bandeco]
 			else
 				"*Janta (#{day}/#{month})*:" + dinner
 			end
