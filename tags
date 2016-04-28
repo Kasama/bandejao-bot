@@ -1,0 +1,30 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+Bandejao	bandejao.rb	/^class Bandejao$/;"	c
+Bot	bandejao_bot.rb	/^class Bot$/;"	c
+Bot	consume_bot.rb	/^class Bot$/;"	c
+CONST	constants.rb	/^module CONST$/;"	m
+escape_md	bandejao.rb	/^	def escape_md(text)$/;"	f	class:Bandejao
+get_bandeco	bandejao.rb	/^	def get_bandeco (day = nil, month = nil, horario = nil, updated = false)$/;"	f
+get_horario_name	bandejao_bot.rb	/^	def get_horario_name(extra)$/;"	f	class:Bot
+get_today	bandejao.rb	/^	def get_today$/;"	f
+handle_console	bandejao_bot.rb	/^	def handle_console(bot_thread)$/;"	f	class:Bot
+handle_console	consume_bot.rb	/^	def handle_console(bot_thread)$/;"	f	class:Bot
+handle_inchat	bandejao_bot.rb	/^	def handle_inchat(message)$/;"	f	class:Bot
+handle_inline	bandejao_bot.rb	/^	def handle_inline(message)$/;"	f	class:Bot
+handle_inline	consume_bot.rb	/^	def handle_inline(message)$/;"	f	class:Bot
+handle_menu_query	bandejao_bot.rb	/^	def handle_menu_query(day, month, time)$/;"	f	class:Bot
+initialize	bandejao.rb	/^	def initialize(pdf)$/;"	f	class:Bandejao
+initialize	bandejao_bot.rb	/^	def initialize$/;"	f	class:Bot
+initialize	consume_bot.rb	/^	def initialize$/;"	f	class:Bot
+run	bandejao_bot.rb	/^	def run$/;"	f	class:Bot
+run	consume_bot.rb	/^	def run$/;"	f	class:Bot
+run_bot	bandejao_bot.rb	/^	def run_bot$/;"	f	class:Bot
+run_bot	consume_bot.rb	/^	def run_bot$/;"	f	class:Bot
+serialize_and_save	bandejao_bot.rb	/^	def serialize_and_save(obj)$/;"	f	class:Bot
+update_pdf	bandejao.rb	/^	def update_pdf$/;"	f	class:Bandejao
+zero_pad	bandejao.rb	/^	def zero_pad(str)$/;"	f	class:Bandejao

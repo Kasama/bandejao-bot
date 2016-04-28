@@ -65,10 +65,12 @@ class Bot
 			horario = :almoco
 		when CONST::COMMANDS[:dinner]
 			horario = :janta
-		#when CONST::COMMANDS[:users]
-		#	if message.from.id == CONST::MASTER_ID
-		#		text = @users.to_s
-		#	end
+		when CONST::COMMANDS[:update]
+			if bandejao.update_pdf
+				text = CONST::TEXTS[:pdf_update_success]
+			else
+				text = CONST::TEXTS[:pdf_update_error]
+			end
 		else
 			CONST::COMMANDS.each do |k,v|
 				if v === message.text
