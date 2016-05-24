@@ -36,7 +36,7 @@ class Bot
 				end
 			end
 		rescue =>e
-			puts e
+			puts e.inspect
 			if @try < 10
 				puts "rerunning"
 				@try = @try + 1

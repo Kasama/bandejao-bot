@@ -90,19 +90,19 @@ class Bandejao
 
 		if horario.nil?
 			if (time.hour < 13 || (time.hour == 13 && time.min <= 15))
-				"*Almoço (#{day}/#{month})*:" + lunch
+				CONST::TEXTS[:lunch_header, day, month, lunch]
 			elsif (time.hour > 20 || (time.hour == 19 && time.min >= 15))
 				CONST::TEXTS[:fim_bandeco]
 			else
-				"*Janta (#{day}/#{month})*:" + dinner
+				CONST::TEXTS[:dinner_header, day, month, dinner]
 			end
 		else
 			if horario == :almoco
-				"*Almoço (#{day}/#{month})*:" + lunch
+				CONST::TEXTS[:lunch_header, day, month, lunch]
 			elsif horario == :janta
-				"*Janta (#{day}/#{month})*:" + dinner
+				CONST::TEXTS[:dinner_header, day, month, dinner]
 			else
-				"WTF?"
+				CONST::TEXTS[:wtf]
 			end
 		end
 	end

@@ -13,7 +13,7 @@ class Bot
 		@pdf_file = CONST::MENU_FILE
 		@bandejao = Bandejao.new pdf_file
 		@date_regex = /\d?\d\/\d?\d.*$/
-		@users = YAML.load_file(CONST::USERS_FILE);
+		@users = YAML.load_file(CONST::USERS_FILE)
 	end
 
 	def handle_menu_query(day, month, time)
@@ -44,7 +44,7 @@ class Bot
 		if @date_regex === msg
 			day, month, extra = /(\d?\d)\/(\d?\d)(.*)/.match(msg).captures
 			text = handle_menu_query day, month, extra
-			title = CONST::TEXTS[:inline_title_specific] + "#{day}/#{month}#{get_horario_name(extra)}"
+			title = CONST::TEXTS[:inline_title_specific, day, month, get_horario_name(extra)]
 			results.push Telegram::Bot::Types::InlineQueryResultArticle
 				.new(id: 2, title: title, message_text: text, parse_mode: 'Markdown')
 		end
