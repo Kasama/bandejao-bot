@@ -22,7 +22,7 @@ class Bot
 			time.chomp!
 			period = nil
 			CONST::PERIODS.each do |per|
-				CONST::COMMANDS[per] === time && period = per
+				CONST::COMMANDS[per].match time && period = per
 			end
 			bandejao.get_bandeco day, month, period
 	end
@@ -30,7 +30,7 @@ class Bot
 	def get_period(extra)
 			period = ''
 			CONST::PERIODS.each do |per|
-				if CONST::COMMANDS[per] === extra
+				if CONST::COMMANDS[per].match extra
 					period = CONST::TEXTS[:"inline_#{per}_extra"]
 				end
 			end
@@ -50,8 +50,8 @@ class Bot
 	def handle_inline(message)
 		results = []
 		msg = message.query
-		if CONST::DATE_REGEX === msg
-			day, month, extra = /(\d?\d)\/(\d?\d)(.*)/.match(msg).captures
+		if CONST::DATE_REGEX.match msg
+			day, month, extra = %r{(\d?\d)\/(\d?\d)(.*)}.match(msg).captures
 			text = handle_menu_query day, month, extra
 			title =
 				CONST::TEXTS[:inline_title_specific, day, month, get_period(extra)]
@@ -72,22 +72,20 @@ class Bot
 		when CONST::COMMANDS[:dinner]
 			period = :dinner
 		when CONST::COMMANDS[:update]
-			if bandejao.update_pdf
-				text = CONST::TEXTS[:pdf_update_success]
+			text = if bandejao.update_pdf
+				CONST::TEXTS[:pdf_update_success]
 			else
-				text = CONST::TEXTS[:pdf_update_error]
+				CONST::TEXTS[:pdf_update_error]
 			end
 		else
-			CONST::COMMANDS.each do |k,v|
-				if v === message.text
-					text = CONST::TEXTS[k]
-				end
+			CONST::COMMANDS.each do |k, v|
+				v.match(message.text) && text = CONST::TEXTS[k]
 			end
 		end
 
 		day = month = nil
-		if CONST::DATE_REGEX === message.text
-			day, month = /(\d?\d)\/(\d?\d)/.match(message.text).captures
+		if CONST::DATE_REGEX.match message.text
+			day, month = %r{(\d?\d)\/(\d?\d)}.match(message.text).captures
 		end
 
 		text = bandejao.get_bandeco day, month, period unless text
@@ -99,9 +97,7 @@ class Bot
 			begin
 				Telegram::Bot::Client.run(CONST::Token) do |bot|
 					bot.listen do |message|
-						unless @users[message.from.id]
-							@users[message.from.id] = message.from
-						end
+						@users[message.from.id] ||= message.from
 						case message
 						when Telegram::Bot::Types::InlineQuery
 							begin
@@ -138,36 +134,36 @@ class Bot
 
 	def handle_console(bot_thread)
 		quit = false
-		until quit do
+		until quit
 			print CONST::CONSOLE[:prompt]
 			cmd = gets.chomp
 			case cmd
-			when CONST::COMMANDS[:quit]
+			when CONST::CONSOLE_COMMANDS[:quit]
 				puts CONST::CONSOLE[:quitting]
 				bot_thread.exit
 				quit = true
-			when CONST::COMMANDS[:restart]
+			when CONST::CONSOLE_COMMANDS[:restart]
 				puts CONST::CONSOLE[:restarting]
 				bot_thread.exit
 				exit 1
-			when CONST::COMMANDS[:download]
-				puts CONST::COMMANDS[:downloading]
+			when CONST::CONSOLE_COMMANDS[:download]
+				puts CONST::CONSOLE[:downloading]
 				if bandejao.update_pdf
-					puts CONST::COMMANDS[:down_success]
+					puts CONST::CONSOLE[:down_success]
 				else
-					puts CONST::COMMANDS[:down_fail]
+					puts CONST::CONSOLE[:down_fail]
 				end
-			when CONST::COMMANDS[:users]
-				@users.each do |k, u|
-					puts "---------"
+			when CONST::CONSOLE_COMMANDS[:users]
+				@users.each_value do |u|
+					puts '---------'
 					puts u.first_name
 					puts u.last_name
 					puts u.username
 				end
-			when CONST::COMMANDS[:clear]
+			when CONST::CONSOLE_COMMANDS[:clear]
 				print CONST::CLEAR_SCREEN
 			else
-				puts CONST::COMMANDS[:invalid_command, cmd]
+				puts CONST::CONSOLE[:invalid_command, cmd]
 			end
 		end
 	end
@@ -182,14 +178,11 @@ class Bot
 			@users = {}
 			serialize_and_save @users
 		end
-		bot_thread = Thread.new do
-			run_bot
-		end
+		bot_thread = Thread.new { run_bot }
 		handle_console bot_thread
 		bot_thread.join
 		serialize_and_save @users
 	end
-
 end
 
 bot = Bot.new

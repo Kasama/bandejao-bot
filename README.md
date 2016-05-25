@@ -6,12 +6,13 @@ Esse bot usa a [API][1] do [Telegram][2] para mostrar o cardápio do Restaurante
 Como Usar
 ---------
 
-Para usar o bot, basta mandar qualquer mensagem para [@BandejaoBot][3] no [Telegram][2] e o bot responderá com o cardápio do dia.  
-existem também dois comandos principais, /almoco <data> e /jantar <data> quando esses comandos são recebidos, o bot responde com o cardápio da data oferecida (ou da atual, caso não seja especificada) no respectivo período (almoço ou jantar)
+Para usar o bot, basta mandar qualquer mensagem para [@BandejaoBot][3] no [Telegram][2] e o bot responderá com o cardápio do dia.
 
-também é possivel usar o bot na função [inline][4]. Para isso basta digitar [@BandejaoBot][3] na caixa de texto do [Telegram][2] em qualquer conversa. Aparecerá uma janela de seleção como na imagem ![Exemplo inline][5]
+Existem também dois comandos principais, /almoco <data> e /jantar <data> quando esses comandos são recebidos, o bot responde com o cardápio da data oferecida (ou da atual, caso não seja especificada) no respectivo período (almoço ou jantar)
 
-no modo [inline][4], o bot aceita também uma data uma opção almoço ou janta ![Exemplo inline 2][6]
+Também é possivel usar o bot na função [inline][4]. Para isso basta digitar [@BandejaoBot][3] na caixa de texto do [Telegram][2] em qualquer conversa. Aparecerá uma janela de seleção como na imagem ![Exemplo inline][5]
+
+No modo [inline][4], o bot aceita também uma data uma opção almoço ou janta ![Exemplo inline 2][6]
 
 Problemas/Bugs
 --------------
@@ -34,7 +35,8 @@ Para contribuir, favor seguir os passos
 
 Licença
 -------
-Copyright (c) 2016 Roberto Pommella Alegro
+Copyright (c) 2016 Roberto Pommella Alegro  
+
 Esse bot é distribuido sob a licença [MIT][9].
 
 [1]: https://core.telegram.org/bots/api

@@ -18,9 +18,10 @@ class Bandejao
 	end
 
 	def escape_md(text)
-		text = text.gsub(/\\/, '\\\\')
-		text = text.gsub(/\*/, '\\\*')
-		text = text.gsub(/\_/, '\\\_')
+		text
+			.gsub(/\\/, '\\\\')
+			.gsub(/\*/, '\\\*')
+			.gsub(/\_/, '\\\_')
 	end
 
 	def update_pdf
@@ -28,7 +29,7 @@ class Bandejao
 		begin
 			Net::HTTP.start(CONST::PDF_DOMAIN) do |http|
 				resp = http.get pdf_path
-				open(pdf_file, "w+") do |file|
+				open(pdf_file, 'w+') do |file|
 					file.write resp.body
 				end
 			end
@@ -40,9 +41,8 @@ class Bandejao
 	end
 
 	def get_bandeco(day = nil, month = nil, period = nil, updated = false)
-
 		# if current pdf is older than 2h, download a new one
-		if ((Time.now - @last_download)/60/60 > 2)
+		if (Time.now - @last_download) / 60 / 60 > 2
 			update_pdf
 		end
 
@@ -53,7 +53,7 @@ class Bandejao
 
 		meal = parse_meal(pdf_text, day, month)
 
-		if meal[:lunch].length == 0 || meal[:dinner].length == 0
+		if meal[:lunch].empty? || meal[:dinner].empty?
 			# if current date was not found, download pdf again and try once more
 			update_pdf
 			return get_bandeco day, month, period, true unless updated
@@ -68,7 +68,6 @@ class Bandejao
 		end
 
 		build_message(day, month, meal, period)
-
 	end
 
 	def normalize_time(day, month, period)
@@ -80,52 +79,49 @@ class Bandejao
 		month = zero_pad month.to_s
 
 		[day, month, period]
-
 	end
 
-	def parse_meal(pdf_text, day, month)
-
+	def parse_meal(pdf_text, day, _month)
 		# we do not use the month here because the people who
 		# make the pdf often mess that up, causing the match to fail
 		# even though the day is actually present
-		day_regex = /
+		day_regex = %r{
 			#{day}\/\d?\d			# month day
 			\n?								# zero or one new line
 			(.+\n)+?					# capture as many lines as you can before
 			\S								# reaching a non-whitespace character
-		/x
+		}x
 
 		day_meal = day_regex.match pdf_text
 		lunch = ''
 		dinner = ''
 
-		meal_regex = /
+		meal_regex = %r{
 			(?:\d?\d\/\d?\d)? # any month day, may or may not be there (non-capture)
 			\s*								# any amount of whitespaces
 			(.+)							# capture as many characters as you can before (first column)
 			\s\s							# at least two whitespaces (means column break)
 			(?=\S)						# assert that there is a second column
 			(.+)							# capture as many characters as you can (second column)
-		/x
+		}x
 								 
 		day_meal.to_s.lines.each do |l|
 			m = meal_regex.match(l)
-			if m
-				cap_lunch, cap_dinner = m.captures
-				lunch << "\n" + cap_lunch unless /^$/ === cap_lunch
-				dinner << "\n" + cap_dinner unless /^$/ === cap_dinner
-			end
+			next unless m
+			cap_lunch, cap_dinner = m.captures
+			lunch << "\n" + cap_lunch unless /^$/ =~ cap_lunch
+			dinner << "\n" + cap_dinner unless /^$/ =~ cap_dinner
 		end
 
-		{lunch: lunch, dinner: dinner}
+		{ lunch: lunch, dinner: dinner }
 	end
 
 	def build_message(day, month, meal, period = nil)
 		if period.nil?
 			time = Time.now
-			if (time.hour < 13 || (time.hour == 13 && time.min <= 15))
+			if time.hour < 13 || (time.hour == 13 && time.min <= 15)
 				CONST::TEXTS[:lunch_header, day, month, meal[:lunch]]
-			elsif (time.hour > 20 || (time.hour == 19 && time.min >= 15))
+			elsif time.hour > 20 || (time.hour == 19 && time.min >= 15)
 				CONST::TEXTS[:fim_bandeco]
 			else
 				CONST::TEXTS[:dinner_header, day, month, meal[:dinner]]
@@ -138,5 +134,4 @@ class Bandejao
 			ret
 		end
 	end
-
 end
