@@ -1,4 +1,5 @@
 require File.expand_path './constants.rb'
+require File.expand_path './reader.rb'
 
 class Bandejao
 	attr_accessor :pdf_file
@@ -38,72 +39,103 @@ class Bandejao
 		end
 	end
 
-	def get_today
-		Time.new
-	end
+	def get_bandeco(day = nil, month = nil, period = nil, updated = false)
 
-	def get_bandeco (day = nil, month = nil, horario = nil, updated = false)
+		# if current pdf is older than 2h, download a new one
 		if ((Time.now - @last_download)/60/60 > 2)
 			update_pdf
 		end
+
+		# handle case of no specified date (get next meal)
+		day, month, period = normalize_time(day, month, period)
+
+		pdf_text = Reader.new(pdf_file).get_text
+
+		meal = parse_meal(pdf_text, day, month)
+
+		if meal[:lunch].length == 0 || meal[:dinner].length == 0
+			# if current date was not found, download pdf again and try once more
+			update_pdf
+			return get_bandeco day, month, period, true unless updated
+
+			# this may be a bit confusing
+			# if the pdf was already updated, 'updated' will be true
+			# then we can set both dinner and lunch to the error_message
+			# and return that instead of an empty message
+
+			error_message = escape_md CONST::TEXTS[:error_message]
+			meal[:dinner] = meal[:lunch] = error_message
+		end
+
+		build_message(day, month, meal, period)
+
+	end
+
+	def normalize_time(day, month, period)
 		day = Time.now.day unless day
 		month = Time.now.month unless month
-		horario = nil unless horario
+		period = nil unless period
 
 		day = zero_pad day.to_s
 		month = zero_pad month.to_s
 
-		reader = PDF::Reader.new(pdf_file)
+		[day, month, period]
 
-		day = zero_pad day.to_s
-		month = zero_pad month.to_s
+	end
 
-		time = Time.now
-		day_regex = /#{day}\/\d?\d\n?(.+\n)+?\S/
+	def parse_meal(pdf_text, day, month)
 
-		day_meal = nil
-		page_text = ''
-		reader.pages.each do |page|
-			page_text << page.text
-		end
-		page_text = page_text.gsub(/^$\n/, '')
-		day_meal = day_regex.match page_text
+		# we do not use the month here because the people who
+		# make the pdf often mess that up, causing the match to fail
+		# even though the day is actually present
+		day_regex = /
+			#{day}\/\d?\d			# month day
+			\n?								# zero or one new line
+			(.+\n)+?					# capture as many lines as you can before
+			\S								# reaching a non-whitespace character
+		/x
 
+		day_meal = day_regex.match pdf_text
 		lunch = ''
 		dinner = ''
 
+		meal_regex = /
+			(?:\d?\d\/\d?\d)? # any month day, may or may not be there (non-capture)
+			\s*								# any amount of whitespaces
+			(.+)							# capture as many characters as you can before (first column)
+			\s\s							# at least two whitespaces (means column break)
+			(?=\S)						# assert that there is a second column
+			(.+)							# capture as many characters as you can (second column)
+		/x
+								 
 		day_meal.to_s.lines.each do |l|
-			m = /(?:\d?\d\/\d?\d)?\s*(.+)\s\s(?=\S)(.+)/.match(l)
+			m = meal_regex.match(l)
 			if m
 				cap_lunch, cap_dinner = m.captures
-				lunch = lunch + "\n" + cap_lunch unless /^$/ === cap_lunch
-				dinner = dinner + "\n" + cap_dinner unless /^$/ === cap_dinner
+				lunch << "\n" + cap_lunch unless /^$/ === cap_lunch
+				dinner << "\n" + cap_dinner unless /^$/ === cap_dinner
 			end
 		end
 
-		if lunch.length == 0 || dinner.length == 0
-			error_message = CONST::TEXTS[:error_message]
-			dinner = lunch = escape_md error_message
-			update_pdf
-			return get_bandeco day, month, horario, true unless updated
-		end
+		{lunch: lunch, dinner: dinner}
+	end
 
-		if horario.nil?
+	def build_message(day, month, meal, period = nil)
+		if period.nil?
+			time = Time.now
 			if (time.hour < 13 || (time.hour == 13 && time.min <= 15))
-				CONST::TEXTS[:lunch_header, day, month, lunch]
+				CONST::TEXTS[:lunch_header, day, month, meal[:lunch]]
 			elsif (time.hour > 20 || (time.hour == 19 && time.min >= 15))
 				CONST::TEXTS[:fim_bandeco]
 			else
-				CONST::TEXTS[:dinner_header, day, month, dinner]
+				CONST::TEXTS[:dinner_header, day, month, meal[:dinner]]
 			end
 		else
-			if horario == :almoco
-				CONST::TEXTS[:lunch_header, day, month, lunch]
-			elsif horario == :janta
-				CONST::TEXTS[:dinner_header, day, month, dinner]
-			else
-				CONST::TEXTS[:wtf]
+			ret = CONST::TEXTS[:wtf]
+			CONST::PERIODS.each do |per|
+				period == per && ret = CONST::TEXTS[:"#{per}_header", day, month, meal[per]]
 			end
+			ret
 		end
 	end
 

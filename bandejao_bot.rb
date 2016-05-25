@@ -5,14 +5,14 @@ require 'yaml'
 require File.expand_path './bandejao.rb'
 require File.expand_path './constants.rb'
 
+# Probably should separate the console and bot into
+# different files, TODO
+
 class Bot
 	attr_accessor :bandejao
-	attr_accessor :pdf_file
 
 	def initialize
-		@pdf_file = CONST::MENU_FILE
-		@bandejao = Bandejao.new pdf_file
-		@date_regex = /\d?\d\/\d?\d.*$/
+		@bandejao = Bandejao.new CONST::MENU_FILE
 		@users = YAML.load_file(CONST::USERS_FILE)
 	end
 
@@ -20,51 +20,57 @@ class Bot
 			day = bandejao.zero_pad day
 			month = bandejao.zero_pad month
 			time.chomp!
-			horario = nil
-			if CONST::COMMANDS[:lunch] === time
-				horario = :almoco
-			elsif CONST::COMMANDS[:dinner] === time
-				horario = :janta
+			period = nil
+			CONST::PERIODS.each do |per|
+				CONST::COMMANDS[per] === time && period = per
 			end
-			bandejao.get_bandeco day, month, horario
+			bandejao.get_bandeco day, month, period
 	end
 
-	def get_horario_name(extra)
-			horario_text = ''
-			if CONST::COMMANDS[:lunch] === extra
-				horario_text = CONST::TEXTS[:inline_lunch_extra]
-			elsif CONST::COMMANDS[:dinner] === extra
-				horario_text = CONST::TEXTS[:inline_dinner_extra]
+	def get_period(extra)
+			period = ''
+			CONST::PERIODS.each do |per|
+				if CONST::COMMANDS[per] === extra
+					period = CONST::TEXTS[:"inline_#{per}_extra"]
+				end
 			end
+			period
+	end
+
+	def inline_result(id, title, text)
+		Telegram::Bot::Types::InlineQueryResultArticle
+			.new(
+				id: id,
+				title: title,
+				message_text: text,
+				parse_mode: CONST::PARSE_MODE
+			)
 	end
 
 	def handle_inline(message)
 		results = []
 		msg = message.query
-		if @date_regex === msg
+		if CONST::DATE_REGEX === msg
 			day, month, extra = /(\d?\d)\/(\d?\d)(.*)/.match(msg).captures
 			text = handle_menu_query day, month, extra
-			title = CONST::TEXTS[:inline_title_specific, day, month, get_horario_name(extra)]
-			results.push Telegram::Bot::Types::InlineQueryResultArticle
-				.new(id: 2, title: title, message_text: text, parse_mode: 'Markdown')
+			title =
+				CONST::TEXTS[:inline_title_specific, day, month, get_period(extra)]
+			results.push inline_result(2, title, text)
 		end
 		text = bandejao.get_bandeco
 		title = CONST::TEXTS[:inline_title_next]
-		results.push Telegram::Bot::Types::InlineQueryResultArticle
-			.new(id: 1, title: title, message_text: text, parse_mode: 'Markdown')
+		results.push inline_result(1, title, text)
 		results
 	end
 
 	def handle_inchat(message)
 		text = nil
-		horario = nil
-		day = nil
-		month = nil
+		period = nil
 		case message.text
 		when CONST::COMMANDS[:lunch]
-			horario = :almoco
+			period = :lunch
 		when CONST::COMMANDS[:dinner]
-			horario = :janta
+			period = :dinner
 		when CONST::COMMANDS[:update]
 			if bandejao.update_pdf
 				text = CONST::TEXTS[:pdf_update_success]
@@ -78,11 +84,13 @@ class Bot
 				end
 			end
 		end
-		if @date_regex === message.text
+
+		day = month = nil
+		if CONST::DATE_REGEX === message.text
 			day, month = /(\d?\d)\/(\d?\d)/.match(message.text).captures
 		end
 
-		text = bandejao.get_bandeco day, month, horario unless text
+		text = bandejao.get_bandeco day, month, period unless text
 		text
 	end
 
@@ -98,7 +106,10 @@ class Bot
 						when Telegram::Bot::Types::InlineQuery
 							begin
 								results = handle_inline message
-								bot.api.answer_inline_query(inline_query_id: message.id, results: results)
+								bot.api.answer_inline_query(
+									inline_query_id: message.id,
+									results: results
+								)
 							rescue => e
 								puts e
 								puts CONST::CONSOLE[:inline_problem]
@@ -106,7 +117,11 @@ class Bot
 						else
 							text = handle_inchat message
 							begin
-								bot.api.send_message(chat_id: message.chat.id, text: text, parse_mode: 'Markdown')
+								bot.api.send_message(
+									chat_id: message.chat.id,
+									text: text,
+									parse_mode: CONST::PARSE_MODE
+								)
 							rescue => e
 								puts e
 								puts CONST::CONSOLE[:chat_problem]
@@ -150,9 +165,9 @@ class Bot
 					puts u.username
 				end
 			when CONST::COMMANDS[:clear]
-				print "\e[H\e[2J"
+				print CONST::CLEAR_SCREEN
 			else
-				puts CONST::COMMANDS[:invalid_command] + cmd
+				puts CONST::COMMANDS[:invalid_command, cmd]
 			end
 		end
 	end

@@ -1,11 +1,15 @@
 module CONST
 
-	Token = ENV['BANDECO_BOT_TOKEN']
-	PDF_DOMAIN = "www.prefeitura.sc.usp.br"
-	PDF_PATH = "/boletim_informegeral/pdf/cardapio_semanal_restaurante_area_1.pdf"
-	USERS_FILE = "users.yaml"
-	MENU_FILE = "bandeco.pdf"
+	Token = ENV['BANDECO_BOT_TOKEN'].freeze
+	PDF_DOMAIN = "www.prefeitura.sc.usp.br".freeze
+	PDF_PATH = "/boletim_informegeral/pdf/cardapio_semanal_restaurante_area_1.pdf".freeze
+	USERS_FILE = "users.yaml".freeze
+	MENU_FILE = "bandeco.pdf".freeze
 	MASTER_ID = 41487359
+	PERIODS = [:lunch, :dinner].freeze
+	PARSE_MODE = "Markdown".freeze
+	DATE_REGEX = /\d?\d\/\d?\d.*$/.freeze
+	CLEAR_SCREEN = "\e[H\e[2J".freeze
 	COMMANDS = {
 		help: '/help',
 		lunch: /\/almo(?:ç|c)o/,
@@ -17,13 +21,7 @@ module CONST
 		download: /download|update/,
 		clear: /clear|cls|clc/,
 		alguem: /\balgu(?:e|é)m\b/i
-	}
-
-	class CONSOLE
-		def self.[](message, *params)
-			CONSOLE_HASH[message] % params
-		end
-	end
+	}.freeze
 
 	CONSOLE_HASH = {
 		inline_problem: "Something went wrong in the inline query",
@@ -34,16 +32,10 @@ module CONST
 		downloading: "Downloading new pdf...",
 		down_success: "Success!",
 		down_fail: "Download Failed",
-		invalid_command: "Invalid command: ",
+		invalid_command: "Invalid command: %s",
 		prompt: ">> "
 
-	}
-
-	class TEXTS
-		def self.[](message, *params)
-			TEXTS_HASH[message] % params
-		end
-	end
+	}.freeze
 
 	TEXTS_HASH= {
 		help: "Mandando qualquer mensagem para min, eu responderei com o cardápio para o próximo bandejao\n\nAlternativamente, os comandos /almoco e /janta seguidos por uma data retornam o cardápio do almoço/janta do dia representado pela data",
@@ -61,6 +53,19 @@ module CONST
 		lunch_header: "*Almoço (%d/%d)*:%s",
 		wtf: "WTF!?"
 
-	}
+	}.freeze
+
+	# TODO: refactor this, DRY!
+	class CONSOLE
+		def self.[](message, *params)
+			CONSOLE_HASH[message] % params
+		end
+	end
+
+	class TEXTS
+		def self.[](message, *params)
+			TEXTS_HASH[message] % params
+		end
+	end
 
 end
