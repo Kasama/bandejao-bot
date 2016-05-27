@@ -3,3 +3,4 @@ update.sh
 bandeco.pdf
 users.yaml
 tags
+.rubocop.yml

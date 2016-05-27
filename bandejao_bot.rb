@@ -8,6 +8,7 @@ require File.expand_path './constants.rb'
 # Probably should separate the console and bot into
 # different files, TODO
 
+# This class provides both the telegram bot and console handlers
 class Bot
 	attr_accessor :bandejao
 
@@ -16,7 +17,7 @@ class Bot
 		@users = YAML.load_file(CONST::USERS_FILE)
 	end
 
-	def handle_menu_query(day, month, time)
+	def handle_inline_query(day, month, time)
 			day = bandejao.zero_pad day
 			month = bandejao.zero_pad month
 			time.chomp!
@@ -39,28 +40,33 @@ class Bot
 
 	def inline_result(id, title, text)
 		Telegram::Bot::Types::InlineQueryResultArticle
-			.new(
-				id: id,
-				title: title,
-				message_text: text,
-				parse_mode: CONST::PARSE_MODE
-			)
+				.new(
+						id: id,
+						title: title,
+						message_text: text,
+						parse_mode: CONST::PARSE_MODE
+				)
 	end
 
 	def handle_inline(message)
 		results = []
 		msg = message.query
-		if CONST::DATE_REGEX.match msg
-			day, month, extra = %r{(\d?\d)\/(\d?\d)(.*)}.match(msg).captures
-			text = handle_menu_query day, month, extra
-			title =
-				CONST::TEXTS[:inline_title_specific, day, month, get_period(extra)]
-			results.push inline_result(2, title, text)
-		end
+		results.push(handle_inline_with_date(msg)) if CONST::DATE_REGEX.match msg
+		results.push(handle_inline_without_date)
+	end
+
+	def handle_inline_without_date
 		text = bandejao.get_bandeco
 		title = CONST::TEXTS[:inline_title_next]
-		results.push inline_result(1, title, text)
-		results
+		inline_result(1, title, text)
+	end
+
+	def handle_inline_with_date(msg)
+			day, month, extra = %r{(\d?\d)\/(\d?\d)(.*)}.match(msg).captures
+			text = handle_inline_query day, month, extra
+			title =
+					CONST::TEXTS[:inline_title_specific, day, month, get_period(extra)]
+			inline_result(2, title, text)
 	end
 
 	def handle_inchat(message)
@@ -72,14 +78,11 @@ class Bot
 		when CONST::COMMANDS[:dinner]
 			period = :dinner
 		when CONST::COMMANDS[:update]
-			text = if bandejao.update_pdf
-				CONST::TEXTS[:pdf_update_success]
-			else
-				CONST::TEXTS[:pdf_update_error]
-			end
+			tag = bandejao.update_pdf ? 'success' : 'error'
+			text = CONST::TEXTS[:"pdf_update_#{tag}"]
 		else
 			CONST::COMMANDS.each do |k, v|
-				v.match(message.text) && text = CONST::TEXTS[k]
+				text = CONST::TEXTS[k] if v.match(message.text)
 			end
 		end
 
@@ -103,8 +106,8 @@ class Bot
 							begin
 								results = handle_inline message
 								bot.api.answer_inline_query(
-									inline_query_id: message.id,
-									results: results
+										inline_query_id: message.id,
+										results: results
 								)
 							rescue => e
 								puts e
@@ -114,9 +117,9 @@ class Bot
 							text = handle_inchat message
 							begin
 								bot.api.send_message(
-									chat_id: message.chat.id,
-									text: text,
-									parse_mode: CONST::PARSE_MODE
+										chat_id: message.chat.id,
+										text: text,
+										parse_mode: CONST::PARSE_MODE
 								)
 							rescue => e
 								puts e
@@ -148,11 +151,8 @@ class Bot
 				exit 1
 			when CONST::CONSOLE_COMMANDS[:download]
 				puts CONST::CONSOLE[:downloading]
-				if bandejao.update_pdf
-					puts CONST::CONSOLE[:down_success]
-				else
-					puts CONST::CONSOLE[:down_fail]
-				end
+				status = bandejao.update_pdf ? 'success' : 'fail'
+				puts CONST::CONSOLE[:"down_#{status}"]
 			when CONST::CONSOLE_COMMANDS[:users]
 				@users.each_value do |u|
 					puts '---------'
@@ -185,5 +185,4 @@ class Bot
 	end
 end
 
-bot = Bot.new
-bot.run
+Bot.new.run
