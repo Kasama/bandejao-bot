@@ -82,9 +82,9 @@ class Bandejao
 	end
 
 	def parse_meal(pdf_text, day, _month)
-		# we do not use the month here because the people who
-		# make the pdf often mess that up, causing the match to fail
-		# even though the day is actually present
+		# we do not use the month here because people who
+		# make the pdf often mess that up, causing the match
+		# to fail even though the day is actually present
 		day_regex = %r{
 			#{day}\/\d?\d			# month day
 			\n?								# zero or one new line
@@ -104,7 +104,7 @@ class Bandejao
 			(?=\S)						# assert that there is a second column
 			(.+)							# capture as many characters as you can (second column)
 		}x
-								 
+
 		day_meal.to_s.lines.each do |l|
 			m = meal_regex.match(l)
 			next unless m

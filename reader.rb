@@ -1,3 +1,4 @@
+require 'pdf-reader'
 class Reader < PDF::Reader
 	def get_text
 		page_text = ''

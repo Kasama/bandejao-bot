@@ -1,5 +1,4 @@
 require 'net/http'
-require 'pdf-reader'
 require 'telegram/bot'
 require 'yaml'
 require File.expand_path './bandejao.rb'
