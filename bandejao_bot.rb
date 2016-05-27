@@ -172,18 +172,6 @@ class Bot
 	def serialize_and_save(obj)
 		File.open(CONST::USERS_FILE, 'w') { |f| f.puts obj.to_yaml }
 	end
-
-	def run
-		@users = YAML.load_file CONST::USERS_FILE
-		unless @users
-			@users = {}
-			serialize_and_save @users
-		end
-		bot_thread = Thread.new { run_bot }
-		handle_console bot_thread
-		bot_thread.join
-		serialize_and_save @users
-	end
 end
 
 Bot.new.run
