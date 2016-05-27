@@ -352,7 +352,7 @@ CLI	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/cli/show.rb	/^
 CLI	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/cli/update.rb	/^  class CLI::Update$/;"	c	class:Bundler
 CLI	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/cli/viz.rb	/^  class CLI::Viz$/;"	c	class:Bundler
 CMap	/home/roberto/.gem/ruby/2.3.0/gems/pdf-reader-1.4.0/lib/pdf/reader/cmap.rb	/^  class CMap # :nodoc:$/;"	c	class:PDF
-CONSOLE	constants.rb	/^	class CONSOLE$/;"	c	class:CONST
+CONSOLE	constants.rb	/^	module CONSOLE$/;"	m	class:CONST
 CONST	constants.rb	/^module CONST$/;"	m
 CRUDHash	/home/roberto/.gem/ruby/2.3.0/gems/hashery-2.1.1/lib/hashery/crud_hash.rb	/^  class CRUDHash < ::Hash$/;"	c	class:Hashery
 Cache	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/compact_index_client/lib/compact_index_client/cache.rb	/^  class Cache$/;"	c	class:Bundler
@@ -1118,6 +1118,7 @@ Reader	/home/roberto/.gem/ruby/2.3.0/gems/pdf-reader-1.4.0/lib/pdf/reader/page.r
 Reader	/home/roberto/.gem/ruby/2.3.0/gems/pdf-reader-1.4.0/lib/pdf/reader/page_text_receiver.rb	/^  class Reader$/;"	c	class:PDF
 Reader	/home/roberto/.gem/ruby/2.3.0/gems/pdf-reader-1.4.0/lib/pdf/reader/resource_methods.rb	/^  class Reader$/;"	c	class:PDF
 Reader	/home/roberto/.gem/ruby/2.3.0/gems/ttfunk-1.4.0/lib/ttfunk/reader.rb	/^  module Reader$/;"	m	class:TTFunk
+Reader	reader.rb	/^class Reader < PDF::Reader$/;"	c
 Readline	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/line_editor/readline.rb	/^    class Readline < Basic$/;"	c	class:Bundler.LineEditor
 Rectangle	/home/roberto/.gem/ruby/2.3.0/gems/virtus-1.0.5/spec/integration/struct_as_embedded_value_spec.rb	/^      class Rectangle$/;"	c	class:Examples
 Rectangle	/home/roberto/.gem/ruby/2.3.0/gems/virtus-1.0.5/spec/integration/value_object_with_custom_constructor_spec.rb	/^      class Rectangle$/;"	c	class:Examples
@@ -1245,7 +1246,7 @@ SynchronizedCache	/home/roberto/.gem/ruby/2.3.0/gems/pdf-reader-1.4.0/lib/pdf/re
 SynchronizedCacheBackend	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/lib/thread_safe/synchronized_cache_backend.rb	/^  class SynchronizedCacheBackend < NonConcurrentCacheBackend$/;"	c	class:ThreadSafe
 SynchronizedDelegator	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/lib/thread_safe/synchronized_delegator.rb	/^class SynchronizedDelegator < SimpleDelegator$/;"	c
 TCPSocketProbe	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/mirror.rb	/^    class TCPSocketProbe$/;"	c	class:Bundler
-TEXTS	constants.rb	/^	class TEXTS$/;"	c	class:CONST
+TEXTS	constants.rb	/^	module TEXTS$/;"	m	class:CONST
 TRANSFER_BUFFER_SIZE	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/ext/org/jruby/ext/thread_safe/jsr166e/ConcurrentHashMapV8.java	/^    private static final int TRANSFER_BUFFER_SIZE = 32;$/;"	f	class:ConcurrentHashMapV8	file:
 TRANSFER_BUFFER_SIZE	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/ext/org/jruby/ext/thread_safe/jsr166e/nounsafe/ConcurrentHashMapV8.java	/^    private static final int TRANSFER_BUFFER_SIZE = 32;$/;"	f	class:ConcurrentHashMapV8	file:
 TREE_THRESHOLD	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/ext/org/jruby/ext/thread_safe/jsr166e/ConcurrentHashMapV8.java	/^    private static final int TREE_THRESHOLD = 16;$/;"	f	class:ConcurrentHashMapV8	file:
@@ -1615,8 +1616,8 @@ YamlSyntaxError	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/er
 []	/home/roberto/.gem/ruby/2.3.0/gems/virtus-1.0.5/lib/virtus/attribute_set.rb	/^    def [](name)$/;"	f	class:Virtus.AttributeSet
 []	/home/roberto/.gem/ruby/2.3.0/gems/virtus-1.0.5/lib/virtus/instance_methods.rb	/^    def [](name)$/;"	f	class:Virtus.InstanceMethods
 []	/home/roberto/.gem/ruby/2.3.0/gems/virtus-1.0.5/spec/integration/custom_collection_attributes_spec.rb	/^        def self.[](*args)$/;"	F
-[]	constants.rb	/^		def self.[](message, *params)$/;"	F	class:CONST.CONSOLE
-[]	constants.rb	/^		def self.[](message, *params)$/;"	F	class:CONST.TEXTS
+[]	constants.rb	/^		def [](message, *params)$/;"	f	class:CONST.CONSOLE
+[]	constants.rb	/^		def [](message, *params)$/;"	f	class:CONST.TEXTS
 []=	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/settings.rb	/^    def []=(key, value)$/;"	f	class:Bundler.Settings
 []=	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/spec_set.rb	/^    def []=(key, value)$/;"	f	class:Bundler
 []=	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/core_ext/hash_with_indifferent_access.rb	/^      def []=(key, value)$/;"	f	class:Bundler.CoreExt.HashWithIndifferentAccess
@@ -1980,6 +1981,7 @@ build_gem	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/gem_help
 build_gem	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/rubygems_integration.rb	/^    def build_gem(gem_dir, spec)$/;"	f	class:Bundler.RubygemsIntegration
 build_head	/home/roberto/.gem/ruby/2.3.0/gems/multipart-post-2.0.0/lib/parts.rb	/^    def build_head(boundary, name, filename, type, content_len, opts = {}, headers = {})$/;"	f	class:Parts.FilePart
 build_message	/home/roberto/.gem/ruby/2.3.0/gems/virtus-1.0.5/lib/virtus.rb	/^    def build_message$/;"	f	class:Virtus.CoercionError
+build_message	bandejao.rb	/^	def build_message(day, month, meal, period = nil)$/;"	f	class:Bandejao
 build_option	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/base.rb	/^      def build_option(name, options, scope) #:nodoc:$/;"	f	class:Bundler
 build_options	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/base.rb	/^      def build_options(options, scope) #:nodoc:$/;"	f	class:Bundler
 build_params	/home/roberto/.gem/ruby/2.3.0/gems/telegram-bot-ruby-0.4.1/lib/telegram/bot/api.rb	/^      def build_params(h)$/;"	f	class:Telegram.Bot.Api
@@ -2977,12 +2979,11 @@ get_and_set	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/lib/thread_safe
 get_and_set	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/lib/thread_safe/synchronized_cache_backend.rb	/^    def get_and_set(key, value)$/;"	f	class:ThreadSafe.SynchronizedCacheBackend
 get_array	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/settings.rb	/^    def get_array(key)$/;"	f	class:Bundler.Settings
 get_attributes	/home/roberto/.gem/ruby/2.3.0/gems/multi_xml-0.5.5/lib/multi_xml/parsers/rexml.rb	/^      def get_attributes(element)$/;"	f	class:MultiXml.Parsers.Rexml
-get_bandeco	bandejao.rb	/^	def get_bandeco (day = nil, month = nil, horario = nil, updated = false)$/;"	f
+get_bandeco	bandejao.rb	/^	def get_bandeco(day = nil, month = nil, period = nil, updated = false)$/;"	f	class:Bandejao
 get_charset	/home/roberto/.gem/ruby/2.3.0/gems/httparty-0.13.7/lib/httparty/request.rb	/^    def get_charset$/;"	f	class:HTTParty.Request
 get_console	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/cli/console.rb	/^    def get_console(name)$/;"	f	class:Bundler.CLI
 get_constant	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/cli/console.rb	/^    def get_constant(name)$/;"	f	class:Bundler.CLI
 get_formatted_specs_and_deps	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/fetcher/dependency.rb	/^      def get_formatted_specs_and_deps(gem_list)$/;"	f	class:Bundler.Fetcher
-get_horario_name	bandejao_bot.rb	/^	def get_horario_name(extra)$/;"	f	class:Bot
 get_input	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/line_editor/basic.rb	/^      def get_input$/;"	f	class:Bundler.LineEditor.Basic
 get_mapping_file	/home/roberto/.gem/ruby/2.3.0/gems/pdf-reader-1.4.0/lib/pdf/reader/encoding.rb	/^    def get_mapping_file(enc)$/;"	f	class:PDF.Encoding
 get_matches	/home/roberto/.gem/ruby/2.3.0/gems/mimemagic-0.3.1/script/generate-mime.rb	/^def get_matches(parent)$/;"	f
@@ -2992,7 +2993,8 @@ get_or_default	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/lib/thread_s
 get_or_default	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/lib/thread_safe/non_concurrent_cache_backend.rb	/^    def get_or_default(key, default_value)$/;"	f	class:ThreadSafe.NonConcurrentCacheBackend
 get_or_default	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/lib/thread_safe/synchronized_cache_backend.rb	/^    def get_or_default(key, default_value)$/;"	f	class:ThreadSafe.SynchronizedCacheBackend
 get_page_objects	/home/roberto/.gem/ruby/2.3.0/gems/pdf-reader-1.4.0/lib/pdf/reader/object_hash.rb	/^    def get_page_objects(ref)$/;"	f	class:PDF.ObjectHash
-get_today	bandejao.rb	/^	def get_today$/;"	f
+get_period	bandejao_bot.rb	/^	def get_period(extra)$/;"	f	class:Bot
+get_text	reader.rb	/^	def get_text$/;"	f	class:Reader
 get_unpack	/home/roberto/.gem/ruby/2.3.0/gems/pdf-reader-1.4.0/lib/pdf/reader/encoding.rb	/^    def get_unpack(enc)$/;"	f	class:PDF.Encoding
 get_version_semver_portion_value	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/cli/outdated.rb	/^    def get_version_semver_portion_value(spec, version_portion_index)$/;"	f	class:Bundler.CLI
 git	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/dsl.rb	/^    def git(uri, options = {}, &blk)$/;"	f	class:Bundler.Dsl
@@ -3058,7 +3060,9 @@ handle_exception	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/i
 handle_inchat	bandejao_bot.rb	/^	def handle_inchat(message)$/;"	f	class:Bot
 handle_inline	bandejao_bot.rb	/^	def handle_inline(message)$/;"	f	class:Bot
 handle_inline	consume_bot.rb	/^	def handle_inline(message)$/;"	f	class:Bot
-handle_menu_query	bandejao_bot.rb	/^	def handle_menu_query(day, month, time)$/;"	f	class:Bot
+handle_inline_query	bandejao_bot.rb	/^	def handle_inline_query(day, month, time)$/;"	f	class:Bot
+handle_inline_with_date	bandejao_bot.rb	/^	def handle_inline_with_date(msg)$/;"	f	class:Bot
+handle_inline_without_date	bandejao_bot.rb	/^	def handle_inline_without_date$/;"	f	class:Bot
 handle_missing_or_push_dependency_state	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/molinillo/lib/molinillo/resolution.rb	/^      def handle_missing_or_push_dependency_state(state)$/;"	f	class:Bundler
 handle_no_command_error	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/cli.rb	/^    def self.handle_no_command_error(command, has_namespace = $thor_runner)$/;"	F	class:Bundler.CLI
 handle_no_command_error	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/base.rb	/^      def handle_no_command_error(command, has_namespace = $thor_runner) #:nodoc:$/;"	f	class:Bundler
@@ -3529,6 +3533,7 @@ inject	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/cli.rb	/^  
 inject	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/injector.rb	/^    def inject(gemfile_path, lockfile_path)$/;"	f	class:Bundler.Injector
 inject	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/injector.rb	/^    def self.inject(new_deps)$/;"	F	class:Bundler.Injector
 inject_into_class	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/actions/file_manipulation.rb	/^    def inject_into_class(path, klass, *args, &block)$/;"	f	class:Bundler
+inline_result	bandejao_bot.rb	/^	def inline_result(id, title, text)$/;"	f	class:Bot
 insert	/home/roberto/.gem/ruby/2.3.0/gems/hashery-2.1.1/lib/hashery/dictionary.rb	/^    def insert(index, key, value)$/;"	f	class:Hashery
 insert_after	/home/roberto/.gem/ruby/2.3.0/gems/hashery-2.1.1/lib/hashery/lru_hash.rb	/^      def insert_after(node)$/;"	f
 insert_into_file	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/actions/inject_into_file.rb	/^    def insert_into_file(destination, *args, &block)$/;"	f	class:Bundler.Actions
@@ -3998,6 +4003,7 @@ normalize_param	/home/roberto/.gem/ruby/2.3.0/gems/httparty-0.13.7/lib/httparty/
 normalize_query	/home/roberto/.gem/ruby/2.3.0/gems/httparty-0.13.7/lib/httparty/request.rb	/^    def normalize_query(query)$/;"	f	class:HTTParty.Request
 normalize_source	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/dsl.rb	/^    def normalize_source(source)$/;"	f	class:Bundler
 normalize_switch	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/parser/options.rb	/^    def normalize_switch(arg)$/;"	f	class:Bundler.Options.to_switches
+normalize_time	bandejao.rb	/^	def normalize_time(day, month, period)$/;"	f	class:Bandejao
 normalize_uri	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/settings.rb	/^    def self.normalize_uri(uri)$/;"	F	class:Bundler.Settings
 normalize_uri	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/source/rubygems.rb	/^      def normalize_uri(uri)$/;"	f	class:Bundler.Source.Rubygems
 normalize_uri	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/net/http/persistent.rb	/^  def normalize_uri uri$/;"	f	class:Net
@@ -4175,6 +4181,7 @@ parse_from	/home/roberto/.gem/ruby/2.3.0/gems/ttfunk-1.4.0/lib/ttfunk/resource_f
 parse_gem	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/compact_index_client/lib/compact_index_client/cache.rb	/^    def parse_gem(string)$/;"	f	class:Bundler
 parse_hash	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/parser/arguments.rb	/^    def parse_hash(name)$/;"	f	class:Bundler.Arguments
 parse_line_number_from_description	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/dsl.rb	/^      def parse_line_number_from_description$/;"	f	class:Bundler.DSLError
+parse_meal	bandejao.rb	/^	def parse_meal(pdf_text, day, _month)$/;"	f	class:Bandejao
 parse_metadata	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/endpoint_specification.rb	/^    def parse_metadata(data)$/;"	f	class:Bundler.EndpointSpecification
 parse_numeric	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/parser/arguments.rb	/^    def parse_numeric(name)$/;"	f	class:Bundler.Arguments
 parse_peek	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/parser/options.rb	/^    def parse_peek(switch, option)$/;"	f	class:Bundler.Options.to_switches
@@ -4665,7 +4672,7 @@ run	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/li
 run	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/vendor/thor/lib/thor/command.rb	/^    def run(instance, args = [])$/;"	f	class:DynamicCommand
 run	/home/roberto/.gem/ruby/2.3.0/gems/telegram-bot-ruby-0.4.1/lib/telegram/bot/client.rb	/^      def run$/;"	f	class:Telegram.Bot.Client
 run	/home/roberto/.gem/ruby/2.3.0/gems/telegram-bot-ruby-0.4.1/lib/telegram/bot/client.rb	/^      def self.run(*args, &block)$/;"	F	class:Telegram.Bot.Client
-run	bandejao_bot.rb	/^	def run$/;"	f	class:Bot
+run	bandejao_bot.rb	/^	def run$/;"	f
 run	consume_bot.rb	/^	def run$/;"	f	class:Bot
 run_bot	bandejao_bot.rb	/^	def run_bot$/;"	f	class:Bot
 run_bot	consume_bot.rb	/^	def run_bot$/;"	f	class:Bot
@@ -4728,7 +4735,7 @@ serialVersionUID	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/ext/org/jr
 serialVersionUID	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/ext/org/jruby/ext/thread_safe/jsr166e/nounsafe/ConcurrentHashMapV8.java	/^    private static final long serialVersionUID = 7249069246763182397L;$/;"	f	class:ConcurrentHashMapV8	file:
 serialVersionUID	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/ext/org/jruby/ext/thread_safe/jsr166e/nounsafe/LongAdder.java	/^    private static final long serialVersionUID = 7249069246863182397L;$/;"	f	class:LongAdder	file:
 serialVersionUID	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/ext/org/jruby/ext/thread_safe/jsr166y/ThreadLocalRandom.java	/^    private static final long serialVersionUID = -5851777807851030925L;$/;"	f	class:ThreadLocalRandom	file:
-serialize_and_save	bandejao_bot.rb	/^	def serialize_and_save(obj)$/;"	f	class:Bot
+serialize_and_save	bandejao_bot.rb	/^	def serialize_and_save(obj)$/;"	f
 serialize_gemspecs_in	/home/roberto/.gem/ruby/2.3.0/gems/bundler-1.12.3/lib/bundler/source/git.rb	/^      def serialize_gemspecs_in(destination)$/;"	f	class:Bundler.Source
 series	/home/roberto/.gem/ruby/2.3.0/gems/pdf-reader-1.4.0/lib/pdf/reader/register_receiver.rb	/^    def series(*methods)$/;"	f	class:PDF.RegisterReceiver
 set	/home/roberto/.gem/ruby/2.3.0/gems/thread_safe-0.3.5/lib/thread_safe/util/atomic_reference.rb	/^            def set(new_value)$/;"	f	class:ThreadSafe.Util.FullLockingAtomicReference

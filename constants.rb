@@ -63,7 +63,7 @@ module CONST
 			fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',
 			pdf_update_success: 'PDF foi atualizado com sucesso',
 			pdf_update_error: 'O PDF não foi atualizado',
-			dinner_header: 'Jantar (%d/%d)*:%s',
+			dinner_header: '*Jantar (%d/%d)*:%s',
 			lunch_header: '*Almoço (%d/%d)*:%s',
 			wtf: 'WTF!?'
 	}.freeze

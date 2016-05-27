@@ -39,12 +39,14 @@ class Bot
 	end
 
 	def inline_result(id, title, text)
+		content =
+				Telegram::Bot::Types::InputTextMessageContent.new(
+						message_text: text, parse_mode: CONST::PARSE_MODE
+				)
 		Telegram::Bot::Types::InlineQueryResultArticle
 				.new(
-						id: id,
-						title: title,
-						message_text: text,
-						parse_mode: CONST::PARSE_MODE
+						id: id, title: title,
+						input_message_content: content
 				)
 	end
 
