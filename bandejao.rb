@@ -88,6 +88,7 @@ class Bandejao
 		day_regex = %r{
 			#{day}\/\d?\d			# month day
 			\n?								# zero or one new line
+			\s								# make sure there is at least one whitespace
 			(.+\n)+?					# capture as many lines as you can before
 			\S								# reaching a non-whitespace character
 		}x
