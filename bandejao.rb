@@ -67,7 +67,8 @@ class Bandejao
 			meal[:dinner] = meal[:lunch] = error_message
 		end
 
-		build_message(day, month, meal, period)
+		msg = build_message(day, month, meal, period)
+		msg
 	end
 
 	def normalize_time(day, month, period)
@@ -121,16 +122,16 @@ class Bandejao
 		if period.nil?
 			time = Time.now
 			if time.hour < 13 || (time.hour == 13 && time.min <= 15)
-				CONST::TEXTS[:lunch_header, day, month, meal[:lunch]]
+				CONST::TEXTS[:lunch_header, day.to_s, month.to_s, meal[:lunch].to_s]
 			elsif time.hour > 20 || (time.hour == 19 && time.min >= 15)
 				CONST::TEXTS[:fim_bandeco]
 			else
-				CONST::TEXTS[:dinner_header, day, month, meal[:dinner]]
+				CONST::TEXTS[:dinner_header, day.to_s, month.to_s, meal[:dinner].to_s]
 			end
 		else
 			ret = CONST::TEXTS[:wtf]
 			CONST::PERIODS.each do |per|
-				period == per && ret = CONST::TEXTS[:"#{per}_header", day, month, meal[per]]
+				period == per && ret = CONST::TEXTS[:"#{per}_header", day.to_s, month.to_s, meal[per].to_s]
 			end
 			ret
 		end
