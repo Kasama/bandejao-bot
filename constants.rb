@@ -59,7 +59,7 @@ module CONST
 			error_message:
 				"\nOu não tem bandeco nesse dia ou o"\
 				" cardápio ainda não foi atualizado.\n"\
-				'Você pode olhar o link do cardapio para ter certeza:'\
+				'Você pode olhar o link do cardapio para ter certeza: '\
 				"#{CONST::PDF_SHORT}\n"\
 				'Caso eu esteja errado, avise o @Kasama',
 			fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',

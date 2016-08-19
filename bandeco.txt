@@ -1,21 +1,63 @@
-                                         07 e 08 de março
-       Dia                           Almoço                                       Jantar
-Segunda-feira       Arroz/feijão/arroz integral                Arroz/feijão/arroz integral
-07/02               Saladas diversas                           Saladas diversas
-                    Copa lombo ao molho de limão               filé de frango grelhado ao molho de
-                    Opção vegetariana: Pvt caipira             mostarda
-                    Farofa com ovos e cenoura                  Opção vegetariana: Pvt com cogumelo
-                    Sobremesa: Pudim de Chocolate /            batata palha
-                    Banana nanica                              sobremesa: Gelatina / laranja
-                    Mnipão / suco                              Minipão / suco
-Terça-feira         Arroz/feijão/arroz integral                Arroz/feijão/arroz integral
-08/03               Saladas diversas                           Saladas diversas
-                    Strogonoff de frango                       Carne assada
-                    Opção vegetariana: Strogonoff de pvt       Opção vegetariana: Almôndega de pvt
-                    Batata palha                               Farofa de ovos com cenoura
-                    Sobremesa: Doce de leite c/ chocolate      Sobremesa: Pé de Moleque / banana
-                    em barra / laranja                         nanica
-                    Minipão / suco                             Minipão / suco
+reading file bandeco.pdf
+-----------------------
+ Comunicado: Está encerrada, desde o dia 25/07/16, a venda de créditos avulsos, em decorrência da extinção dos
+cartões ALUNO CAIXA. Lembramos que é obrigatória a apresentação do Cartão USP para acesso aos restaurantes.
+       Dia                          Almoço                                     Jantar
+Sexta-Feira        Arroz/Feijão/Arroz Integral                Arroz/Feijão/Arroz Integral
+12/08              Saladas Diversas                           Saladas Diversas
+                   Pernil Acebolado                           Iscas de Carne ao Molho Madeira
+                   Opção Vegetariana: PVT com Milho e         Opção Vegetariana: PVT com Escarola
+                   Ervilha                                    Purê de Batata
+                   Farofa Rica                                Sobremesa: Gelatina de Cereja/ Mamão
+                   Sobremesa: Flan de Papaya/ Melancia        Minipão / Suco
+                   Minipão / Suco
+Sábado             Arroz/Feijão/Arroz Integral
+13/08              Saladas Diversas
+                   Sobrecoxa Assada
+                   Opção Vegetariana: PVT Caipira
+                   Acelga Refogada
+                   Sobremesa: Goiabada/ Mamão
+                   Minipão / Suco
+                                        16 a 20 de agosto
+       Dia                          Almoço                                     Jantar
+Terça-feira        Arroz/Feijão/Arroz Integral                Arroz/Feijão/Arroz Integral
+16/08              Saladas Diversas                           Saladas Diversas
+                   Strogonoff de Frango                       Iscas de Carne ao Molho Argentino
+                   Opção Vegetariana:  Strogonoff de PVT      Opção Vegetariana: PVT com Pimentão
+                   Batata Palha                               Mandioca Sauté
+                   Sobremesa: Flan de Chocolate/ Mamão        Sobremesa: Arroz doce/ Melão
+                   Minipão / Suco                             Minipão / Suco
+Quarta-Feira       Arroz/Feijão/Arroz Integral                Arroz/Feijão/Arroz Integral
+                   Saladas Diversas                           Saladas Diversas
+17/08
+                   Copa-Lombo Acebolado                       Sobrecoxa Assada
+                   Opção Vegetariana: PVT Com Brócolis        Opção Vegetariana: Jardineira de PVT
+                   Cenoura Refogada                           Creme de Espinafre
+                   Sobremesa: Paçoca/ Melancia                Sobremesa: Doce de Leite Cremoso/
+                   Minipão / Suco                             Banana
+                                                              Minipão / Suco
+Quinta-Feira       Arroz/Feijão/Arroz Integral                Arroz/Feijão/Arroz Integral
+18/08              Saladas Diversas                           Saladas Diversas
+                   Bife ao Molho Barbecue                     Carne de Panela
+                   Opção Vegetariana: PVT com Repolho         Opção Vegetariana: PVT Rico
+                   Creme de Ervilha                           Farofa Rica
+                   Sobremesa: Doce de Banana/ Maça            Sobremesa: Gelatina de Limão/ Mexirica
+                   Minipão / Suco                             Minipão / Suco
+Sexta-Feira        Arroz/Feijão/Arroz Integral                Arroz/Feijão/Arroz Integral
+                   Saladas Diversas                           Saladas Diversas
+19/08
+                   Carne Moída ao Molho                       Cubos de Frango Acebolado                    Opção Vegetariana: PVT com Cogumelo        Opção Vegetariana: PVT com Azeitona
+                    Polenta Mole                               Repolho Refogado
+                    Sobremesa: Doce de Leite Cremoso/          Sobremesa: Pudim de Coco/ Mamão
+                    Laranja                                    Minipão / Suco
+                    Minipão / Suco
+Sábado              Arroz/Feijão/Arroz Integral
+20/08               Saladas Diversas
+                    Bife Grelhado
+                    Opção Vegetariana: PVT Alemão
+                    Berinjela Refogada
+                    Sobremesa: Arroz Doce/ Banana
+                    Minipão / Suco
 * Este cardápio poderá ser alterado sem aviso prévio
 Horário de Atendimento (refeitório)
 Área 1
@@ -31,17 +73,12 @@ CRHEA (Broa)
 De segunda a sexta feira
 Almoço: das 11h30 às 13h
 Horário de Venda de Crédito
-Área 1
 Recarga de Cartão (Venda de Créditos)
 De segunda a sexta-feira: das 9 às 14 horas
 Atendimento Geral
-De segunda a sexta-feira: das 9 às 17 horas
-Área 2
-Recarga de Cartão (Venda de Créditos)
-De segunda a sexta-feira: das 11h15 às 13 horas
-Atendimento Geral
-De segunda a sexta-feira: das 11h15 às 13 horas
-Valor das refeições
+De segunda a sexta-feira: das 9 às 17 horasValor das refeições
 Aluno: R$ 1,90
 Especial: R$ 6,00
 Visitante: R$ 12,00
+                                       contato.prefeitura@sc.usp.br
+                                      Prefeitura do Campus USP de São Carlos

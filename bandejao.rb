@@ -63,7 +63,9 @@ class Bandejao
 			# and return that instead of an empty message
 
 			error_message = escape_md CONST::TEXTS[:error_message]
-			meal[:dinner] = meal[:lunch] = error_message
+			CONST::PERIODS.each do |per|
+				meal[per] = error_message if meal[per].empty?
+			end
 		end
 
 		msg = build_message(day, month, meal, period)
@@ -71,8 +73,8 @@ class Bandejao
 	end
 
 	def normalize_time(day, month, period, tomorrow = false)
-		time = Time.now 
-		time = time + (24 * 60 * 60) if tomorrow
+		time = Time.now
+		time += (24 * 60 * 60) if tomorrow
 
 		day = time.day unless day
 		month = time.month unless month
@@ -88,6 +90,8 @@ class Bandejao
 		# we do not use the month here because people who
 		# make the pdf often mess that up, causing the match
 		# to fail even though the day is actually present
+		#
+		# minified regex: #{day}\/\d?\d\n?\s(.+\n)+?\S
 		day_regex = %r{
 			#{day}\/\d?\d			# month day
 			\n?								# zero or one new line
@@ -100,6 +104,7 @@ class Bandejao
 		lunch = ''
 		dinner = ''
 
+		# minified regex: (?:\d?\d\/\d?\d)?\s*(.+)\s\s(?=\S)(.+)
 		meal_regex = %r{
 			(?:\d?\d\/\d?\d)? # any month day, may or may not be there (non-capture)
 			\s*								# any amount of whitespaces
@@ -113,8 +118,13 @@ class Bandejao
 			m = meal_regex.match(l)
 			next unless m
 			cap_lunch, cap_dinner = m.captures
-			lunch << "\n" + cap_lunch unless /^$/ =~ cap_lunch
-			dinner << "\n" + cap_dinner unless /^$/ =~ cap_dinner
+			lunch << "\n" + cap_lunch unless /^\s*$/ =~ cap_lunch
+			dinner << "\n" + cap_dinner unless /^\s*$/ =~ cap_dinner
+		end
+
+		if /^\s*$/ =~ lunch
+			lunch = dinner
+			dinner = ''
 		end
 
 		{ lunch: lunch, dinner: dinner }
@@ -133,7 +143,9 @@ class Bandejao
 		else
 			ret = CONST::TEXTS[:wtf]
 			CONST::PERIODS.each do |per|
-				period == per && ret = CONST::TEXTS[:"#{per}_header", day.to_s, month.to_s, meal[per].to_s]
+				if period == per
+					ret = CONST::TEXTS[:"#{per}_header", day.to_s, month.to_s, meal[per].to_s]
+				end
 			end
 			ret
 		end

@@ -1,8 +1,8 @@
-require File.expand_path './reader'
+require File.expand_path 'reader'
 
 file = ENV['file']
 puts "reading file #{file}"
-puts '--------------------------'
+puts '-----------------------'
 
 reader = Reader.new(file)
 text = reader.get_text
