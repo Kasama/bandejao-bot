@@ -41,7 +41,7 @@ class Console
 		when CONST::CONSOLE_COMMANDS[:clear]
 			print CONST::CLEAR_SCREEN
 		else
-			puts CONST::CONSOLE[:invalid_command, cmd]
+			puts CONST::CONSOLE[:invalid_command, command]
 		end
 		quit
 	end
