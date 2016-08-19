@@ -49,7 +49,7 @@ module CONST
 				'Alternativamente, os comandos /almoco e /janta'\
 				' seguidos por uma data retornam o cardápio do'\
 				' almoço/janta do dia representado pela data',
-			menu: "Cardapio:\n#{CONST::PDF_SHORT}",
+			menu: "Cardapio: #{CONST::PDF_SHORT}",
 			alguem: 'Alguém sim! Por isso vai ter fila!',
 			inline_lunch_extra: ' no almoço',
 			inline_dinner_extra: ' no jantar',
@@ -57,9 +57,9 @@ module CONST
 			inline_title_specific: "Mostrar cardápio para dia %d/%d %s",
 			error_message:
 				"\nOu não tem bandeco nesse dia ou o"\
-				" cardápio ainda não foi atualizado\n"\
-				'Você pode olhar aqui para ter certeza '\
-				"#{CONST::PDF_DOMAIN}#{CONST::PDF_PATH}\n"\
+				" cardápio ainda não foi atualizado.\n"\
+				'Você pode olhar o link do cardapio para ter certeza:'\
+				"#{CONST::PDF_SHORT}\n"\
 				'Caso eu esteja errado, avise o @Kasama',
 			fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',
 			pdf_update_success: 'PDF foi atualizado com sucesso',

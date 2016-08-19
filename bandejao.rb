@@ -1,4 +1,3 @@
-require File.expand_path './constants.rb'
 require File.expand_path './reader.rb'
 
 class Bandejao
