@@ -18,9 +18,9 @@ class Bandejao
 
 	def escape_md(text)
 		text
-			.gsub(/\\/, '\\\\')
-			.gsub(/\*/, '\\\*')
-			.gsub(/\_/, '\\\_')
+				.gsub(/\\/, '\\\\')
+				.gsub(/\*/, '\\\*')
+				.gsub(/\_/, '\\\_')
 	end
 
 	def update_pdf
@@ -41,9 +41,7 @@ class Bandejao
 
 	def get_bandeco(day = nil, month = nil, period = nil, updated = false, tomorrow = false)
 		# if current pdf is older than 2h, download a new one
-		if (Time.now - @last_download) / 60 / 60 > 2
-			update_pdf
-		end
+		update_pdf if (Time.now - @last_download) / 60 / 60 > 2
 
 		# handle case of no specified date (get next meal)
 		day, month, period = normalize_time(day, month, period, tomorrow)
@@ -118,11 +116,11 @@ class Bandejao
 			m = meal_regex.match(l)
 			next unless m
 			cap_lunch, cap_dinner = m.captures
-			lunch << "\n" + cap_lunch unless /^\s*$/ =~ cap_lunch
-			dinner << "\n" + cap_dinner unless /^\s*$/ =~ cap_dinner
+			lunch << "\n" + cap_lunch unless /\A\s*\z/ =~ cap_lunch
+			dinner << "\n" + cap_dinner unless /\A\s*\z/ =~ cap_dinner
 		end
 
-		if /^\s*$/ =~ lunch
+		if /\A\s*\z/ =~ lunch
 			lunch = dinner
 			dinner = ''
 		end
