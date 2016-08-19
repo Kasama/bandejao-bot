@@ -11,8 +11,9 @@ class Bot
 			if CONST::DATE_REGEX.match message.text
 				day, month = %r{(\d?\d)\/(\d?\d)}.match(message.text).captures
 			end
+			tomorrow = CONST::COMMANDS[:tomorrow] =~ message.text
 
-			text = @bandejao.get_bandeco day, month, period unless text
+			text = @bandejao.get_bandeco day, month, period, false, tomorrow unless text
 			text
 		end
 
@@ -26,6 +27,8 @@ class Bot
 					period = :lunch
 				when CONST::COMMANDS[:dinner]
 					period = :dinner
+				when CONST::COMMANDS[:tomorrow]
+					# prevent 'else' clause
 				when CONST::COMMANDS[:update]
 					tag = @bandejao.update_pdf ? 'success' : 'error'
 					text = CONST::TEXTS[:"pdf_update_#{tag}"]

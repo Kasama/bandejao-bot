@@ -39,14 +39,14 @@ class Bandejao
 		end
 	end
 
-	def get_bandeco(day = nil, month = nil, period = nil, updated = false)
+	def get_bandeco(day = nil, month = nil, period = nil, updated = false, tomorrow = false)
 		# if current pdf is older than 2h, download a new one
 		if (Time.now - @last_download) / 60 / 60 > 2
 			update_pdf
 		end
 
 		# handle case of no specified date (get next meal)
-		day, month, period = normalize_time(day, month, period)
+		day, month, period = normalize_time(day, month, period, tomorrow)
 
 		pdf_text = Reader.new(pdf_file).get_text
 
@@ -55,7 +55,7 @@ class Bandejao
 		if meal[:lunch].empty? || meal[:dinner].empty?
 			# if current date was not found, download pdf again and try once more
 			update_pdf
-			return get_bandeco day, month, period, true unless updated
+			return get_bandeco day, month, period, true, tomorrow unless updated
 
 			# this may be a bit confusing
 			# if the pdf was already updated, 'updated' will be true
@@ -70,9 +70,12 @@ class Bandejao
 		msg
 	end
 
-	def normalize_time(day, month, period)
-		day = Time.now.day unless day
-		month = Time.now.month unless month
+	def normalize_time(day, month, period, tomorrow = false)
+		time = Time.now 
+		time = time + (24 * 60 * 60) if tomorrow
+
+		day = time.day unless day
+		month = time.month unless month
 		period = nil unless period
 
 		day = zero_pad day.to_s

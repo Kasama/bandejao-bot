@@ -18,6 +18,7 @@ module CONST
 			dinner: /jantar?/i,
 			menu: /cardapio/i,
 			update: /update/i,
+			tomorrow: /\bamanh(?:a|ã)\b/i,
 			alguem: /\balgu(?:e|é)m\b/i
 	}.freeze
 
