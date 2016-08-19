@@ -4,6 +4,7 @@ module CONST
 	PDF_PATH =
 			'/boletim_informegeral/pdf/'\
 			'cardapio_semanal_restaurante_area_1.pdf'.freeze
+	PDF_SHORT = 'http://goo.gl/v97wdA'.freeze
 	USERS_FILE = 'users.yaml'.freeze
 	MENU_FILE = 'bandeco.pdf'.freeze
 	MASTER_ID = 41_487_359
@@ -48,7 +49,7 @@ module CONST
 				'Alternativamente, os comandos /almoco e /janta'\
 				' seguidos por uma data retornam o cardápio do'\
 				' almoço/janta do dia representado pela data',
-			menu: "Cardapio:\n#{CONST::PDF_DOMAIN}#{CONST::PDF_PATH}",
+			menu: "Cardapio:\n#{CONST::PDF_SHORT}",
 			alguem: 'Alguém sim! Por isso vai ter fila!',
 			inline_lunch_extra: ' no almoço',
 			inline_dinner_extra: ' no jantar',
