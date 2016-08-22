@@ -36,8 +36,8 @@ class Console
 			puts CONST::CONSOLE[:downloading]
 			status = bandejao.update_pdf ? 'success' : 'fail'
 			puts CONST::CONSOLE[:"down_#{status}"]
-		#when CONST::CONSOLE_COMMANDS[:users]
-			#print_users
+		when CONST::CONSOLE_COMMANDS[:users]
+			print_users
 		when CONST::CONSOLE_COMMANDS[:clear]
 			print CONST::CLEAR_SCREEN
 		else
