@@ -1,7 +1,7 @@
 require './bot_inline'
 require './bot_chat'
 require './bandejao'
-require './user.rb'
+#require './user.rb'
 require 'telegram/bot'
 
 # This class is responsible for the telegram bot
@@ -12,7 +12,7 @@ class Bot
 		@bandejao = Bandejao.new CONST::MENU_FILE
 		@inline = Inline.new @bandejao
 		@chat = Chat.new @bandejao
-		@users = User.new CONST::USERS_FILE
+		# @users = User.new CONST::USERS_FILE
 	end
 
 	def run
@@ -32,7 +32,7 @@ class Bot
 	def handle_bot
 		Telegram::Bot::Client.run(CONST::Token) do |bot|
 			bot.listen do |message|
-				@users[message.from.id] ||= message.from
+				# @users[message.from.id] ||= message.from
 				case message
 				when Telegram::Bot::Types::InlineQuery
 					handle :inline, bot, message
