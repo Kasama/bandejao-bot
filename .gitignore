@@ -5,3 +5,4 @@ users.yaml
 tags
 utils/*
 .rubocop.yml
+.env
