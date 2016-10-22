@@ -125,7 +125,7 @@ class Bandejao
 			dinner = ''
 		end
 
-		{ lunch: lunch, dinner: dinner }
+		{ lunch: escape_md(lunch), dinner: escape_md(dinner) }
 	end
 
 	def build_message(day, month, meal, period = nil)
