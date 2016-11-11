@@ -9,8 +9,10 @@ module Main
 	def run
 		bot = Bot.new
 		bot_thread = Thread.new { bot.run }
-		console = Console.new bot_thread
-		console.handle_console
+		unless ENV['HAS_CONSOLE'] == 'false'
+			console = Console.new bot_thread
+			console.handle_console
+		end
 		bot_thread.join
 	end
 end
