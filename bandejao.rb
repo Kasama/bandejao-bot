@@ -48,6 +48,8 @@ class Bandejao
 
 		pdf_text = Reader.new(pdf_file).get_text
 
+    pdf_text = pdf_text.gsub(/-*/, ' ')
+
 		meal = parse_meal(pdf_text, day, month)
 
 		if meal[:lunch].empty? || meal[:dinner].empty?
