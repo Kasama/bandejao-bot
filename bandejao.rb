@@ -48,7 +48,7 @@ class Bandejao
 
 		pdf_text = Reader.new(pdf_file).get_text
 
-    pdf_text = pdf_text.gsub(/-*/, ' ')
+    pdf_text = pdf_text.gsub(/-+/, ' ')
 
 		meal = parse_meal(pdf_text, day, month)
 
@@ -93,6 +93,7 @@ class Bandejao
 		#
 		# minified regex: #{day}\/\d?\d\n?\s(.+\n)+?\S
 		day_regex = %r{
+      (?<!\/)           # ignore anything that has a preceding '/'
 			#{day}\/\d?\d			# month day
 			\n?								# zero or one new line
 			\s								# make sure there is at least one whitespace
