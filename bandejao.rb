@@ -93,6 +93,7 @@ class Bandejao
 		#
 		# minified regex: #{day}\/\d?\d\n?\s(.+\n)+?\S
 		day_regex = %r{
+      (?<!\/)           # ignore anything that has a preceding '/'
 			#{day}\/\d?\d			# month day
 			\n?								# zero or one new line
 			\s								# make sure there is at least one whitespace
