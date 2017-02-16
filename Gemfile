@@ -1,3 +1,5 @@
 source 'https://rubygems.org'
 gem 'telegram-bot-ruby'
 gem 'pdf-reader'
+gem 'sinatra'
+gem 'json'

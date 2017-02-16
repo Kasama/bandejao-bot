@@ -57,16 +57,16 @@ module CONST
 			inline_title_next: 'Mostrar cardápio do próximo bandejão',
 			inline_title_specific: "Mostrar cardápio para dia %d/%d %s",
 			error_message:
-				"\nOu não tem bandeco nesse dia ou o"\
+				"\nO bandejão está fechado ou o"\
 				" cardápio ainda não foi atualizado.\n"\
 				'Você pode olhar o link do cardapio para ter certeza: '\
 				"#{CONST::PDF_SHORT}\n"\
-				'Caso eu esteja errado, avise o @Kasama',
+        'Caso isso seja um erro, avise o @Kasama (t.me/Kasama)',
 			fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',
 			pdf_update_success: 'PDF foi atualizado com sucesso',
 			pdf_update_error: 'O PDF não foi atualizado',
-			dinner_header: '*Jantar (%s/%s)*:%s',
-			lunch_header: '*Almoço (%s/%s)*:%s',
+			dinner_header: '*Jantar (%s/%s):*%s',
+			lunch_header: '*Almoço (%s/%s):*%s',
 			wtf: 'WTF!?'
 	}.freeze
 

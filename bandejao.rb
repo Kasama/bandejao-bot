@@ -142,6 +142,7 @@ class Bandejao
 		else
 			ret = CONST::TEXTS[:wtf]
 			CONST::PERIODS.each do |per|
+        puts "period is = #{period}"
 				if period == per
 					ret = CONST::TEXTS[:"#{per}_header", day.to_s, month.to_s, meal[per].to_s]
 				end
