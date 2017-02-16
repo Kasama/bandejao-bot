@@ -17,9 +17,9 @@ No modo [inline][4], o bot aceita também uma data uma opção almoço ou janta 
 API Web
 -------
 
-Status: **Desativada**
+Status: **Ativada**
 
-O bot também está equipado com uma simples API web.
+O bot também está equipado com uma simples API web, disponível no endereço [http://bit.ly/2lQagON](http://bit.ly/2lQagON)
 
 A api tem duas rotas configuradas:
 
@@ -65,4 +65,3 @@ Esse bot é distribuido sob a licença [MIT][9].
 [7]: https://github.com/Kasama/bandejao-bot/issues
 [8]: http://telegram.me/Kasama
 [9]: https://opensource.org/licenses/MIT
-[10]: http://todo

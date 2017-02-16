@@ -1,16 +1,18 @@
 # This module is responsible for handling the console
 class Console
-	def initialize(bot_thread)
+  def initialize(bot_thread, api_thread = Thread.new {})
 		@bot = bot_thread
+    @api = api_thread
 	end
 
 	def handle_console
-		quit = false
-		until quit
+		quit = 0
+		while quit == 0
 			print CONST::CONSOLE[:prompt]
 			cmd = gets.chomp
 			quit = handle_command(cmd)
 		end
+    quit
 	end
 
 		private
@@ -21,17 +23,20 @@ class Console
 	#
 	# TODO: Make this better, smells bad
 	def handle_command(command)
-		quit = false
+		quit = 0
 		case command
 		when CONST::CONSOLE_COMMANDS[:quit]
 			puts CONST::CONSOLE[:quitting]
 			@bot.exit
-			quit = true
+      @api.exit
+			quit = 1
 		when CONST::CONSOLE_COMMANDS[:restart]
 			puts CONST::CONSOLE[:restarting]
 			@bot.exit
+      @api.exit
+      quit = 2
 			# TODO: return exit code somehow, instead of killing the program
-			exit 1
+			# exit 1
 		when CONST::CONSOLE_COMMANDS[:download]
 			puts CONST::CONSOLE[:downloading]
 			status = bandejao.update_pdf ? 'success' : 'fail'
