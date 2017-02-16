@@ -14,6 +14,23 @@ Também é possivel usar o bot na função [inline][4]. Para isso basta digitar 
 
 No modo [inline][4], o bot aceita também uma data uma opção almoço ou janta ![Exemplo inline 2][6]
 
+API Web
+-------
+
+Status: **Desativada**
+
+O bot também está equipado com uma simples API web.
+
+A api tem duas rotas configuradas:
+
+####/date/<dia>/<mes>/<periodo>
+
+Nesse modo é possível receber o conteúdo do cardápio para o dia <dia> no mes <mes> no período <periodo>, período pode ser __almoco__ ou __jantar__.
+
+####/next
+
+Nesse modo é possível receber o conteúdo do cardápio para a próxima refeição
+
 Problemas/Bugs
 --------------
 
@@ -48,3 +65,4 @@ Esse bot é distribuido sob a licença [MIT][9].
 [7]: https://github.com/Kasama/bandejao-bot/issues
 [8]: http://telegram.me/Kasama
 [9]: https://opensource.org/licenses/MIT
+[10]: http://todo
