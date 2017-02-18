@@ -34,7 +34,7 @@ class API < Sinatra::Base
   end
 
   def get_status(text)
-    if text == CONST::TEXTS_HASH[:error_message]
+    if /kasama/i =~ text
       :failed
     else
       :success
