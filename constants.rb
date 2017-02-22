@@ -57,6 +57,7 @@ module CONST
 			inline_dinner_extra: ' no jantar',
 			inline_title_next: 'Mostrar cardápio do próximo bandejão',
 			inline_title_specific: "Mostrar cardápio para dia %d/%d %s",
+      inline_pdf: 'Mostrar pdf do cardápio da semana',
 			error_message:
 				"\nO bandejão está fechado ou o"\
 				" cardápio ainda não foi atualizado.\n"\

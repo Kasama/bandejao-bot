@@ -10,6 +10,7 @@ class Bot
 			msg = message.query
 			results.push(handle_inline_with_date(msg)) if CONST::DATE_REGEX.match msg
 			results.push(handle_inline_without_date)
+      results.push(inline_result(3, CONST::TEXTS[:inline_pdf], CONST::TEXTS[:menu]))
 		end
 
 			private

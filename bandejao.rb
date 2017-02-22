@@ -68,20 +68,24 @@ class Bandejao
 			end
 		end
 
-		msg = build_message(day, month, meal, period)
-		msg
+		msg = build_message(day, month, meal, period, tomorrow)
+    if msg.nil?
+      get_bandeco(day, month, period, updated, true)
+    else
+      msg
+    end
 	end
 
-	def normalize_time(day, month, period, tomorrow = false)
-		time = Time.now
+  def normalize_time(day, month, period = nil, tomorrow = false)
+    now = Time.now
+    day = now.day unless day
+    month = now.month unless month
+
+    time = Time.new(Time.now.year, month, day)
 		time += (24 * 60 * 60) if tomorrow
 
-		day = time.day unless day
-		month = time.month unless month
-		period = nil unless period
-
-		day = zero_pad day.to_s
-		month = zero_pad month.to_s
+    day = zero_pad time.day.to_s
+    month = zero_pad time.month.to_s
 
 		[day, month, period]
 	end
@@ -131,13 +135,15 @@ class Bandejao
 		{ lunch: escape_md(lunch), dinner: escape_md(dinner) }
 	end
 
-	def build_message(day, month, meal, period = nil)
+	def build_message(day, month, meal, period = nil, tomorrow = false)
 		if period.nil?
 			time = Time.now
 			if time.hour < 13 || (time.hour == 13 && time.min <= 15)
 				CONST::TEXTS[:lunch_header, day.to_s, month.to_s, meal[:lunch].to_s]
+			elsif (time.hour > 20 || (time.hour == 19 && time.min >= 15)) && tomorrow
+				CONST::TEXTS[:lunch_header, day.to_s, month.to_s, meal[:lunch].to_s]
 			elsif time.hour > 20 || (time.hour == 19 && time.min >= 15)
-				CONST::TEXTS[:fim_bandeco]
+        nil
 			else
 				CONST::TEXTS[:dinner_header, day.to_s, month.to_s, meal[:dinner].to_s]
 			end
