@@ -13,11 +13,24 @@ module CONST
 	PARSE_MODE = 'Markdown'.freeze
 	DATE_REGEX = %r{\d?\d\/\d?\d.*$}
 	CLEAR_SCREEN = "\e[H\e[2J".freeze
+  CHAT_TYPES = {
+    private: 'private',
+    group: 'group',
+    channel: 'channel',
+    supergroup: 'supergroup'
+  }.freeze
+
+  MAIN_COMMANDS = [
+    'Almoço', 'Jantar',
+    'Cardápio', 'Ajuda'
+  ].freeze
+
 	COMMANDS = {
+      start: /\/start/i,
 			help: /help|ajuda/i,
 			lunch: /almo(?:ç|c)o/i,
 			dinner: /jantar?/i,
-			menu: /cardapio/i,
+			menu: /card(?:a|á)pio/i,
 			update: /update/i,
 			tomorrow: /\bamanh(?:a|ã)\b/i,
 			alguem: /\balgu(?:e|é)m\b/i
@@ -33,7 +46,8 @@ module CONST
 
 	CONSOLE_HASH = {
 			inline_problem: 'Something went wrong in the inline query',
-			chat_problem: 'Something when wrong in chat',
+			chat_problem: 'Something went wrong in chat',
+      welcome_problem: 'Something went wrong in the welcome message',
 			bot_problem: 'Something went wrong in the bot communication',
 			quitting: 'Quitting..',
 			restarting: 'Restarting...',
@@ -45,31 +59,32 @@ module CONST
 	}.freeze
 
 	TEXTS_HASH = {
-			help:
-				'Mandando qualquer mensagem para min, eu responderei'\
-				" com o cardápio para o próximo bandejao\n\n" \
-				'Alternativamente, os comandos /almoco e /janta'\
-				' seguidos por uma data retornam o cardápio do'\
-				' almoço/janta do dia representado pela data',
-			menu: "Cardapio: #{CONST::PDF_SHORT}",
-			alguem: 'Alguém sim! Por isso vai ter fila!',
-			inline_lunch_extra: ' no almoço',
-			inline_dinner_extra: ' no jantar',
-			inline_title_next: 'Mostrar cardápio do próximo bandejão',
-			inline_title_specific: "Mostrar cardápio para dia %d/%d %s",
-      inline_pdf: 'Mostrar pdf do cardápio da semana',
-			error_message:
-				"\nO bandejão está fechado ou o"\
-				" cardápio ainda não foi atualizado.\n"\
-				'Você pode olhar o link do cardapio para ter certeza: '\
-				"#{CONST::PDF_SHORT}\n"\
-        'Caso isso seja um erro, avise o @Kasama (t.me/Kasama)',
-			fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',
-			pdf_update_success: 'PDF foi atualizado com sucesso',
-			pdf_update_error: 'O PDF não foi atualizado',
-			dinner_header: '*Jantar (%s/%s):*%s',
-			lunch_header: '*Almoço (%s/%s):*%s',
-			wtf: 'WTF!?'
+    help:
+      'Mandando qualquer mensagem para min, eu responderei'\
+      " com o cardápio para o próximo bandejao\n\n" \
+      'Alternativamente, os comandos /almoco e /janta'\
+      ' seguidos por uma data retornam o cardápio do'\
+      ' almoço/janta do dia representado pela data',
+    start: 'olar',
+    menu: "Cardapio: #{CONST::PDF_SHORT}",
+    alguem: 'Alguém sim! Por isso vai ter fila!',
+    inline_lunch_extra: ' no almoço',
+    inline_dinner_extra: ' no jantar',
+    inline_title_next: 'Mostrar cardápio do próximo bandejão',
+    inline_title_specific: "Mostrar cardápio para dia %d/%d %s",
+    inline_pdf: 'Mostrar pdf do cardápio da semana',
+    error_message:
+      "\nO bandejão está fechado ou o"\
+      " cardápio ainda não foi atualizado.\n"\
+      'Você pode olhar o link do cardapio para ter certeza: '\
+      "#{CONST::PDF_SHORT}\n"\
+      'Caso isso seja um erro, avise o @Kasama (t.me/Kasama)',
+    fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',
+    pdf_update_success: 'PDF foi atualizado com sucesso',
+    pdf_update_error: 'O PDF não foi atualizado',
+    dinner_header: '*Jantar (%s/%s):*%s',
+    lunch_header: '*Almoço (%s/%s):*%s',
+    wtf: 'WTF!?'
 	}.freeze
 
 	# TODO: refactor this, DRY!

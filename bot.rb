@@ -37,7 +37,7 @@ class Bot
 				when Telegram::Bot::Types::InlineQuery
 					handle :inline, bot, message
 				when Telegram::Bot::Types::Message
-					handle :chat, bot, message
+          handle :chat, bot, message
 				else
 					noop
 				end
@@ -52,6 +52,23 @@ class Bot
 		puts CONST::CONSOLE[:"#{type}_problem"]
 	end
 
+  def get_keyboard
+    commands = CONST::MAIN_COMMANDS.map do |value|
+      if value.is_a? Array
+        value.map do |v|
+          Telegram::Bot::Types::KeyboardButton.new(text: v)
+        end
+      else
+        Telegram::Bot::Types::KeyboardButton.new(text: value)
+      end
+    end
+
+    Telegram::Bot::Types::ReplyKeyboardMarkup.new(
+      keyboard: commands,
+      resize_keyboard: false
+    )
+  end
+
 	def run_inline(bot, message)
 		results = @inline.handle_inline message
 		bot.api.answer_inline_query(
@@ -62,10 +79,16 @@ class Bot
 
 	def run_chat(bot, message)
 		text = @chat.handle_inchat message
+    if message.chat.type == CONST::CHAT_TYPES[:private]
+      reply = get_keyboard
+    else
+      reply = nil
+    end
 		bot.api.send_message(
 				chat_id: message.chat.id,
 				text: text,
-				parse_mode: CONST::PARSE_MODE
+				parse_mode: CONST::PARSE_MODE,
+        reply_markup: reply
 		)
 	end
 
