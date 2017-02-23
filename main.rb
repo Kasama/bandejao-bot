@@ -2,6 +2,7 @@ require File.expand_path './constants'
 require File.expand_path './bot'
 require File.expand_path './console'
 require File.expand_path './bandejao_api'
+require File.expand_path './db/db_handler'
 
 # This is the main module, responsible for launching the program
 module Main
