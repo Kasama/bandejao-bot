@@ -6,7 +6,7 @@ class Bot
 		end
 
 		def handle_inchat(message)
-      text, period, tomorrow = handle_command message.text, message.chat.type
+      text, period, tomorrow = handle_command message
 			day = month = nil
 			if CONST::DATE_REGEX.match message.text
 				day, month = %r{(\d?\d)\/(\d?\d)}.match(message.text).captures
@@ -19,10 +19,10 @@ class Bot
 			private
 
 		# rubocop:disable Metrics/MethodLength
-		def handle_command(message, chat_type)
-				text = period = tomorrow = nil
+		def handle_command(message)
+				text = period = tomorrow = subscribe = nil
         valid = false
-				case message
+        case message.text
 				when CONST::COMMANDS[:lunch]
           valid = true
 					period = :lunch
@@ -34,8 +34,12 @@ class Bot
           tomorrow = true
         when CONST::COMMANDS[:next]
           valid = true
-        when CONST::COMMANDS[:subscribe]
         when CONST::COMMANDS[:unsubscribe]
+          valid = true
+          subscribe = :destroy
+        when CONST::COMMANDS[:subscribe]
+          valid = true
+          subscribe = :create
 				when CONST::COMMANDS[:update]
           valid = true
 					tag = @bandejao.update_pdf ? 'success' : 'error'
@@ -45,8 +49,13 @@ class Bot
 						text = CONST::TEXTS[k] if v.match(message)
 					end
 				end
+        if subscribe
+          success = Schedule.handle_subscription(subscribe, message)
+          text = CONST::SUBSCRIBE[subscribe][success]
+          puts "Got text: '#{text}', with sub: #{subscribe}, #{success}"
+        end
         unless valid
-          text = '' unless chat_type == CONST::CHAT_TYPES[:private]
+          text = '' unless message.chat.type == CONST::CHAT_TYPES[:private]
         end
 				[text, period, tomorrow]
 		end

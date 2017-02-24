@@ -2,16 +2,20 @@ require './bot_inline'
 require './bot_chat'
 require './bandejao'
 #require './user.rb'
+require './scheduler'
 require 'telegram/bot'
 
 # This class is responsible for the telegram bot
 class Bot
 	attr_accessor :bandejao
+  attr_accessor :bot
 
 	def initialize
 		@bandejao = Bandejao.new CONST::MENU_FILE
 		@inline = Inline.new @bandejao
 		@chat = Chat.new @bandejao
+    @bot = nil
+    @scheduler = nil
 	end
 
 	def run
@@ -25,11 +29,11 @@ class Bot
 		end
 	end
 
-		private
-
 	# rubocop:disable Metrics/MethodLength
 	def handle_bot
 		Telegram::Bot::Client.run(CONST::Token) do |bot|
+      @bot = bot
+      @scheduler = Scheduler.new self
 			bot.listen do |message|
 				#@users[message.from.id] ||= message.from
         telegram_user = message.from
@@ -51,12 +55,12 @@ class Bot
         end
 				case message
 				when Telegram::Bot::Types::InlineQuery
-					handle :inline, bot, message
+					handle :inline, message
 				when Telegram::Bot::Types::Message
           # If the message is a reply to this bot's message,
           # or a message sent 'via' this bot, we can ignore the request
           unless group_constraints message
-            handle :chat, bot, message
+            handle :chat, message
           end
 				else
 					noop
@@ -105,15 +109,15 @@ class Bot
     )
   end
 
-	def run_inline(bot, message)
+	def run_inline(message)
 		results = @inline.handle_inline message
-		bot.api.answer_inline_query(
+		@bot.api.answer_inline_query(
 				inline_query_id: message.id,
 				results: results
 		)
 	end
 
-	def run_chat(bot, message)
+	def run_chat(message)
 		text = @chat.handle_inchat message
     if message.chat.type == CONST::CHAT_TYPES[:private]
       reply = get_keyboard
@@ -123,7 +127,7 @@ class Bot
       end
       reply = nil
     end
-		bot.api.send_message(
+		@bot.api.send_message(
 				chat_id: message.chat.id,
 				text: text,
 				parse_mode: CONST::PARSE_MODE,

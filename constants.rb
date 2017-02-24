@@ -11,6 +11,21 @@ module CONST
   DB_CONFIG = './db/config.yaml'.freeze
 	MASTER_ID = 41_487_359
 	PERIODS = [:lunch, :dinner].freeze
+  CRON_EXP = {
+    #lunch: '0 0 11 * MON-SAT *',
+    lunch: '0 18 20 * * *',
+    dinner: '0 0 17 * MON-FRI *'
+  }
+  SUBSCRIBE = {
+    create: {
+      true => 'Inscrição realizada com sucesso',
+      false => 'Não foi possível realizar a inscrição',
+    },
+    destroy: {
+      true => 'Inscrição removida com sucesso',
+      false => 'Não foi possível remover a inscrição',
+    }
+  }
   PERIOD_HEADERS = /\A(?:Almoço \(\d\d?\/\d\d?\)|Jantar \(\d\d?\/\d\d?\)):/.freeze
 	PARSE_MODE = 'Markdown'.freeze
 	DATE_REGEX = %r{\d?\d\/\d?\d.*$}
