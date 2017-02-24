@@ -34,6 +34,8 @@ class Bot
           valid = true
         when CONST::COMMANDS[:next]
           valid = true
+        when CONST::COMMANDS[:subscribe]
+        when CONST::COMMANDS[:unsubscribe]
 				when CONST::COMMANDS[:update]
           valid = true
 					tag = @bandejao.update_pdf ? 'success' : 'error'

@@ -22,19 +22,22 @@ module CONST
   }.freeze
 
   MAIN_COMMANDS = [
-    'Próximo','Almoço', 'Jantar',
-    'Cardápio', 'Ajuda'
+    'Próximo', 'Almoço',
+    'Jantar', 'Cardápio',
+    'Inscrever' 'Ajuda'
   ].freeze
 
 	COMMANDS = {
       start: /\/start/i,
 			help: /help|ajuda/i,
-      next: /next|pr(?:ó|o)xim(?:o|a)/,
+      next: /next|pr(?:ó|o)xim(?:o|a)/i,
 			lunch: /almo(?:ç|c)o/i,
 			dinner: /jantar?/i,
 			menu: /card(?:a|á)pio/i,
 			update: /update/i,
 			tomorrow: /\bamanh(?:a|ã)\b/i,
+      subscribe: /subscribe|inscrever/i,
+      unsubscribe: /unsubscribe|des(?:in|en?)screver/,
 			alguem: /\balgu(?:e|é)m\b/i
 	}.freeze
 
