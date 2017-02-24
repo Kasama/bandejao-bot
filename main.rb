@@ -9,6 +9,8 @@ module Main
 		module_function
 
 	def run
+    DBHandler.init
+
     quit = 0
     while quit != 1
       bot = Bot.new

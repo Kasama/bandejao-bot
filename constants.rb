@@ -8,7 +8,7 @@ module CONST
   API_PORT = 8273.freeze
 	USERS_FILE = 'users.yaml'.freeze
 	MENU_FILE = 'bandeco.pdf'.freeze
-  DB_CONFIG = 'config.yaml'.freeze
+  DB_CONFIG = './db/config.yaml'.freeze
 	MASTER_ID = 41_487_359
 	PERIODS = [:lunch, :dinner].freeze
 	PARSE_MODE = 'Markdown'.freeze
@@ -22,13 +22,14 @@ module CONST
   }.freeze
 
   MAIN_COMMANDS = [
-    'Almoço', 'Jantar',
+    'Próximo','Almoço', 'Jantar',
     'Cardápio', 'Ajuda'
   ].freeze
 
 	COMMANDS = {
       start: /\/start/i,
 			help: /help|ajuda/i,
+      next: /next|pr(?:ó|o)xim(?:o|a)/,
 			lunch: /almo(?:ç|c)o/i,
 			dinner: /jantar?/i,
 			menu: /card(?:a|á)pio/i,
