@@ -12,8 +12,7 @@ module CONST
 	MASTER_ID = 41_487_359
 	PERIODS = [:lunch, :dinner].freeze
   CRON_EXP = {
-    #lunch: '0 0 11 * MON-SAT *',
-    lunch: '0 18 20 * * *',
+    lunch: '0 0 11 * MON-SAT *',
     dinner: '0 0 17 * MON-FRI *'
   }
   SUBSCRIBE = {
