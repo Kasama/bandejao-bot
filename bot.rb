@@ -55,13 +55,7 @@ class Bot
 				when Telegram::Bot::Types::Message
           # If the message is a reply to this bot's message,
           # or a message sent 'via' this bot, we can ignore the request
-          unless (
-              message.chat.type != CONST::CHAT_TYPES[:private] && (
-                message.reply_to_message ||
-                #Workaround to tell when a message was send 'via' this bot
-                message.entities.first.type = 'bold'
-              )
-          )
+          unless group_constraints message
             handle :chat, bot, message
           end
 				else
@@ -70,6 +64,22 @@ class Bot
 			end
 		end
 	end
+
+  def group_constraints(message)
+    is_group = message.chat.type != CONST::CHAT_TYPES[:private]
+    is_reply = message.reply_to_message
+    # Workaround as the Telegram API doesn't diferentiate
+    # between a normal message and a message sent 'via' a bot
+    has_entities = message.entities.first
+    has_header = CONST::PERIOD_HEADERS =~ message.text
+    if has_entities
+      is_via_bot = message.entities.first.type == 'bold' && has_header
+    else
+      is_via_bot = false
+    end
+
+    is_group && (is_reply || is_via_bot)
+  end
 
 	def handle(type, *args)
 		send(:"run_#{type}", *args)
