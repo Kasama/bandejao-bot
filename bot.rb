@@ -59,7 +59,7 @@ class Bot
               message.chat.type != CONST::CHAT_TYPES[:private] && (
                 message.reply_to_message ||
                 #Workaround to tell when a message was send 'via' this bot
-                message.entities.first.type = 'bold'
+                (message.entities.first.type = 'bold' && CONST::PERIOD_HEADERS =~ message.text)
               )
           )
             handle :chat, bot, message
