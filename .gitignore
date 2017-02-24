@@ -2,7 +2,7 @@ run.sh
 update.sh
 bandeco.pdf
 users.yaml
-db.sqlite
+db.sqlite*
 tags
 utils/*
 .rubocop.yml

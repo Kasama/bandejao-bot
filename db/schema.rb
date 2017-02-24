@@ -19,11 +19,11 @@ module Schema
   end
 
   def create_schedules
-    unless ActiveRecord::Base.connection.data_source_exists? :schedule
+    unless ActiveRecord::Base.connection.data_source_exists? :schedules
       ActiveRecord::Schema.define do
-        create_table :schedule, id: false do |t|
-          t.integer :id, null: false, index: true, primary_key: true
+        create_table :schedules do |t|
           t.belongs_to :user, foreign_key: true
+          t.integer :chat_id, null: false
           t.string :cronwhen
           t.string :command
         end
