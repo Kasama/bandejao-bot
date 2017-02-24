@@ -138,13 +138,14 @@ class Bandejao
 	def build_message(day, month, meal, period = nil, tomorrow = false)
 		if period.nil?
 			time = Time.now
-			if time.hour < 13 || (time.hour == 13 && time.min <= 15)
-				CONST::TEXTS[:lunch_header, day.to_s, month.to_s, meal[:lunch].to_s]
-			elsif (time.hour > 20 || (time.hour == 19 && time.min >= 15)) && tomorrow
-				CONST::TEXTS[:lunch_header, day.to_s, month.to_s, meal[:lunch].to_s]
+			if (
+          (time.hour < 13 || (time.hour == 13 && time.min <= 15)) || # before lunch
+          ((time.hour > 20 || (time.hour == 19 && time.min >= 15)) && tomorrow) #after dinner
+      )
+        CONST::TEXTS[:lunch_header, day.to_s, month.to_s, meal[:lunch].to_s]
 			elsif time.hour > 20 || (time.hour == 19 && time.min >= 15)
         nil
-			else
+			else # before dinner
 				CONST::TEXTS[:dinner_header, day.to_s, month.to_s, meal[:dinner].to_s]
 			end
 		else
