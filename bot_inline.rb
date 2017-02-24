@@ -10,7 +10,15 @@ class Bot
 			msg = message.query
 			results.push(handle_inline_with_date(msg)) if CONST::DATE_REGEX.match msg
 			results.push(handle_inline_without_date)
-      results.push(inline_result(3, CONST::TEXTS[:inline_pdf], CONST::TEXTS[:menu]))
+      #results.push(inline_result(3, CONST::TEXTS[:inline_pdf], CONST::TEXTS[:menu]))
+      results.push(Telegram::Bot::Types::InlineQueryResultDocument.new(
+        type: 'document',
+        id: 3,
+        title: CONST::TEXTS[:inline_pdf],
+        #caption: CONST::TEXTS[:inline_pdf],
+        document_url: CONST::PDF_SHORT,
+        mime_type: 'application/pdf'
+      ))
 		end
 
 			private
