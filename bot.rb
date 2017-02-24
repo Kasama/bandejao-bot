@@ -53,7 +53,17 @@ class Bot
 				when Telegram::Bot::Types::InlineQuery
 					handle :inline, bot, message
 				when Telegram::Bot::Types::Message
-          handle :chat, bot, message
+          # If the message is a reply to this bot's message,
+          # or a message sent 'via' this bot, we can ignore the request
+          unless (
+              message.chat.type != CONST::CHAT_TYPES[:private] && (
+                message.reply_to_message ||
+                #Workaround to tell when a message was send 'via' this bot
+                message.entities.first.type = 'bold'
+              )
+          )
+            handle :chat, bot, message
+          end
 				else
 					noop
 				end
