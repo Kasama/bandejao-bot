@@ -46,7 +46,7 @@ class Bot
 					text = CONST::TEXTS[:"pdf_update_#{tag}"]
 				else
 					CONST::COMMANDS.each do |k, v|
-						text = CONST::TEXTS[k] if v.match(message)
+            text = CONST::TEXTS[k] if v.match(message.text)
 					end
 				end
         if subscribe
