@@ -11,10 +11,13 @@ class Scheduler
       end
       CONST::PERIODS.each do |per|
         @scheduler.cron CONST::CRON_EXP[per] do
+          puts "==================== REACHED SCHEDULE ========================"
           Schedule.all.each do |schedule|
             user = Telegram::Bot::Types::User.new(
               id: schedule.user_id
             )
+             puts "Sending message to #{user.first_name}"
+             puts "============================================================"
             chat = Telegram::Bot::Types::Chat.new(
               id: schedule.chat_id,
               type: CONST::CHAT_TYPES[:group]
