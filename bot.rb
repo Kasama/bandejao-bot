@@ -38,20 +38,22 @@ class Bot
 				#@users[message.from.id] ||= message.from
         telegram_user = message.from
         user = User.find_by_id telegram_user.id
-        if user.nil?
-          User.create(
-            id: telegram_user.id,
-            username: telegram_user.username,
-            first_name: telegram_user.first_name,
-            last_name: telegram_user.last_name
-          )
-        else
-          user.update(
-            username: telegram_user.username,
-            first_name: telegram_user.first_name,
-            last_name: telegram_user.last_name,
-            updated_at: Time.now
-          )
+        if telegram_user
+          if user.nil?
+            User.create(
+              id: telegram_user.id,
+              username: telegram_user.username,
+              first_name: telegram_user.first_name,
+              last_name: telegram_user.last_name
+            )
+          else
+            user.update(
+              username: telegram_user.username,
+              first_name: telegram_user.first_name,
+              last_name: telegram_user.last_name,
+              updated_at: Time.now
+            )
+          end
         end
 				case message
 				when Telegram::Bot::Types::InlineQuery
