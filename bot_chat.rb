@@ -1,8 +1,9 @@
 class Bot
 	# Module to handle the chat bot
 	class Chat
-		def initialize(bandejao)
+		def initialize(bandejao, bot)
 			@bandejao = bandejao
+      @bot = bot.bot
 		end
 
 		def handle_inchat(message)
@@ -44,6 +45,9 @@ class Bot
           valid = true
 					tag = @bandejao.update_pdf ? 'success' : 'error'
 					text = CONST::TEXTS[:"pdf_update_#{tag}"]
+        when CONST::COMMANDS[:feedback]
+          valid = true
+          text = send_feedback message
 				else
 					CONST::COMMANDS.each do |k, v|
             text = CONST::TEXTS[k] if v.match(message.text)
@@ -52,12 +56,21 @@ class Bot
         if subscribe
           success = Schedule.handle_subscription(subscribe, message)
           text = CONST::SUBSCRIBE[subscribe][success]
-          puts "Got text: '#{text}', with sub: #{subscribe}, #{success}"
         end
+        tomorrow = CONST::COMMANDS[:tomorrow] =~ message.text
         unless valid
           text = '' unless message.chat.type == CONST::CHAT_TYPES[:private]
         end
 				[text, period, tomorrow]
 		end
+
+    def send_feedback(message)
+      bot.api.send_message(
+        chat_id: CONST::MASTER_ID,
+        text: "user (#{message.from.inspect}) enviou feedback:\n#{message.text}"
+      )
+      "Feedback enviado com sucesso!"
+    end
+
 	end
 end

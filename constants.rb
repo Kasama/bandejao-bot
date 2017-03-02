@@ -40,8 +40,11 @@ module CONST
   MAIN_COMMANDS = [
     'Próximo', 'Almoço',
     'Jantar', 'Cardápio',
-    'Inscrever' 'Ajuda'
+    :subscribe, 'Ajuda'
   ].freeze
+
+  MAIN_COMMAND_SUBSCRIBE = 'Inscrever (WIP)'
+  MAIN_COMMAND_UNSUB = 'Desinscrever'
 
 	COMMANDS = {
       start: /\/start/i,
@@ -53,7 +56,8 @@ module CONST
 			update: /update/i,
 			tomorrow: /\bamanh(?:a|ã)\b/i,
       subscribe: /subscribe|inscrever/i,
-      unsubscribe: /unsubscribe|des(?:in|en?)screver/,
+      unsubscribe: /unsubscribe|des(?:in|en?)screver/i,
+      feedback: /feedback|report/i,
 			alguem: /\balgu(?:e|é)m\b/i
 	}.freeze
 
@@ -81,12 +85,19 @@ module CONST
 
 	TEXTS_HASH = {
     help:
-      'Mandando qualquer mensagem para min, eu responderei'\
-      " com o cardápio para o próximo bandejao\n\n" \
-      'Alternativamente, os comandos /almoco e /janta'\
-      ' seguidos por uma data retornam o cardápio do'\
-      ' almoço/janta do dia representado pela data',
-    start: 'olar',
+      "Enviando uma mensagem com qualquer texto você receberá o cardápio para a próxima refeição.\n\n" \
+      "Comandos: \n" \
+      "/proximo - Envia o cardápio da próxima refeição, da mesma forma que enviar qualquer texto\n" \
+      "/almoço [<DIA>/<MES>] - Envia o cardápio do almoço do dia indicado (hoje caso não indicado)\n" \
+      "/jantar [<DIA>/<MES>] - Envia o cardápio do jantar do dia indicado (hoje caso não indicado)\n" \
+      "-- Em ambos /almoço e /jantar pode-se colocar a palavra 'amanha' para receber o cardápio do dia seguinte\n" \
+      "/cardapio - Envia o PDF do cardápio do jeito que é disponibilizado pela prefeitura do campus\n" \
+      "/inscrever - Cadastra o chat para receber o cardápio para a próxima refeição antes do restaurante abrir, todos os dias (seg-sab 11:00 e seg-sex 17:00)\n" \
+      "/desinscrever - Remove a inscrição efetuada pelo comando acima\n" \
+      "/ajuda - Envia essa mensagem\n\n" \
+      "/feedback <TEXTO> - Envia o texto especificado para o desenvolvedor do bot. Pode ser usado para reportar problemas, erros, sugerir funcionalidades, etc\n" \
+      'Também é possível entrar em contato direto com o desenvolvedor @Kasama, para qualquer dificuldade',
+    start: 'Bem vindo ao BandejaoBot. envie /ajuda para uma descrição detalhada de funcionalidades',
     menu: "Cardapio: #{CONST::PDF_SHORT}",
     alguem: 'Alguém sim! Por isso vai ter fila!',
     inline_lunch_extra: ' no almoço',
@@ -99,7 +110,7 @@ module CONST
       " cardápio ainda não foi atualizado.\n"\
       'Você pode olhar o link do cardapio para ter certeza: '\
       "#{CONST::PDF_SHORT}\n"\
-      'Caso isso seja um erro, avise o @Kasama (t.me/Kasama)',
+      'Caso isso seja um erro, avise o @Kasama (t.me/Kasama) ou envie um feedback com o comando /feedback',
     fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',
     pdf_update_success: 'PDF foi atualizado com sucesso',
     pdf_update_error: 'O PDF não foi atualizado',

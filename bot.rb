@@ -13,7 +13,7 @@ class Bot
 	def initialize
 		@bandejao = Bandejao.new CONST::MENU_FILE
 		@inline = Inline.new @bandejao
-		@chat = Chat.new @bandejao
+		@chat = Chat.new @bandejao, self
     @bot = nil
     @scheduler = nil
 	end
@@ -92,14 +92,14 @@ class Bot
 		puts CONST::CONSOLE[:"#{type}_problem"]
 	end
 
-  def get_keyboard
+  def get_keyboard(user)
     commands = CONST::MAIN_COMMANDS.map do |value|
       if value.is_a? Array
         value.map do |v|
-          Telegram::Bot::Types::KeyboardButton.new(text: v)
+          keyboard_button value, user
         end
       else
-        Telegram::Bot::Types::KeyboardButton.new(text: value)
+        keyboard_button value, user
       end
     end
 
@@ -107,6 +107,17 @@ class Bot
       keyboard: commands,
       resize_keyboard: false
     )
+  end
+
+  def keyboard_button(value, user)
+    if value == :subscribe
+      if Schedule.find_by_id user.id
+        value = CONST::MAIN_COMMAND_SUBSCRIBE
+      else
+        value = CONST::MAIN_COMMAND_UNSUB
+      end
+    end
+    Telegram::Bot::Types::KeyboardButton.new(text: value)
   end
 
 	def run_inline(message)
@@ -120,7 +131,7 @@ class Bot
 	def run_chat(message)
 		text = @chat.handle_inchat message
     if message.chat.type == CONST::CHAT_TYPES[:private]
-      reply = get_keyboard
+      reply = get_keyboard message.from
     else
       if text.empty?
         return
