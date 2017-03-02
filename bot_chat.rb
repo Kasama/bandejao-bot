@@ -65,7 +65,7 @@ class Bot
 		end
 
     def send_feedback(message)
-      bot.api.send_message(
+      @bot.api.send_message(
         chat_id: CONST::MASTER_ID,
         text: "user (#{message.from.inspect}) enviou feedback:\n#{message.text}"
       )

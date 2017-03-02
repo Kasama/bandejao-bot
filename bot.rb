@@ -111,7 +111,7 @@ class Bot
 
   def keyboard_button(value, user)
     if value == :subscribe
-      if Schedule.find_by_id user.id
+      if Schedule.find_by_user_id user.id
         value = CONST::MAIN_COMMAND_SUBSCRIBE
       else
         value = CONST::MAIN_COMMAND_UNSUB
