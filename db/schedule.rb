@@ -10,12 +10,13 @@ class Schedule < ActiveRecord::Base
   end
 
   def self.create_subscription(message)
-    s = Schedule.find_by_user_id_and_chat_id message.from.id, message.chat.id
+    from = message.from
+    user_id = if from then from.id else -1 end
+
+    s = Schedule.find_by_user_id_and_chat_id user_id, message.chat.id
     if s
       return false
     end
-    from = message.from
-    user_id = if from then from.id else -1 end
     s = Schedule.create(
       user_id: user_id,
       chat_id: message.chat.id,
