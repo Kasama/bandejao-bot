@@ -17,8 +17,12 @@ class Scheduler
             user = Telegram::Bot::Types::User.new(
               id: u.id
             )
-             puts "Sending message to #{u.first_name}"
-             puts "============================================================"
+            puts "Sending message to #{u.first_name}"
+            puts "============================================================"
+            bot bot.api.send_message(
+              chat_id: CONST::MASTER_ID,
+              text: "Sending message to #{u.first_name} (#{u.inspect})"
+            )
             chat = Telegram::Bot::Types::Chat.new(
               id: schedule.chat_id,
               type: CONST::CHAT_TYPES[:group]
@@ -27,10 +31,6 @@ class Scheduler
               text: '/proximo',
               from: user,
               chat: chat
-            )
-            bot.bot.api.send_message(
-              chat_id: message.chat.id,
-              text: 'Isso é um teste, descupe pelo inconveniente'
             )
             bot.run_chat message
           end
