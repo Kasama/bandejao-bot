@@ -24,6 +24,7 @@ class Bot
 				handle_bot
 			rescue => e
 				puts e
+        puts e.backtrace
 				puts CONST::CONSOLE[:bot_problem]
 			end
 		end
@@ -37,8 +38,8 @@ class Bot
 			bot.listen do |message|
 				#@users[message.from.id] ||= message.from
         telegram_user = message.from
-        user = User.find_by_id telegram_user.id
         if telegram_user
+          user = User.find_by_id telegram_user.id
           if user.nil?
             User.create(
               id: telegram_user.id,
@@ -133,7 +134,9 @@ class Bot
 	def run_chat(message)
 		text = @chat.handle_inchat message
     if message.chat.type == CONST::CHAT_TYPES[:private]
-      reply = get_keyboard message.from
+      if message.from
+        reply = get_keyboard message.from
+      end
     else
       if text.empty?
         return

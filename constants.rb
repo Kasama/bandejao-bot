@@ -18,7 +18,7 @@ module CONST
   }
   SUBSCRIBE = {
     create: {
-      true => 'Inscrição realizada com sucesso',
+      true => 'Inscrição realizada com sucesso, tenha em mente que essa funcionalidade ainda está em desenvolvimento. Por favor reporte qualquer problema usando o comando /feedback',
       false => 'Não foi possível realizar a inscrição',
     },
     destroy: {
