@@ -13,10 +13,11 @@ class Scheduler
         @scheduler.cron CONST::CRON_EXP[per] do
           puts "==================== REACHED SCHEDULE ========================"
           Schedule.all.each do |schedule|
+            u = User.find_by_id schedule.user_id
             user = Telegram::Bot::Types::User.new(
-              id: schedule.user_id
+              id: u.id
             )
-             puts "Sending message to #{user.first_name}"
+             puts "Sending message to #{u.first_name}"
              puts "============================================================"
             chat = Telegram::Bot::Types::Chat.new(
               id: schedule.chat_id,
@@ -26,6 +27,10 @@ class Scheduler
               text: '/proximo',
               from: user,
               chat: chat
+            )
+            bot.bot.api.send_message(
+              chat_id: message.chat.id,
+              text: 'Isso é um teste, descupe pelo inconveniente'
             )
             bot.run_chat message
           end
