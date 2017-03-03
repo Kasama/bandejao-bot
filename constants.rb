@@ -88,7 +88,7 @@ module CONST
       "Enviando uma mensagem com qualquer texto você receberá o cardápio para a próxima refeição.\n\n" \
       "Comandos: \n" \
       "/proximo - Envia o cardápio da próxima refeição, da mesma forma que enviar qualquer texto\n" \
-      "/almoço [<DIA>/<MES>] - Envia o cardápio do almoço do dia indicado (hoje caso não indicado)\n" \
+      "/almoco [<DIA>/<MES>] - Envia o cardápio do almoço do dia indicado (hoje caso não indicado)\n" \
       "/jantar [<DIA>/<MES>] - Envia o cardápio do jantar do dia indicado (hoje caso não indicado)\n" \
       "-- Em ambos /almoço e /jantar pode-se colocar a palavra 'amanha' para receber o cardápio do dia seguinte\n" \
       "/cardapio - Envia o PDF do cardápio do jeito que é disponibilizado pela prefeitura do campus\n" \
