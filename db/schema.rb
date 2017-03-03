@@ -29,6 +29,5 @@ module Schema
         end
       end
     end
-    ActiveRecord::Schema.change_column :schedules, :chat_id, :integer, limit: 8
   end
 end
