@@ -112,9 +112,9 @@ class Bot
     )
   end
 
-  def keyboard_button(value, user)
+  def keyboard_button(value, chat)
     if value == :subscribe
-      if Schedule.find_by_user_id user.id
+      if Schedule.find_by_chat_id chat.id
         value = CONST::MAIN_COMMAND_UNSUB
       else
         value = CONST::MAIN_COMMAND_SUBSCRIBE
@@ -135,7 +135,7 @@ class Bot
 		text = @chat.handle_inchat message
     if message.chat.type == CONST::CHAT_TYPES[:private]
       if message.from
-        reply = get_keyboard message.from
+        reply = get_keyboard message.chat
       end
     else
       if text.empty?
