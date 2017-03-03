@@ -23,11 +23,12 @@ module Schema
       ActiveRecord::Schema.define do
         create_table :schedules do |t|
           t.belongs_to :user, foreign_key: true
-          t.integer :chat_id, null: false
+          t.integer :chat_id, null: false, limit: 8
           t.string :cronwhen
           t.string :command
         end
       end
     end
+    ActiveRecord::Schema.change_column :schedules, :chat_id, :integer, limit: 8
   end
 end
