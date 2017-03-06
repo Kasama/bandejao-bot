@@ -19,7 +19,7 @@ class Scheduler
             )
             puts "Sending message to #{u.first_name}"
             puts "============================================================"
-            bot bot.api.send_message(
+            bot.bot.api.send_message(
               chat_id: CONST::MASTER_ID,
               text: "Sending message to #{u.first_name} (#{u.inspect})"
             )
