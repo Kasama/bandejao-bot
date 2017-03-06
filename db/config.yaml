@@ -3,7 +3,5 @@ database: &default
     database: db.sqlite
 
 production:
-    <<: *default
     adapter: postgresql
-    database: BANDEJAO_BOT_DATABASE
-    password: <%= ENV['BANDEJAO_BOT_DATABASE_PASSWORD'] %>
+    url: <%= ENV['DATABASE_URL'] %>
