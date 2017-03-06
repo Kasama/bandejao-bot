@@ -1,9 +1,17 @@
 source 'https://rubygems.org'
+
 gem 'telegram-bot-ruby'
 gem 'pdf-reader'
 gem 'sinatra'
-# gem 'json'
+gem 'json'
 gem 'activerecord'
 gem 'activesupport'
-gem 'sqlite3'
 gem 'rufus-scheduler'
+
+group :production do
+	gem 'pg'
+end
+
+group :development do
+	gem 'sqlite3'
+end
