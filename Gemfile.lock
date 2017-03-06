@@ -53,6 +53,7 @@ GEM
     persistent_httparty (0.1.2)
       httparty (~> 0.9)
       persistent_http (< 2)
+    pg (0.18.4)
     rack (1.6.5)
     rack-protection (1.5.3)
       rack
@@ -87,6 +88,7 @@ DEPENDENCIES
   activesupport
   json
   pdf-reader
+  pg
   rufus-scheduler
   sinatra
   sqlite3
