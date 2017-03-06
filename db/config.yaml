@@ -4,5 +4,6 @@ database: &default
 
 production:
     adapter: postgresql
-    database: BANDEJAO_BOT_DATABASE
-    url: <%= ENV['DATABASE_URL'] %>
+    database: <%= ENV['DATABASE_NAME'] %>
+    username: <%= ENV['DATABASE_USER'] %>
+    password: <%= ENV['DATABASE_PASS'] %>
