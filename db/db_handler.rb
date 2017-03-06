@@ -9,14 +9,17 @@ else
 end
 
 module DBHandler
-  def self.init
-    yaml = YAML.load_file(CONST::DB_CONFIG).deep_symbolize_keys
-    db_config = yaml[:database]
+  configuration = if CONST::ENVIRONMENT == 'production'
+                    :production
+                  else
+                    :database
+                  end
+  yaml = YAML.load_file(CONST::DB_CONFIG).deep_symbolize_keys
+  db_config = yaml[configuration]
 
-    ActiveRecord::Base.logger = Logger.new(STDOUT)
-    ActiveRecord::Base.establish_connection(db_config)
+  ActiveRecord::Base.logger = Logger.new(STDOUT)
+  ActiveRecord::Base.establish_connection(db_config)
 
-    Schema.create_users
-    Schema.create_schedules
-  end
+  Schema.create_users
+  Schema.create_schedules
 end
