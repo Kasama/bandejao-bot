@@ -1,7 +1,12 @@
-require 'sqlite3'
 require 'active_record'
 require 'yaml'
 require './db/schema'
+
+if CONST::ENVIRONMENT == 'production'
+  require 'pg'
+else
+  require 'sqlite3'
+end
 
 module DBHandler
   def self.init
