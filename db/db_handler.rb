@@ -12,8 +12,10 @@ end
 module DBHandler
   def self.init
     configuration = CONST::ENVIRONMENT == 'production' ? :production : :database
+    puts "==== Got env #{configuration}"
     yaml = YAML.load_file(CONST::DB_CONFIG).deep_symbolize_keys
     db_config = yaml[configuration]
+    puts "==== Got confg #{db_config.inspect}"
 
     ActiveRecord::Base.logger = Logger.new(STDOUT)
     ActiveRecord::Base.establish_connection(db_config)
