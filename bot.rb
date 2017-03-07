@@ -32,8 +32,11 @@ class Bot
   def handle_bot
     Telegram::Bot::Client.run(CONST::Token) do |bot|
       @bot = bot
+      puts "==== Initializing Scheduler"
       @scheduler = Scheduler.new self
+      puts "==== Running Bot"
       bot.listen do |message|
+        puts "==== Got message #{message.inspect}"
         telegram_user = message.from
         if telegram_user
           user = User.find_by_id telegram_user.id
@@ -139,7 +142,7 @@ class Bot
       reply = nil
     end
     @bot.api.send_message(
-      chat_id: chat,
+      chat_id: chat.id,
       text: text,
       parse_mode: CONST::PARSE_MODE,
       reply_markup: reply
