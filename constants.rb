@@ -6,7 +6,11 @@ module CONST
     '/boletim_informegeral/pdf/'\
     'cardapio_semanal_restaurante_area_1.pdf'.freeze
   PDF_SHORT = 'http://goo.gl/v97wdA'.freeze
-  API_PORT = 8273.freeze
+  API_PORT = if ENV['PORT']
+               ENV['PORT'].to_i.freeze
+             else
+               8273.freeze
+             end
   USERS_FILE = 'users.yml'.freeze
   MENU_FILE = 'bandeco.pdf'.freeze
   DB_CONFIG = './db/config.yml'.freeze
@@ -16,7 +20,7 @@ module CONST
     lunch: '0 0 11 * * MON-FRI',
     # lunch: '0 53 15 * * MON-FRI',
     # dinner: '0 0 17 * * MON-SAT'
-    dinner: '0 5 17 * * MON-SAT'
+    dinner: '0 0 17 * * MON-SAT'
   }
   SUBSCRIBE = {
     create: {
