@@ -1,5 +1,6 @@
 require 'active_record'
 require 'yaml'
+require 'erb'
 require './db/schema'
 
 if CONST::ENVIRONMENT == 'production'
@@ -12,8 +13,11 @@ end
 module DBHandler
   def self.init
     configuration = CONST::ENVIRONMENT == 'production' ? :production : :database
-    yaml = YAML.load_file(CONST::DB_CONFIG).deep_symbolize_keys
+    puts "==== Got env #{configuration}"
+    parsed_configs = ERB.new(File.read(CONST::DB_CONFIG)).result
+    yaml = YAML.load(parsed_configs).deep_symbolize_keys
     db_config = yaml[configuration]
+    puts "==== Got confg #{db_config.inspect}"
 
     ActiveRecord::Base.logger = Logger.new(STDOUT)
     ActiveRecord::Base.establish_connection(db_config)
