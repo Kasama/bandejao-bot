@@ -9,7 +9,7 @@ module CONST
   API_PORT = 8273.freeze
   USERS_FILE = 'users.yml'.freeze
   MENU_FILE = 'bandeco.pdf'.freeze
-  DB_CONFIG = './db/config.yaml'.freeze
+  DB_CONFIG = './db/config.yml'.freeze
   MASTER_ID = 41_487_359
   PERIODS = [:lunch, :dinner].freeze
   CRON_EXP = {
