@@ -2,6 +2,9 @@ database: &default
     adapter: sqlite3
     database: db.sqlite
 
+development:
+    <<: *default
+
 production:
     adapter: postgresql
     url: <%= ENV['DATABASE_URL'] %>

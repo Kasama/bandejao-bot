@@ -5,35 +5,35 @@ require 'telegram/bot'
 
 # This class is responsible for the telegram bot
 class Bot
-	attr_accessor :bandejao
+  attr_accessor :bandejao
   attr_accessor :bot
 
-	def initialize
-		@bandejao = Bandejao.new CONST::MENU_FILE
-		@inline = Inline.new @bandejao
-		@chat = Chat.new @bandejao, self
+  def initialize
+    @bandejao = Bandejao.new CONST::MENU_FILE
+    @inline = Inline.new @bandejao
+    @chat = Chat.new @bandejao, self
     @bot = nil
     @scheduler = nil
-	end
+  end
 
-	def run
-		loop do
-			begin
-				handle_bot
-			rescue => e
-				puts e
+  def run
+    loop do
+      begin
+        handle_bot
+      rescue => e
+        puts e
         puts e.backtrace
-				puts CONST::CONSOLE[:bot_problem]
-			end
-		end
-	end
+        puts CONST::CONSOLE[:bot_problem]
+      end
+    end
+  end
 
-	# rubocop:disable Metrics/MethodLength
-	def handle_bot
-		Telegram::Bot::Client.run(CONST::Token) do |bot|
+  # rubocop:disable Metrics/MethodLength
+  def handle_bot
+    Telegram::Bot::Client.run(CONST::Token) do |bot|
       @bot = bot
       @scheduler = Scheduler.new self
-			bot.listen do |message|
+      bot.listen do |message|
         telegram_user = message.from
         if telegram_user
           user = User.find_by_id telegram_user.id
@@ -53,21 +53,19 @@ class Bot
             )
           end
         end
-				case message
-				when Telegram::Bot::Types::InlineQuery
-					handle :inline, message
-				when Telegram::Bot::Types::Message
+        case message
+        when Telegram::Bot::Types::InlineQuery
+          handle :inline, message
+        when Telegram::Bot::Types::Message
           # If the message is a reply to this bot's message,
           # or a message sent 'via' this bot, we can ignore the request
-          unless group_constraints message
-            handle :chat, message
-          end
-				else
-					noop
-				end
-			end
-		end
-	end
+          handle(:chat, message) unless group_constraints message
+        else
+          noop
+        end
+      end
+    end
+  end
 
   def group_constraints(message)
     is_group = message.chat.type != CONST::CHAT_TYPES[:private]
@@ -85,21 +83,34 @@ class Bot
     is_group && (is_reply || is_via_bot)
   end
 
-	def handle(type, *args)
-		send(:"run_#{type}", *args)
-	rescue => e
-		puts e
-		puts CONST::CONSOLE[:"#{type}_problem"]
-	end
+  def handle(type, *args)
+    send(:"run_#{type}", *args)
+  rescue => e
+    puts e
+    puts CONST::CONSOLE[:"#{type}_problem"]
+  end
 
-  def get_keyboard(user)
+  def run_inline(message)
+    results = @inline.handle_inline message
+    @bot.api.answer_inline_query(
+      inline_query_id: message.id,
+      results: results
+    )
+  end
+
+  def run_chat(message)
+    text = @chat.handle_inchat message
+    send_message(message.chat, text)
+  end
+
+  def get_keyboard(chat)
     commands = CONST::MAIN_COMMANDS.map do |value|
       if value.is_a? Array
         value.map do |v|
-          keyboard_button value, user
+          keyboard_button v, chat
         end
       else
-        keyboard_button value, user
+        keyboard_button value, chat
       end
     end
 
@@ -111,43 +122,30 @@ class Bot
 
   def keyboard_button(value, chat)
     if value == :subscribe
-      if Schedule.find_by_chat_id chat.id
-        value = CONST::MAIN_COMMAND_UNSUB
-      else
-        value = CONST::MAIN_COMMAND_SUBSCRIBE
-      end
+      value = if Schedule.find_by_chat_id chat.id
+                CONST::MAIN_COMMAND_UNSUB
+              else
+                CONST::MAIN_COMMAND_SUBSCRIBE
+              end
     end
     Telegram::Bot::Types::KeyboardButton.new(text: value)
   end
 
-	def run_inline(message)
-		results = @inline.handle_inline message
-		@bot.api.answer_inline_query(
-				inline_query_id: message.id,
-				results: results
-		)
-	end
-
-	def run_chat(message)
-		text = @chat.handle_inchat message
-    if message.chat.type == CONST::CHAT_TYPES[:private]
-      if message.from
-        reply = get_keyboard message.chat
-      end
+  def send_message(chat, text)
+    if chat.type == CONST::CHAT_TYPES[:private]
+      reply = get_keyboard chat
     else
-      if text.empty?
-        return
-      end
+      return if text.empty?
       reply = nil
     end
-		@bot.api.send_message(
-				chat_id: message.chat.id,
-				text: text,
-				parse_mode: CONST::PARSE_MODE,
-        reply_markup: reply
-		)
-	end
+    @bot.api.send_message(
+      chat_id: chat,
+      text: text,
+      parse_mode: CONST::PARSE_MODE,
+      reply_markup: reply
+    )
+  end
 
-	def noop
-	end
+  def noop
+  end
 end

@@ -1,6 +1,7 @@
 module CONST
   Token = ENV['BANDECO_BOT_TOKEN'].freeze
   ENVIRONMENT = ENV['RACK_ENV'].freeze
+  BOT_SOURCE = 'github.com/Kasama/bandejao-bot'.freeze
   PDF_DOMAIN = 'www.prefeitura.sc.usp.br'.freeze
   PDF_PATH =
     '/boletim_informegeral/pdf/'\
@@ -102,7 +103,8 @@ module CONST
     "/desinscrever - Remove a inscrição efetuada pelo comando acima\n" \
     "/ajuda - Envia essa mensagem\n\n" \
     "/feedback <TEXTO> - Envia o texto especificado para o desenvolvedor do bot. Pode ser usado para reportar problemas, erros, sugerir funcionalidades, etc\n" \
-    'Também é possível entrar em contato direto com o desenvolvedor @Kasama, para qualquer dificuldade',
+    "Também é possível entrar em contato direto com o desenvolvedor @Kasama, para qualquer dificuldade\n\n" \
+    "O código fonte desse bot está disponível em #{CONST::BOT_SOURCE}",
     start: 'Bem vindo ao BandejaoBot. envie /ajuda para uma descrição detalhada de funcionalidades',
     menu: "Cardapio: #{CONST::PDF_SHORT}",
     alguem: 'Alguém sim! Por isso vai ter fila!',
@@ -112,7 +114,7 @@ module CONST
     inline_title_specific: "Mostrar cardápio para dia %d/%d %s",
     inline_pdf: 'Mostrar pdf do cardápio da semana',
     error_message:
-    "\nO bandejão está fechado ou o"\
+    "\nO restaurante está fechado ou o"\
     " cardápio ainda não foi atualizado.\n"\
     'Você pode olhar o link do cardapio para ter certeza: '\
     "#{CONST::PDF_SHORT}\n"\
