@@ -1,6 +1,8 @@
 require 'active_record'
 require 'yaml'
 require 'erb'
+require './db/user'
+require './db/schedule'
 
 if CONST::ENVIRONMENT == 'production'
   require 'pg'
