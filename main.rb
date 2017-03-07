@@ -16,7 +16,7 @@ module Main
       bot = Bot.new
       bot_thread = Thread.new { bot.run }
       api_thread = Thread.new { API.run! }
-      unless ENV['ENVIRONMENT'] == 'production'
+      unless CONST::ENVIRONMENT == 'production'
         console = Console.new bot_thread, api_thread
         quit = console.handle_console
       end
