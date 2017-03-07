@@ -2,9 +2,8 @@ require 'rufus-scheduler'
 
 class Scheduler
 
-  def initialize
+  def initialize(bot)
     @scheduler = Rufus::Scheduler.new frequency: 0.9
-    bot = Bot.instance
 
     while bot.bot.nil?
       sleep(0.5)

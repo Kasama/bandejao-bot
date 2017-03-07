@@ -14,8 +14,7 @@ module Main
 
     quit = 0
     while quit != 1
-      bot = Bot.instance
-      scheduler_thread = Thread.new { Scheduler.new }
+      bot = Bot.new
       bot_thread = Thread.new { bot.run }
       api_thread = Thread.new { API.run! }
       unless CONST::ENVIRONMENT == 'production'
