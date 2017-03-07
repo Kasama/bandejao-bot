@@ -7,7 +7,7 @@ module CONST
     'cardapio_semanal_restaurante_area_1.pdf'.freeze
   PDF_SHORT = 'http://goo.gl/v97wdA'.freeze
   API_PORT = 8273.freeze
-  USERS_FILE = 'users.yaml'.freeze
+  USERS_FILE = 'users.yml'.freeze
   MENU_FILE = 'bandeco.pdf'.freeze
   DB_CONFIG = './db/config.yaml'.freeze
   MASTER_ID = 41_487_359

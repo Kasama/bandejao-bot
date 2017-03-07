@@ -1,7 +1,6 @@
 require 'active_record'
 require 'yaml'
 require 'erb'
-require './db/schema'
 
 if CONST::ENVIRONMENT == 'production'
   require 'pg'
@@ -18,11 +17,11 @@ module DBHandler
     yaml = YAML.load(parsed_configs).deep_symbolize_keys
     db_config = yaml[configuration]
     puts "==== Got confg #{db_config.inspect}"
+    if db_config.has_key? :url
+      db_config = db_config[:url]
+    end
 
     ActiveRecord::Base.logger = Logger.new(STDOUT)
     ActiveRecord::Base.establish_connection(db_config)
-
-    Schema.create_users
-    Schema.create_schedules
   end
 end
