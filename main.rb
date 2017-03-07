@@ -1,8 +1,9 @@
-require File.expand_path './constants'
-require File.expand_path './bot'
-require File.expand_path './console'
-require File.expand_path './bandejao_api'
-require File.expand_path './db/db_handler'
+require './constants'
+require './bot'
+require './console'
+require './bandejao_api'
+require './scheduler'
+require './db/db_handler'
 
 # This is the main module, responsible for launching the program
 module Main
@@ -13,7 +14,8 @@ module Main
 
     quit = 0
     while quit != 1
-      bot = Bot.new
+      bot = Bot.instance
+      scheduler_thread = Thread.new { Scheduler.new }
       bot_thread = Thread.new { bot.run }
       api_thread = Thread.new { API.run! }
       unless CONST::ENVIRONMENT == 'production'
@@ -22,6 +24,7 @@ module Main
       end
       bot_thread.join
       api_thread.join
+      scheduler_thread.exit
     end
 	end
 end

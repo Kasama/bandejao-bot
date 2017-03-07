@@ -1,12 +1,11 @@
 require './bot_inline'
 require './bot_chat'
 require './bandejao'
-#require './user.rb'
-require './scheduler'
 require 'telegram/bot'
 
 # This class is responsible for the telegram bot
 class Bot
+  include Singleton
 	attr_accessor :bandejao
   attr_accessor :bot
 
@@ -15,7 +14,6 @@ class Bot
 		@inline = Inline.new @bandejao
 		@chat = Chat.new @bandejao, self
     @bot = nil
-    @scheduler = nil
 	end
 
 	def run
@@ -34,9 +32,7 @@ class Bot
 	def handle_bot
 		Telegram::Bot::Client.run(CONST::Token) do |bot|
       @bot = bot
-      @scheduler = Scheduler.new self
 			bot.listen do |message|
-				#@users[message.from.id] ||= message.from
         telegram_user = message.from
         if telegram_user
           user = User.find_by_id telegram_user.id
