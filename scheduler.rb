@@ -11,7 +11,6 @@ class Scheduler
   def setup(bot)
     return if @done
     @done = true
-    puts "======================================================== scheduling bot:\n#{bot.inspect}"
     CONST::PERIODS.each do |per|
       @scheduler.cron CONST::CRON_EXP[per] do
         puts "==================== REACHED SCHEDULE ========================"
