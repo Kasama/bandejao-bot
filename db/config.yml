@@ -1,9 +1,13 @@
 database: &default
-    adapter: sqlite3
-    database: db.sqlite
+    adapter: postgresql
+    url: postgres://@localhost/bandejao-bot
 
 development:
     <<: *default
+
+test:
+    <<: *default
+    url: postgres://@localhost/bandejao-bot-test
 
 production:
     adapter: postgresql
