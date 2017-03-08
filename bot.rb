@@ -36,7 +36,6 @@ class Bot
       @scheduler = Scheduler.new self
       puts "==== Running Bot"
       bot.listen do |message|
-        puts "==== Got message #{message.inspect}"
         telegram_user = message.from
         if telegram_user
           user = User.find_by_id telegram_user.id
