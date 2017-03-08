@@ -2,12 +2,16 @@ require 'rufus-scheduler'
 
 class Scheduler
 
-  def initialize(bot)
+  def initialize
+    puts "======================================================== ran scheduler"
     @scheduler = Rufus::Scheduler.new frequency: 0.9
+    @done = false
+  end
 
-    while bot.bot.nil?
-      sleep(0.5)
-    end
+  def setup(bot)
+    return if @done
+    @done = true
+    puts "======================================================== scheduling bot:\n#{bot.inspect}"
     CONST::PERIODS.each do |per|
       @scheduler.cron CONST::CRON_EXP[per] do
         puts "==================== REACHED SCHEDULE ========================"
@@ -35,6 +39,5 @@ class Scheduler
         end
       end
     end
-
   end
 end

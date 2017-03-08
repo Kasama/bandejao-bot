@@ -13,7 +13,7 @@ class Bot
     @inline = Inline.new @bandejao
     @chat = Chat.new @bandejao, self
     @bot = nil
-    @scheduler = nil
+    @scheduler = Scheduler.new
   end
 
   def run
@@ -33,7 +33,7 @@ class Bot
     Telegram::Bot::Client.run(CONST::Token) do |bot|
       @bot = bot
       puts "==== Initializing Scheduler"
-      @scheduler = Scheduler.new self
+      @scheduler.setup self
       puts "==== Running Bot"
       bot.listen do |message|
         telegram_user = message.from
