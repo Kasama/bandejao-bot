@@ -1,9 +1,3 @@
-class Restaurant
-  def initialize(restaurant)
-    @restaurant = restaurant
-  end
-
-  def method_missing(name, *args)
-    if @restaurant.key? 
-  end
+require './usp/model'
+class Restaurant < Model
 end
