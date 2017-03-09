@@ -7,8 +7,14 @@ class Model
   end
 
   def method_missing(name, *args, &block)
-    if model.key? name.to_sym
-      model[name.to_sym]
+    n = (name.to_s.gsub /\=/, '').to_sym
+    name = name.to_sym
+    if model.key? n
+      if n == name
+        model[n]
+      else
+        model[n] = args.first
+      end
     elsif model.respond_to?(name)
       model.send(name, args, block)
     else
