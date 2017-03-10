@@ -1,6 +1,6 @@
+require './constants'
 require './utils/http'
 require './utils/hash_utils'
-require './constants'
 require './usp/restaurant'
 require './usp/menu'
 require 'active_support/inflector'
@@ -31,21 +31,30 @@ module USP
       end
     end
 
-    def menu(restaurant)
+    def menu(campus, restaurant)
       @menu ||= {}
+      @menu[campus] ||= {}
+      exists = @menu[campus][restaurant].is_a? Menu
+      if exists && @menu[campus][restaurant].valid?
+        return @menu[campus][restaurant]
+      end
+      puts "making for #{campus} e #{restaurant}"
+
+      path = CONST::USP_MENU_PATH % restaurants[campus][restaurant].id
+      res = http.post(path, @auth_params)
+      menu = JSON.parse(res.body).deep_symbolize_keys
+
+      @menu[campus][restaurant] = if menu[:message][:error]
+                                    nil
+                                  else
+                                    Menu.new menu[:meals]
+                                  end
     end
 
     def menus
-      @menus ||= restaurants.each_with_object({}) do |(name, campus), c|
-        c[name] = campus.each_with_object({}) do |(rest_name, restaurant), r|
-          res = http.post(CONST::USP_MENU_PATH % restaurant.id, @auth_params)
-          json = JSON.parse res.body
-          menu = json.deep_symbolize_keys
-          r[rest_name] = if menu[:message][:error]
-                           nil
-                         else
-                           Menu.new menu
-                         end
+      restaurants.each do |campus_name, campus|
+        campus.each_key do |rest_name|
+          menu(campus_name, rest_name)
         end
       end
     end
@@ -54,7 +63,7 @@ module USP
   module_function
   def symbolize_name(name)
     special = ActiveSupport::Inflector.transliterate(name)
-    no_quotes = special.titleize.gsub(/"|'/, '')
+    no_quotes = special.titleize.gsub(/"|'/, '').gsub(/\./, ' ')
     underscored = no_quotes.split(' ').join('').underscore
     underscored.to_sym
   end
