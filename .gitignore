@@ -4,7 +4,6 @@ bandeco.pdf
 users.yaml
 db.sqlite*
 tags
-utils/*
 .idea/*
 tmp/*
 .rubocop.yml

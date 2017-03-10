@@ -1,10 +1,16 @@
 require './utils/hash_utils'
+
 module USP
   class Model
     attr_reader :model
 
     def initialize(model)
-      @model ||= model.deep_symbolize_keys
+      puts "making model of #{model.class}"
+      @model ||= if model.is_a? Hash
+                   model.deep_symbolize_keys
+                 else
+                   {model: model.symbolize_keys}
+                 end
     end
 
     def method_missing(name, *args, &block)

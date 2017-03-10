@@ -32,7 +32,7 @@ module USP
     end
 
     def menu(restaurant)
-
+      @menu ||= {}
     end
 
     def menus
@@ -41,7 +41,11 @@ module USP
           res = http.post(CONST::USP_MENU_PATH % restaurant.id, @auth_params)
           json = JSON.parse res.body
           menu = json.deep_symbolize_keys
-          r[rest_name] = Menu.new menu
+          r[rest_name] = if menu[:message][:error]
+                           nil
+                         else
+                           Menu.new menu
+                         end
         end
       end
     end
