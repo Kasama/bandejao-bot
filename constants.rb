@@ -1,42 +1,45 @@
 module CONST
   Token = ENV['BANDECO_BOT_TOKEN'].freeze
   ENVIRONMENT = ENV['RACK_ENV'].freeze
+  USP_API_KEY = ENV['USP_API_KEY']
+
+  USP_API_URL = 'https://uspdigital.usp.br/rucard/servicos/'.freeze
+  USP_RESTAURANTS_PATH = '/restaurants'.freeze
+  USP_MENU_PATH = '/menu/%s'.freeze
+
+  PARSE_MODE = 'Markdown'.freeze
+
+  MASTER_ID = 41_487_359
   BOT_SOURCE = 'github.com/Kasama/bandejao-bot'.freeze
+
   PDF_DOMAIN = 'www.prefeitura.sc.usp.br'.freeze
   PDF_PATH =
     '/boletim_informegeral/pdf/'\
     'cardapio_semanal_restaurante_area_1.pdf'.freeze
   PDF_SHORT = 'http://goo.gl/v97wdA'.freeze
+
   API_PORT = if ENV['PORT']
                ENV['PORT'].to_i.freeze
              else
                8273.freeze
              end
   USERS_FILE = 'users.yml'.freeze
-  MENU_FILE = 'bandeco.pdf'.freeze
+  MENU_FILE = './tmp/bandeco.pdf'.freeze
   DB_CONFIG = './db/config.yml'.freeze
-  MASTER_ID = 41_487_359
-  PERIODS = [:lunch, :dinner].freeze
+
   CRON_EXP = {
     lunch: '0 0 11 * * MON-FRI',
     # lunch: '30 21 23 * * MON-FRI',
     # dinner: '0 0 22 * * MON-SAT'
     dinner: '0 0 17 * * MON-SAT'
   }
-  SUBSCRIBE = {
-    create: {
-      true => 'Inscrição realizada com sucesso, tenha em mente que essa funcionalidade ainda está em desenvolvimento. Por favor reporte qualquer problema usando o comando /feedback',
-      false => 'Não foi possível realizar a inscrição',
-    },
-    destroy: {
-      true => 'Inscrição removida com sucesso',
-      false => 'Não foi possível remover a inscrição',
-    }
-  }
+
+  PERIODS = [:lunch, :dinner].freeze
   PERIOD_HEADERS = /\A(?:Almoço \(\d\d?\/\d\d?\)|Jantar \(\d\d?\/\d\d?\)):/.freeze
-  PARSE_MODE = 'Markdown'.freeze
   DATE_REGEX = %r{\d?\d\/\d?\d.*$}
+
   CLEAR_SCREEN = "\e[H\e[2J".freeze
+
   CHAT_TYPES = {
     private: 'private',
     group: 'group',
@@ -53,6 +56,17 @@ module CONST
   MAIN_COMMAND_SUBSCRIBE = 'Inscrever (WIP)'
   MAIN_COMMAND_UNSUB = 'Desinscrever'
 
+  SUBSCRIBE = {
+    create: {
+      true => 'Inscrição realizada com sucesso, tenha em mente que essa funcionalidade ainda está em desenvolvimento. Por favor reporte qualquer problema usando o comando /feedback',
+      false => 'Não foi possível realizar a inscrição',
+    },
+    destroy: {
+      true => 'Inscrição removida com sucesso',
+      false => 'Não foi possível remover a inscrição',
+    }
+  }
+
   COMMANDS = {
     start: /\/start/i,
     help: /help|ajuda/i,
@@ -65,7 +79,14 @@ module CONST
     subscribe: /subscribe|inscrever/i,
     unsubscribe: /unsubscribe|des(?:in|en?)screver/i,
     feedback: /feedback|report/i,
-    alguem: /\balgu(?:e|é)m\b/i
+    alguem: /\balgu(?:e|é)m\b/i,
+    sunday: /d(?:o|u)m(?:ingo)?/i,
+    monday: /seg(?:unda)?(?:(?: |-)feira)?/i,
+    tuesday: /ter(?:c|ça)?(?:(?: |-)feira)?/i,
+    wednesday: /qua(?:rta)?(?:(?: |-)feira)?/i,
+    thursday: /qui(?:nta)?(?:(?: |-)feira)?/i,
+    friday: /sex(?:ta)?(?:(?: |-)feira)?/i,
+    saturday: /s(?:a|á)bado/i
   }.freeze
 
   CONSOLE_COMMANDS = {
@@ -126,6 +147,25 @@ module CONST
     lunch_header: '*Almoço (%s/%s):*%s',
     wtf: 'WTF!?'
   }.freeze
+
+  WEEK = [
+    :sunday,
+    :monday,
+    :tuesday,
+    :wednesday,
+    :thursday,
+    :friday,
+    :saturday
+  ]
+  WEEK_NAMES = {
+    sunday: 'Domingo',
+    monday: 'Segunda',
+    tuesday: 'Terça',
+    wednesday: 'Quarta',
+    thursday: 'Quinta',
+    friday: 'Sexta',
+    saturday: 'Sábado',
+  }
 
   # TODO: refactor this, DRY!
   # This module serves as a hash accessor

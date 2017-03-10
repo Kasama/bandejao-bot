@@ -5,5 +5,7 @@ users.yaml
 db.sqlite*
 tags
 utils/*
+.idea/*
+tmp/*
 .rubocop.yml
 .env

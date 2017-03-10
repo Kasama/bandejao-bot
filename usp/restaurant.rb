@@ -1,3 +1,5 @@
 require './usp/model'
-class Restaurant < Model
+module USP
+  class Restaurant < Model
+  end
 end
