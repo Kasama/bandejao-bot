@@ -1,6 +1,7 @@
 require './bot_inline'
 require './bot_chat'
 require './bandejao'
+require './constants'
 require 'telegram/bot'
 
 # This class is responsible for the telegram bot

@@ -2,8 +2,8 @@ require 'sinatra/base'
 require 'json'
 
 require './bandejao'
-require './user.rb'
-require './constants.rb'
+require './user'
+require './constants'
 
 class API < Sinatra::Base
 
