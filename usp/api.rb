@@ -30,6 +30,7 @@ module USP
         end
         h[key][:name] = campus[:name]
         h[key].define_singleton_method :name { self.send(:[], :name) }
+        h[key].define_singleton_method :alias { self.send(:[], :alias) }
       end
     end
 
