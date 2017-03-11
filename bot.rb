@@ -31,7 +31,7 @@ class Bot
 
   # rubocop:disable Metrics/MethodLength
   def handle_bot
-    Telegram::Bot::Client.run(CONST::Token) do |bot|
+    Telegram::Bot::Client.run(CONST::TOKEN) do |bot|
       @bot = bot
       puts "==== Initializing Scheduler"
       @scheduler.setup self

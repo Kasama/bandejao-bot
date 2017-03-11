@@ -22,7 +22,7 @@ module USP
       20.hours.ago < created
     end
 
-    def method_missing(name, *args, &block)
+    def method_missing(name, *args)
       n = (name.to_s.gsub /\=/, '').to_sym
       name = name.to_sym
       if model.key? n
@@ -32,13 +32,13 @@ module USP
           model[n] = args.first
         end
       elsif model.respond_to?(name)
-        model.send(name, args, block)
+        model.send(name, args) { yield if block_given? }
       else
         super
       end
     end
 
-    def respont_to_missing?(name, include_private = false)
+    def respond_to_missing?(name, include_private = false)
       model.key?(name.to_sym) || model.respond_to?(name) || super
     end
   end

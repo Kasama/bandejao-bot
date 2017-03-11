@@ -17,6 +17,22 @@ module USP
       end
     end
 
+    def [](week_day)
+      if CONST::WEEK.include? week_day
+        ret = model[week_day]
+        ret.define_singleton_method :[] do |period|
+          if CONST::PERIODS.include? period
+            super(period)[:menu]
+          else
+            super(period)
+          end
+        end
+        ret
+      else
+        super
+      end
+    end
+
     CONST::PERIODS.each do |per|
       define_method per do |week_day|
         return '' unless CONST::WEEK.include? week_day

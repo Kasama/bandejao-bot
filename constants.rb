@@ -1,5 +1,5 @@
 module CONST
-  Token = ENV['BANDECO_BOT_TOKEN'].freeze
+  TOKEN = ENV['BANDECO_BOT_TOKEN'].freeze
   ENVIRONMENT = ENV['RACK_ENV'].freeze
   USP_API_KEY = ENV['USP_API_KEY']
 
