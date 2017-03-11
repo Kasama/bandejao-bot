@@ -8,12 +8,15 @@ class Bot
 
     def handle_inchat(message)
       text, period, tomorrow = handle_command message
-      day = month = nil
-      if CONST::DATE_REGEX.match message.text
-        day, month = %r{(\d?\d)\/(\d?\d)}.match(message.text).captures
+      weekday = nil
+      CONST::WEEK.each do |wday|
+        if CONST::WEEK_REGEX[wday] =~ message.text
+          weekday ||= wday
+        end
       end
 
-      text = @bandejao.get_bandeco day, month, period, false, tomorrow unless text
+      #text = @bandejao.get_bandeco day, month, period, false, tomorrow unless text
+      text = @bandejao.get_menu(weekday: weekday, period: period) unless text
       text
     end
 

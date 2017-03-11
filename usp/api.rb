@@ -4,7 +4,6 @@ require './utils/hash_utils'
 require './usp/usp'
 require './usp/restaurant'
 require './usp/menu'
-require 'active_support/inflector'
 require 'json'
 
 module USP
@@ -26,9 +25,11 @@ module USP
       @restaurants = campi.each_with_object({}) do |campus, h|
         key = USP.symbolize_name campus[:name]
         h[key] = campus[:restaurants].each_with_object({}) do |restaurant, r|
-          key = USP.symbolize_name restaurant[:alias]
-          r[key] = Restaurant.new restaurant
+          k= USP.symbolize_name restaurant[:alias]
+          r[k] = Restaurant.new restaurant
         end
+        h[key][:name] = campus[:name]
+        h[key].define_singleton_method :name { self.send(:[], :name) }
       end
     end
 
@@ -39,7 +40,6 @@ module USP
       if exists && @menu[campus][restaurant].valid?
         return @menu[campus][restaurant]
       end
-      puts "making for #{campus} e #{restaurant}"
 
       path = CONST::USP_MENU_PATH % restaurants[campus][restaurant].id
       res = http.post(path, @auth_params)

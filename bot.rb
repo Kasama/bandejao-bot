@@ -1,7 +1,8 @@
 require './bot_inline'
 require './bot_chat'
-require './bandejao'
 require './constants'
+require './usp/bandejao'
+
 require 'telegram/bot'
 
 # This class is responsible for the telegram bot
@@ -10,7 +11,7 @@ class Bot
   attr_accessor :bot
 
   def initialize
-    @bandejao = Bandejao.new CONST::MENU_FILE
+    @bandejao = USP::Bandejao.new
     @inline = Inline.new @bandejao
     @chat = Chat.new @bandejao, self
     @bot = nil

@@ -6,6 +6,8 @@ module CONST
   USP_API_URL = 'https://uspdigital.usp.br/rucard/servicos/'.freeze
   USP_RESTAURANTS_PATH = '/restaurants'.freeze
   USP_MENU_PATH = '/menu/%s'.freeze
+  DEFAULT_CAMPUS = :campus_de_sao_carlos
+  DEFAULT_RESTAURANT = :restaurante_area1
 
   PARSE_MODE = 'Markdown'.freeze
 
@@ -60,12 +62,12 @@ module CONST
     create: {
       true => 'Inscrição realizada com sucesso, tenha em mente que essa funcionalidade ainda está em desenvolvimento. Por favor reporte qualquer problema usando o comando /feedback',
       false => 'Não foi possível realizar a inscrição',
-    },
+    }.freeze,
     destroy: {
       true => 'Inscrição removida com sucesso',
       false => 'Não foi possível remover a inscrição',
-    }
-  }
+    }.freeze
+  }.freeze
 
   COMMANDS = {
     start: /\/start/i,
@@ -79,14 +81,7 @@ module CONST
     subscribe: /subscribe|inscrever/i,
     unsubscribe: /unsubscribe|des(?:in|en?)screver/i,
     feedback: /feedback|report/i,
-    alguem: /\balgu(?:e|é)m\b/i,
-    sunday: /d(?:o|u)m(?:ingo)?/i,
-    monday: /seg(?:unda)?(?:(?: |-)feira)?/i,
-    tuesday: /ter(?:c|ça)?(?:(?: |-)feira)?/i,
-    wednesday: /qua(?:rta)?(?:(?: |-)feira)?/i,
-    thursday: /qui(?:nta)?(?:(?: |-)feira)?/i,
-    friday: /sex(?:ta)?(?:(?: |-)feira)?/i,
-    saturday: /s(?:a|á)bado/i
+    alguem: /\balgu(?:e|é)m\b/i
   }.freeze
 
   CONSOLE_COMMANDS = {
@@ -143,8 +138,8 @@ module CONST
     fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',
     pdf_update_success: 'PDF foi atualizado com sucesso',
     pdf_update_error: 'O PDF não foi atualizado',
-    dinner_header: '*Jantar (%s/%s):*%s',
-    lunch_header: '*Almoço (%s/%s):*%s',
+    dinner_header: "*Jantar de %s em %s, %s:*\n%s",
+    lunch_header: "*Almoço de %s em %s, %s:*\n%s",
     wtf: 'WTF!?'
   }.freeze
 
@@ -156,7 +151,7 @@ module CONST
     :thursday,
     :friday,
     :saturday
-  ]
+  ].freeze
   WEEK_NAMES = {
     sunday: 'Domingo',
     monday: 'Segunda',
@@ -165,7 +160,16 @@ module CONST
     thursday: 'Quinta',
     friday: 'Sexta',
     saturday: 'Sábado',
-  }
+  }.freeze
+  WEEK_REGEX = {
+    sunday: /d(?:o|u)m(?:ingo)?/i,
+    monday: /seg(?:unda)?(?:(?: |-)feira)?/i,
+    tuesday: /ter(?:c|ça)?(?:(?: |-)feira)?/i,
+    wednesday: /qua(?:rta)?(?:(?: |-)feira)?/i,
+    thursday: /qui(?:nta)?(?:(?: |-)feira)?/i,
+    friday: /sex(?:ta)?(?:(?: |-)feira)?/i,
+    saturday: /s(?:a|á)bado/i
+  }.freeze
 
   # TODO: refactor this, DRY!
   # This module serves as a hash accessor

@@ -1,3 +1,5 @@
+require 'active_support/inflector'
+
 module USP
   module_function
   def symbolize_name(name)

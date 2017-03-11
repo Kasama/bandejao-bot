@@ -24,7 +24,7 @@ class Bot
 			private
 
 		def handle_inline_without_date
-			text = @bandejao.get_bandeco
+			text = @bandejao.get_menu
 			title = CONST::TEXTS[:inline_title_next]
 			inline_result(1, title, text)
 		end

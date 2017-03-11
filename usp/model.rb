@@ -11,7 +11,7 @@ module USP
                  else
                    {model: model.symbolize_keys}
                  end
-      puts "setting created to #{created}"
+      created
     end
 
     def created
