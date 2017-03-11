@@ -30,10 +30,10 @@ module CONST
   DB_CONFIG = './db/config.yml'.freeze
 
   CRON_EXP = {
-    lunch: '0 0 11 * * MON-FRI',
+    lunch: '0 0 11 * * MON-SAT',
     # lunch: '30 21 23 * * MON-FRI',
     # dinner: '0 0 22 * * MON-SAT'
-    dinner: '0 0 17 * * MON-SAT'
+    dinner: '0 0 17 * * MON-FRI'
   }
 
   PERIODS = [:lunch, :dinner].freeze
