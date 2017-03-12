@@ -19,7 +19,7 @@ class Bot
         end
       end
       results.push(result_next)
-      results.push(get_pdf)
+      #results.push(get_pdf)
 
       @bot.bot.api.answer_inline_query(
         inline_query_id: message.id,
@@ -33,11 +33,11 @@ class Bot
 
     def get_info(message)
       user = User.find message.from.id
-      campus = user.preferences[:campus]
-      restaurant = user.preferences[:restaurant]
-      campus = @bandejao.api.restaurants[campus]
-      restaurant = campus[restaurant]
-      CONST::TEXTS[:inline_info, campus.alias, restaurant.alias]
+      aliases = @bandejao.get_restaurant_alias(
+        user.preferences[:campus],
+        user.preferences[:restaurant]
+      )
+      CONST::TEXTS[:inline_info, aliases[:campus], aliases[:restaurant]]
     end
 
     def result_next

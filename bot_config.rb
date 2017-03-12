@@ -8,41 +8,30 @@ class Bot
     end
 
     def start(user, chat, exists = false)
-      buttons = @bandejao.api.restaurants.each_with_object([]) do |(k, c), o|
-        if c.restaurants.size == 1
-          o.push button(
-            text: c.alias,
-            data: "restaurant_#{c.restaurants.first}&campus_#{k}"
-          )
-        else
-          o.push button(
-            text: c.alias,
-            data: "campus_#{k}"
-          )
-        end
-      end
-      buttons.push button(text: CONST::TEXTS[:config_back], data: 'cancel')
-      prefs = get_user_preferences user
+      buttons = [
+        button(text: CONST::TEXTS[:config_change_button], data: 'config'),
+        button(text: CONST::TEXTS[:config_cancel_button], data: 'cancel')
+      ]
+      prefs = User.find(user.id).preferences
       aliases = @bandejao.get_restaurant_alias(
         prefs[:campus],
         prefs[:restaurant]
       )
-      text = CONST::TEXTS[
-        :config_select_campus,
-        aliases[:campus],
-        aliases[:restaurant]
-      ]
-      if exists
-        edit_message(chat, text, markup(buttons))
-      else
-        send_message(chat, text, markup(buttons))
-      end
+      send_message(
+        chat,
+        CONST::TEXTS[
+          :config_main_menu,
+          aliases[:campus],
+          aliases[:restaurant]
+        ],
+        markup(buttons)
+      )
     end
 
     def handle_callback(callback)
       case callback.data
       when /config/
-        start(callback.from, callback.message, true)
+        main_menu(callback)
       when /cancel/
         cancel(callback)
       when /restaurant_(.+)&campus_(.+)/
@@ -56,6 +45,25 @@ class Bot
     end
 
     private # Private methods =================================================
+
+    def main_menu(callback)
+      buttons = get_campi_buttons
+
+      prefs = get_user_preferences callback.from
+      aliases = @bandejao.get_restaurant_alias(
+        prefs[:campus],
+        prefs[:restaurant]
+      )
+      text = edit_message(
+        callback.message,
+        CONST::TEXTS[
+          :config_select_campus,
+          aliases[:campus],
+          aliases[:restaurant]
+        ],
+        markup(buttons)
+      )
+    end
 
     def cancel(callback)
       prefs = get_user_preferences callback.from
@@ -104,6 +112,27 @@ class Bot
         CONST::TEXTS[:config_select_restaurant, campus_model.alias],
         markup(buttons)
       )
+    end
+
+    def get_campi_buttons
+      buttons =@bandejao.api.restaurants.each_with_object([]) do |(k, c), o|
+        if c.restaurants.size == 1
+          o.push button(
+            text: c.alias,
+            data: "restaurant_#{c.restaurants.first}&campus_#{k}"
+          )
+        else
+          o.push button(
+            text: c.alias,
+            data: "campus_#{k}"
+          )
+        end
+      end
+      buttons.push button(
+        text: CONST::TEXTS[:config_cancel_button],
+        data: 'cancel'
+      )
+      buttons
     end
 
     def configure_user(user, options)

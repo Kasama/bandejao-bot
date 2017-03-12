@@ -15,7 +15,16 @@ class Bot
         end
       end
 
-      text = @bandejao.get_menu(weekday: weekday, period: period) unless text
+      user = User.find message.from.id
+
+      unless text
+        text = @bandejao.get_menu(
+          weekday: weekday,
+          period: period,
+          campus: user.preferences[:campus],
+          restaurant: user.preferences[:restaurant]
+        )
+      end
       send_message(message.chat, text)
     end
 

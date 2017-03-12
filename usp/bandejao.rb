@@ -13,11 +13,11 @@ module USP
     end
 
     def get_menu(options = {})
-      normalize_options options
+      options = normalize_options options
 
       menu = api.menu options[:campus], options[:restaurant]
       ret = menu[options[:weekday]][options[:period]]
-      calories = api.calories_text ret
+      calories = api.calories_footer ret
 
       aliases = get_restaurant_alias(options[:campus], options[:restaurant])
       ret = CONST::TEXTS[

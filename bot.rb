@@ -43,21 +43,23 @@ class Bot
   # rubocop:disable Metrics/MethodLength
   def handle_bot
     puts "==== Running Bot"
-    bot.listen do |message|
-      update_user message.from
-      case message
-      when Telegram::Bot::Types::Message
-        # If the message is a reply to this bot's message,
-        # or a message sent 'via' this bot, we can ignore the request
-        handle(:chat, message) unless group_constraints message
-      when Telegram::Bot::Types::InlineQuery
-        handle(:inline, message)
-      when Telegram::Bot::Types::CallbackQuery
-        handle(:callback, message)
-      else
-        noop
+    Telegram::Bot::Client.run(CONST::TOKEN) { |bot|
+      bot.listen do |message|
+        update_user message.from
+        case message
+        when Telegram::Bot::Types::Message
+          # If the message is a reply to this bot's message,
+          # or a message sent 'via' this bot, we can ignore the request
+          handle(:chat, message) unless group_constraints message
+        when Telegram::Bot::Types::InlineQuery
+          handle(:inline, message)
+        when Telegram::Bot::Types::CallbackQuery
+          handle(:callback, message)
+        else
+          noop
+        end
       end
-    end
+    }
   end
 
   def update_user(telegram_user)
