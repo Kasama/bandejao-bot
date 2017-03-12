@@ -1,71 +1,97 @@
-class Bot
-	# Module to handle the inline bot
-	class Inline
-		def initialize(bandejao)
-			@bandejao = bandejao
-		end
+require './utils/incrementer'
 
-		def handle_inline(message)
-			results = []
-			msg = message.query
-			results.push(handle_inline_with_date(msg)) if CONST::DATE_REGEX.match msg
-			results.push(handle_inline_without_date)
-      #results.push(inline_result(3, CONST::TEXTS[:inline_pdf], CONST::TEXTS[:menu]))
-      results.push(Telegram::Bot::Types::InlineQueryResultDocument.new(
+class Bot
+  # Module to handle the inline bot
+  class Inline
+    def initialize(bot)
+      @bandejao = bot.bandejao
+      @bot = bot
+      @id = Incrementer.new
+    end
+
+    def handle_inline(message)
+      @id.set 0
+      results = []
+      msg = message.query
+      CONST::WEEK.each_with_object(results) do |wday, arr|
+        if CONST::WEEK_REGEX[wday] =~ msg
+          arr.push result_with_week(wday, msg)
+        end
+      end
+      results.push(result_next)
+      results.push(get_pdf)
+
+      @bot.bot.api.answer_inline_query(
+        inline_query_id: message.id,
+        results: results,
+        switch_pm_text: get_info(message),
+        switch_pm_parameter: 'config'
+      )
+    end
+
+    private # Private methods =================================================
+
+    def get_info(message)
+      user = User.find message.from.id
+      campus = user.preferences[:campus]
+      restaurant = user.preferences[:restaurant]
+      campus = @bandejao.api.restaurants[campus]
+      restaurant = campus[restaurant]
+      CONST::TEXTS[:inline_info, campus.alias, restaurant.alias]
+    end
+
+    def result_next
+      text = @bandejao.get_menu
+      title = CONST::TEXTS[:inline_title_next]
+      inline_result(title, text)
+    end
+
+    def result_with_week(wday, msg)
+      period = get_period msg
+      period_text = get_period_text period
+      week_text = CONST::WEEK_NAMES[wday]
+      text = @bandejao.get_menu(weekday: wday, period: period)
+      title = CONST::TEXTS[:inline_title_specific, week_text, period_text]
+
+      inline_result(title, text)
+    end
+
+    def get_period_text(period)
+      per = '' unless CONST::PERIODS.include? period
+      per ||= CONST::TEXTS[:"inline_#{period}_extra"]
+    end
+
+    def get_period(text)
+      CONST::PERIODS.each do |per|
+        if CONST::PERIOD_REGEX[per] =~ text
+          return per
+        end
+      end
+      return nil
+    end
+
+    def inline_result(title, text)
+      id = @id.inc_after
+      content =
+        Telegram::Bot::Types::InputTextMessageContent.new(
+          message_text: text, parse_mode: CONST::PARSE_MODE
+      )
+      Telegram::Bot::Types::InlineQueryResultArticle
+        .new(
+          id: id, title: title,
+          input_message_content: content
+      )
+    end
+
+    def get_pdf
+      Telegram::Bot::Types::InlineQueryResultDocument.new(
         type: 'document',
-        id: 3,
+        id: @id.inc_after,
         title: CONST::TEXTS[:inline_pdf],
         #caption: CONST::TEXTS[:inline_pdf],
         document_url: CONST::PDF_SHORT,
         mime_type: 'application/pdf'
-      ))
-		end
-
-			private
-
-		def handle_inline_without_date
-			text = @bandejao.get_menu
-			title = CONST::TEXTS[:inline_title_next]
-			inline_result(1, title, text)
-		end
-
-		def handle_inline_with_date(msg)
-			day, month, extra = %r{(\d?\d)\/(\d?\d)(.*)}.match(msg).captures
-			text = handle_inline_query day, month, extra
-			title =
-					CONST::TEXTS[:inline_title_specific, day, month, get_period(extra)]
-			inline_result(2, title, text)
-		end
-
-		def inline_result(id, title, text)
-			content =
-					Telegram::Bot::Types::InputTextMessageContent.new(
-							message_text: text, parse_mode: CONST::PARSE_MODE
-					)
-			Telegram::Bot::Types::InlineQueryResultArticle
-					.new(
-							id: id, title: title,
-							input_message_content: content
-					)
-		end
-
-		def handle_inline_query(day, month, time)
-			time.chomp!
-			period = nil
-			CONST::PERIODS.each do |per|
-				CONST::COMMANDS[per] =~ time && (period = per)
-			end
-			@bandejao.get_bandeco day, month, period
-		end
-
-		def get_period(extra)
-			period = ''
-			CONST::PERIODS.each do |per|
-				if CONST::COMMANDS[per].match extra
-					period = CONST::TEXTS[:"inline_#{per}_extra"]
-				end
-			end
-			period
-		end
-	end
+      )
+    end
+  end
 end

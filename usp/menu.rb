@@ -22,7 +22,12 @@ module USP
         ret = model[week_day]
         ret.define_singleton_method :[] do |period|
           if CONST::PERIODS.include? period
-            super(period)[:menu]
+            ret = super(period)[:menu]
+            cal = super(period)[:calories]
+            ret.define_singleton_method :calories do
+              cal
+            end
+            ret
           else
             super(period)
           end
@@ -38,6 +43,9 @@ module USP
         return '' unless CONST::WEEK.include? week_day
         model[week_day][per][:menu]
       end
+    end
+
+    def aliasify_model
     end
   end
 end

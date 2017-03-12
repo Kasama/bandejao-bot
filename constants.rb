@@ -1,7 +1,7 @@
 module CONST
   TOKEN = ENV['BANDECO_BOT_TOKEN'].freeze
   ENVIRONMENT = ENV['RACK_ENV'].freeze
-  USP_API_KEY = ENV['USP_API_KEY']
+  USP_API_KEY = ENV['USP_API_KEY'].freeze
 
   USP_API_URL = 'https://uspdigital.usp.br/rucard/servicos/'.freeze
   USP_RESTAURANTS_PATH = '/restaurants'.freeze
@@ -11,7 +11,7 @@ module CONST
 
   PARSE_MODE = 'Markdown'.freeze
 
-  MASTER_ID = 41_487_359
+  MASTER_ID = 41_487_359.freeze
   BOT_SOURCE = 'github.com/Kasama/bandejao-bot'.freeze
 
   PDF_DOMAIN = 'www.prefeitura.sc.usp.br'.freeze
@@ -34,11 +34,19 @@ module CONST
     # lunch: '30 21 23 * * MON-FRI',
     # dinner: '0 0 22 * * MON-SAT'
     dinner: '0 0 17 * * MON-FRI'
-  }
+  }.freeze
 
+	PUSP_NAME = 'Prefeitura'.freeze
+
+  LUNCH_END_TIME = '14:30'
+  DINNER_END_TIME = '20:00'
   PERIODS = [:lunch, :dinner].freeze
-  PERIOD_HEADERS = /\A(?:Almoço \(\d\d?\/\d\d?\)|Jantar \(\d\d?\/\d\d?\)):/.freeze
-  DATE_REGEX = %r{\d?\d\/\d?\d.*$}
+  PERIOD_HEADERS = /.+,.+\n(?:Almoço|Jantar) de .+:\n/.freeze
+  DATE_REGEX = %r{\d?\d\/\d?\d.*$}.freeze
+  PERIOD_REGEX = {
+    lunch: /almo(?:ç|c)o/i,
+    dinner: /jantar?/i
+  }.freeze
 
   CLEAR_SCREEN = "\e[H\e[2J".freeze
 
@@ -49,14 +57,46 @@ module CONST
     supergroup: 'supergroup'
   }.freeze
 
+  WEEK = [
+    :sunday,
+    :monday,
+    :tuesday,
+    :wednesday,
+    :thursday,
+    :friday,
+    :saturday
+  ].freeze
+  WEEK_NAMES = {
+    sunday: 'Domingo',
+    monday: 'Segunda',
+    tuesday: 'Terça',
+    wednesday: 'Quarta',
+    thursday: 'Quinta',
+    friday: 'Sexta',
+    saturday: 'Sábado',
+  }.freeze
+  WEEK_REGEX = {
+    sunday: /d(?:o|u)m(?:ingo)?/i,
+    monday: /seg(?:unda)?(?:(?: |-)feira)?/i,
+    tuesday: /ter(?:c|ça)?(?:(?: |-)feira)?/i,
+    wednesday: /qua(?:rta)?(?:(?: |-)feira)?/i,
+    thursday: /qui(?:nta)?(?:(?: |-)feira)?/i,
+    friday: /sex(?:ta)?(?:(?: |-)feira)?/i,
+    saturday: /s(?:a|á)bado/i
+  }.freeze
+
+  CALLBACKS = {
+    initial: 'teste',
+  }
+
   MAIN_COMMANDS = [
     'Próximo', 'Almoço',
     'Jantar', 'Cardápio',
     :subscribe, 'Ajuda'
   ].freeze
 
-  MAIN_COMMAND_SUBSCRIBE = 'Inscrever (WIP)'
-  MAIN_COMMAND_UNSUB = 'Desinscrever'
+  MAIN_COMMAND_SUBSCRIBE = 'Inscrever (WIP)'.freeze
+  MAIN_COMMAND_UNSUB = 'Desinscrever'.freeze
 
   SUBSCRIBE = {
     create: {
@@ -73,14 +113,15 @@ module CONST
     start: /\/start/i,
     help: /help|ajuda/i,
     next: /next|pr(?:ó|o)xim(?:o|a)/i,
-    lunch: /almo(?:ç|c)o/i,
-    dinner: /jantar?/i,
+    lunch: PERIOD_REGEX[:lunch],
+    dinner: PERIOD_REGEX[:dinner],
     menu: /card(?:a|á)pio/i,
     update: /update/i,
     tomorrow: /\bamanh(?:a|ã)\b/i,
     subscribe: /subscribe|inscrever/i,
     unsubscribe: /unsubscribe|des(?:in|en?)screver/i,
-    feedback: /feedback|report/i,
+    config: /\bconfig(?:ura(?:r|(?:c|ç)(?:o|õ)es)|\b)|\bpref(?:er(?:e|ê)nc(?:es|ias)|\b)/i,
+    feedback: /\b(?:feedback|report)\b/i,
     alguem: /\balgu(?:e|é)m\b/i
   }.freeze
 
@@ -95,6 +136,7 @@ module CONST
   CONSOLE_HASH = {
     inline_problem: 'Something went wrong in the inline query',
     chat_problem: 'Something went wrong in chat',
+    callback_problem: 'Something went wrong in config',
     welcome_problem: 'Something went wrong in the welcome message',
     bot_problem: 'Something went wrong in the bot communication',
     quitting: 'Quitting..',
@@ -126,8 +168,9 @@ module CONST
     alguem: 'Alguém sim! Por isso vai ter fila!',
     inline_lunch_extra: ' no almoço',
     inline_dinner_extra: ' no jantar',
-    inline_title_next: 'Mostrar cardápio do próximo bandejão',
-    inline_title_specific: "Mostrar cardápio para dia %d/%d %s",
+    inline_info: '%s, %s. Toque para alterar',
+    inline_title_next: 'Mostrar cardápio da próxima refeição',
+    inline_title_specific: "Mostrar cardápio para %s%s",
     inline_pdf: 'Mostrar pdf do cardápio da semana',
     error_message:
     "\nO restaurante está fechado ou o"\
@@ -138,37 +181,10 @@ module CONST
     fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',
     pdf_update_success: 'PDF foi atualizado com sucesso',
     pdf_update_error: 'O PDF não foi atualizado',
-    dinner_header: "*Jantar de %s em %s, %s:*\n%s",
-    lunch_header: "*Almoço de %s em %s, %s:*\n%s",
+    dinner_header: "*%s, %s\nJantar de %s:*\n%s%s",
+    lunch_header: "*%s, %s\nAlmoço de %s:*\n%s%s",
+    calories_footer: "\n\n_Valor energético médio: %sKcal_",
     wtf: 'WTF!?'
-  }.freeze
-
-  WEEK = [
-    :sunday,
-    :monday,
-    :tuesday,
-    :wednesday,
-    :thursday,
-    :friday,
-    :saturday
-  ].freeze
-  WEEK_NAMES = {
-    sunday: 'Domingo',
-    monday: 'Segunda',
-    tuesday: 'Terça',
-    wednesday: 'Quarta',
-    thursday: 'Quinta',
-    friday: 'Sexta',
-    saturday: 'Sábado',
-  }.freeze
-  WEEK_REGEX = {
-    sunday: /d(?:o|u)m(?:ingo)?/i,
-    monday: /seg(?:unda)?(?:(?: |-)feira)?/i,
-    tuesday: /ter(?:c|ça)?(?:(?: |-)feira)?/i,
-    wednesday: /qua(?:rta)?(?:(?: |-)feira)?/i,
-    thursday: /qui(?:nta)?(?:(?: |-)feira)?/i,
-    friday: /sex(?:ta)?(?:(?: |-)feira)?/i,
-    saturday: /s(?:a|á)bado/i
   }.freeze
 
   # TODO: refactor this, DRY!

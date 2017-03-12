@@ -1,5 +1,6 @@
 require './bot_inline'
 require './bot_chat'
+require './bot_config'
 require './constants'
 require './usp/bandejao'
 
@@ -12,13 +13,16 @@ class Bot
 
   def initialize
     @bandejao = USP::Bandejao.new
-    @inline = Inline.new @bandejao
-    @chat = Chat.new @bandejao, self
-    @bot = nil
+    @inline = Inline.new self
+    @chat = Chat.new self
+    @config = Config.new self
+    @bot = Telegram::Bot::Client.run(CONST::TOKEN) { |bot| bot }
     @scheduler = Scheduler.new
   end
 
   def run
+    puts "==== Initializing Scheduler"
+    @scheduler.setup self
     loop do
       begin
         handle_bot
@@ -30,43 +34,49 @@ class Bot
     end
   end
 
+  def start_config(chat)
+    @config.start(chat)
+  end
+
+  private # Private methods ===================================================
+
   # rubocop:disable Metrics/MethodLength
   def handle_bot
-    Telegram::Bot::Client.run(CONST::TOKEN) do |bot|
-      @bot = bot
-      puts "==== Initializing Scheduler"
-      @scheduler.setup self
-      puts "==== Running Bot"
-      bot.listen do |message|
-        telegram_user = message.from
-        if telegram_user
-          user = User.find_by_id telegram_user.id
-          if user.nil?
-            User.create(
-              id: telegram_user.id,
-              username: telegram_user.username,
-              first_name: telegram_user.first_name,
-              last_name: telegram_user.last_name
-            )
-          else
-            user.update(
-              username: telegram_user.username,
-              first_name: telegram_user.first_name,
-              last_name: telegram_user.last_name,
-              updated_at: Time.now
-            )
-          end
-        end
-        case message
-        when Telegram::Bot::Types::InlineQuery
-          handle :inline, message
-        when Telegram::Bot::Types::Message
-          # If the message is a reply to this bot's message,
-          # or a message sent 'via' this bot, we can ignore the request
-          handle(:chat, message) unless group_constraints message
-        else
-          noop
-        end
+    puts "==== Running Bot"
+    bot.listen do |message|
+      update_user message.from
+      case message
+      when Telegram::Bot::Types::Message
+        # If the message is a reply to this bot's message,
+        # or a message sent 'via' this bot, we can ignore the request
+        handle(:chat, message) unless group_constraints message
+      when Telegram::Bot::Types::InlineQuery
+        handle(:inline, message)
+      when Telegram::Bot::Types::CallbackQuery
+        handle(:callback, message)
+      else
+        noop
+      end
+    end
+  end
+
+  def update_user(telegram_user)
+    if telegram_user
+      user = User.find_by_id telegram_user.id
+      if user.nil?
+        User.create(
+          id: telegram_user.id,
+          username: telegram_user.username,
+          first_name: telegram_user.first_name,
+          last_name: telegram_user.last_name
+        )
+      else
+        user.update(
+          username: telegram_user.username,
+          first_name: telegram_user.first_name,
+          last_name: telegram_user.last_name,
+          updated_at: Time.now
+        )
       end
     end
   end
@@ -91,63 +101,20 @@ class Bot
     send(:"run_#{type}", *args)
   rescue => e
     puts e
+    puts e.backtrace
     puts CONST::CONSOLE[:"#{type}_problem"]
   end
 
   def run_inline(message)
-    results = @inline.handle_inline message
-    @bot.api.answer_inline_query(
-      inline_query_id: message.id,
-      results: results
-    )
+    @inline.handle_inline message
   end
 
   def run_chat(message)
-    text = @chat.handle_inchat message
-    send_message(message.chat, text)
+    @chat.handle_inchat message
   end
 
-  def get_keyboard(chat)
-    commands = CONST::MAIN_COMMANDS.map do |value|
-      if value.is_a? Array
-        value.map do |v|
-          keyboard_button v, chat
-        end
-      else
-        keyboard_button value, chat
-      end
-    end
-
-    Telegram::Bot::Types::ReplyKeyboardMarkup.new(
-      keyboard: commands,
-      resize_keyboard: false
-    )
-  end
-
-  def keyboard_button(value, chat)
-    if value == :subscribe
-      value = if Schedule.find_by_chat_id chat.id
-                CONST::MAIN_COMMAND_UNSUB
-              else
-                CONST::MAIN_COMMAND_SUBSCRIBE
-              end
-    end
-    Telegram::Bot::Types::KeyboardButton.new(text: value)
-  end
-
-  def send_message(chat, text)
-    if chat.type == CONST::CHAT_TYPES[:private]
-      reply = get_keyboard chat
-    else
-      return if text.empty?
-      reply = nil
-    end
-    @bot.api.send_message(
-      chat_id: chat.id,
-      text: text,
-      parse_mode: CONST::PARSE_MODE,
-      reply_markup: reply
-    )
+  def run_callback(message)
+    @config.handle_callback message
   end
 
   def noop

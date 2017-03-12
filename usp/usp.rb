@@ -1,4 +1,4 @@
-require 'active_support/inflector'
+require './utils/inflections'
 
 module USP
   module_function

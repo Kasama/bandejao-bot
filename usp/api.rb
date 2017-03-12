@@ -3,6 +3,7 @@ require './utils/http'
 require './utils/hash_utils'
 require './usp/usp'
 require './usp/restaurant'
+require './usp/campus'
 require './usp/menu'
 require 'json'
 
@@ -22,16 +23,16 @@ module USP
       res = http.post(CONST::USP_RESTAURANTS_PATH, @auth_params)
       json = JSON.parse res.body
       campi = json.deep_symbolize_keys
-      @restaurants = campi.each_with_object({}) do |campus, h|
+      restaurants_hash = campi.each_with_object({}) do |campus, h|
         key = USP.symbolize_name campus[:name]
-        h[key] = campus[:restaurants].each_with_object({}) do |restaurant, r|
+        campi_hash = campus[:restaurants].each_with_object({}) do |restaurant, r|
           k= USP.symbolize_name restaurant[:alias]
           r[k] = Restaurant.new restaurant
         end
-        h[key][:name] = campus[:name]
-        h[key].define_singleton_method :name { self.send(:[], :name) }
-        h[key].define_singleton_method :alias { self.send(:[], :alias) }
+        campi_hash[:name] = campus[:name]
+        h[key] = Campus.new campi_hash
       end
+      @restaurants = restaurants_hash
     end
 
     def menu(campus, restaurant)

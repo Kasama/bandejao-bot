@@ -1,4 +1,5 @@
 require './utils/hash_utils'
+require './utils/inflections'
 require 'active_support/core_ext/numeric/time'
 
 module USP
@@ -11,6 +12,7 @@ module USP
                  else
                    {model: model.symbolize_keys}
                  end
+      aliasify_model
       created
     end
 
@@ -20,6 +22,20 @@ module USP
 
     def valid?
       20.hours.ago < created
+    end
+
+    def aliasify_model
+      aliased_name = model[:name]
+
+      aliased_name = aliased_name.gsub(/"|'/i, '')
+      aliased_name = aliased_name.gsub(/\s*campus\s*(de)?\s*/i, '')
+      aliased_name = aliased_name.gsub(/\s*restaurante\s*/i, '')
+      aliased_name = aliased_name.gsub(/\s*fac\.?\s*/i, '')
+      aliased_name = aliased_name.gsub(/pusp.(c)/i, CONST::PUSP_NAME)
+
+      aliased_name = aliased_name.singularize(:pt).mb_chars.titleize.to_s
+
+      model[:alias] = aliased_name
     end
 
     def method_missing(name, *args)
@@ -32,7 +48,7 @@ module USP
           model[n] = args.first
         end
       elsif model.respond_to?(name)
-        model.send(name, args) { yield if block_given? }
+        self.model.send(name, *args) { yield if block_given? }
       else
         super
       end

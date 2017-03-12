@@ -1,5 +1,6 @@
 require './usp/api'
 require './constants'
+require './utils/time'
 
 require 'active_support/core_ext/numeric/time'
 
@@ -22,13 +23,20 @@ module USP
       options = assert_options(default, options)
 
       menu = api.menu options[:campus], options[:restaurant]
+      calories = menu[options[:weekday]][options[:period]].calories
+      calories = ''
+      calories = unless calories.empty? || calories.to_i == 0
+                   CONST::TEXTS[:calories_footer, calories]
+                 end
       ret = menu[options[:weekday]][options[:period]]
+      campus = api.restaurants[options[:campus]]
       ret = CONST::TEXTS[
         :"#{options[:period]}_header",
+        campus.alias,
+        campus[options[:restaurant]].alias,
         CONST::WEEK_NAMES[options[:weekday]],
-        api.restaurants[options[:campus]].alias,
-        api.restaurants[options[:campus]][options[:restaurant]].alias,
-        ret
+        ret,
+        calories
       ]
     end
 
@@ -46,7 +54,7 @@ module USP
       unless rests.keys.include? options[:campus]
         options[:campus] = default[:campus]
       end
-      unless rests[options[:campus]].keys.include? options[:restaurant]
+      unless rests[options[:campus]].key? options[:restaurant]
         options[:campus] = default[:campus]
         options[:restaurant] = default[:restaurant]
       end
@@ -54,8 +62,8 @@ module USP
     end
 
     def get_current_period(now = Time.now)
-      if now > Time.parse('14:30', now) # after lunch
-        if now > Time.parse('20:00', now) # after dinner
+      if now.after Time.parse(CONST::LUNCH_END_TIME, now)
+        if now.after Time.parse(CONST::DINNER_END_TIME, now)
           get_current_period((now + 1.day).at_noon) # next day's lunch
         else # before dinner
           [CONST::WEEK[now.wday], :dinner]

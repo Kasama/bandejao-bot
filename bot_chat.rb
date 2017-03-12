@@ -1,8 +1,8 @@
 class Bot
   # Module to handle the chat bot
   class Chat
-    def initialize(bandejao, bot)
-      @bandejao = bandejao
+    def initialize(bot)
+      @bandejao = bot.bandejao
       @bot = bot
     end
 
@@ -15,12 +15,11 @@ class Bot
         end
       end
 
-      #text = @bandejao.get_bandeco day, month, period, false, tomorrow unless text
       text = @bandejao.get_menu(weekday: weekday, period: period) unless text
-      text
+      send_message(message.chat, text)
     end
 
-    private
+    private # Private methods =================================================
 
     # rubocop:disable Metrics/MethodLength
     def handle_command(message)
@@ -44,6 +43,10 @@ class Bot
       when CONST::COMMANDS[:subscribe]
         valid = true
         subscribe = :create
+      when CONST::COMMANDS[:config]
+        valid = true
+        text = ''
+        @bot.start_config message.chat
       when CONST::COMMANDS[:update]
         valid = true
         tag = @bandejao.update_pdf ? 'success' : 'error'
@@ -68,11 +71,55 @@ class Bot
     end
 
     def send_feedback(message)
-      @bot.bot.api.send_message(
-        chat_id: CONST::MASTER_ID,
-        text: "user (#{message.from.inspect}) enviou feedback:\n#{message.text}"
+      send_message(
+        Telegram::Bot::Types::Chat.new(id: CONST::MASTER_ID, type: :private),
+        "user (#{message.from.inspect}) enviou feedback:\n#{message.text}",
+        nil
       )
       "Feedback enviado com sucesso!"
+    end
+
+    def get_keyboard(chat)
+      commands = CONST::MAIN_COMMANDS.map do |value|
+        if value.is_a? Array
+          value.map do |v|
+            keyboard_button v, chat
+          end
+        else
+          keyboard_button value, chat
+        end
+      end
+
+      Telegram::Bot::Types::ReplyKeyboardMarkup.new(
+        keyboard: commands,
+        resize_keyboard: false
+      )
+    end
+
+    def keyboard_button(value, chat)
+      if value == :subscribe
+        value = if Schedule.find_by_chat_id chat.id
+                  CONST::MAIN_COMMAND_UNSUB
+                else
+                  CONST::MAIN_COMMAND_SUBSCRIBE
+                end
+      end
+      Telegram::Bot::Types::KeyboardButton.new(text: value)
+    end
+
+    def send_message(chat, text, parse = CONST::PARSE_MODE)
+      return if text.empty?
+      if chat.type == CONST::CHAT_TYPES[:private]
+        reply = get_keyboard chat
+      else
+        reply = nil
+      end
+      @bot.bot.api.send_message(
+        chat_id: chat.id,
+        text: text,
+        parse_mode: parse,
+        reply_markup: reply
+      )
     end
 
   end
