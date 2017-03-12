@@ -13,6 +13,32 @@ module USP
     end
 
     def get_menu(options = {})
+      normalize_options options
+
+      menu = api.menu options[:campus], options[:restaurant]
+      ret = menu[options[:weekday]][options[:period]]
+      calories = api.calories_text ret
+
+      aliases = get_restaurant_alias(options[:campus], options[:restaurant])
+      ret = CONST::TEXTS[
+        :"#{options[:period]}_header",
+        aliases[:campus],
+        aliases[:restaurant],
+        CONST::WEEK_NAMES[options[:weekday]],
+        ret,
+        calories
+      ]
+    end
+
+    def get_restaurant_alias(campus, restaurant)
+      c = api.restaurants[campus]
+      r = c[restaurant]
+      {campus: c.alias, restaurant: r.alias}
+    end
+
+    private # Private methods =================================================
+
+    def normalize_options(options)
       weekday, period = get_current_period
       default = {
         weekday: weekday,
@@ -20,24 +46,7 @@ module USP
         campus: CONST::DEFAULT_CAMPUS,
         restaurant: CONST::DEFAULT_RESTAURANT
       }
-      options = assert_options(default, options)
-
-      menu = api.menu options[:campus], options[:restaurant]
-      calories = menu[options[:weekday]][options[:period]].calories
-      calories = ''
-      calories = unless calories.empty? || calories.to_i == 0
-                   CONST::TEXTS[:calories_footer, calories]
-                 end
-      ret = menu[options[:weekday]][options[:period]]
-      campus = api.restaurants[options[:campus]]
-      ret = CONST::TEXTS[
-        :"#{options[:period]}_header",
-        campus.alias,
-        campus[options[:restaurant]].alias,
-        CONST::WEEK_NAMES[options[:weekday]],
-        ret,
-        calories
-      ]
+      assert_options(default, options)
     end
 
     def assert_options(default, options)

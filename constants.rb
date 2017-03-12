@@ -91,7 +91,7 @@ module CONST
 
   MAIN_COMMANDS = [
     'Próximo', 'Almoço',
-    'Jantar', 'Cardápio',
+    'Jantar', 'Configurações',
     :subscribe, 'Ajuda'
   ].freeze
 
@@ -172,6 +172,11 @@ module CONST
     inline_title_next: 'Mostrar cardápio da próxima refeição',
     inline_title_specific: "Mostrar cardápio para %s%s",
     inline_pdf: 'Mostrar pdf do cardápio da semana',
+    config_select_campus: "*Restaurante atual: %s, %s*.\nSelecione um novo Campus abaixo",
+    config_back: '<< Voltar',
+    config_select_restaurant: "*%s*:\n Selecione um Restaurante abaixo",
+    config_selected: "Restaurante *%s, %s* selecionado",
+    config_cancel: "Operação cancelada\nRestaurante atual: *%s, %s*",
     error_message:
     "\nO restaurante está fechado ou o"\
     " cardápio ainda não foi atualizado.\n"\

@@ -46,7 +46,7 @@ class Bot
       when CONST::COMMANDS[:config]
         valid = true
         text = ''
-        @bot.start_config message.chat
+        @bot.start_config message.from, message.chat
       when CONST::COMMANDS[:update]
         valid = true
         tag = @bandejao.update_pdf ? 'success' : 'error'

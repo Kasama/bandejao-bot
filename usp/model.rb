@@ -24,6 +24,10 @@ module USP
       20.hours.ago < created
     end
 
+    def size
+      (@model.keys - [:alias, :name]).size
+    end
+
     def aliasify_model
       aliased_name = model[:name]
 
@@ -33,7 +37,7 @@ module USP
       aliased_name = aliased_name.gsub(/\s*fac\.?\s*/i, '')
       aliased_name = aliased_name.gsub(/pusp.(c)/i, CONST::PUSP_NAME)
 
-      aliased_name = aliased_name.singularize(:pt).mb_chars.titleize.to_s
+      aliased_name = aliased_name.singularize.mb_chars.titleize.to_s
 
       model[:alias] = aliased_name
     end

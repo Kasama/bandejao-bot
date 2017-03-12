@@ -7,39 +7,114 @@ class Bot
       @bot = bot
     end
 
-    def start(chat)
-      buttons = @bandejao.api.restaurants.each_with_object([]) do |(k, v), o|
-        o.push button(text: v.alias, data: "campus_#{k}")
+    def start(user, chat, exists = false)
+      buttons = @bandejao.api.restaurants.each_with_object([]) do |(k, c), o|
+        if c.restaurants.size == 1
+          o.push button(
+            text: c.alias,
+            data: "restaurant_#{c.restaurants.first}&campus_#{k}"
+          )
+        else
+          o.push button(
+            text: c.alias,
+            data: "campus_#{k}"
+          )
+        end
       end
-      send_message(chat, "Selecione um campus", markup(buttons))
+      buttons.push button(text: CONST::TEXTS[:config_back], data: 'cancel')
+      prefs = get_user_preferences user
+      aliases = @bandejao.get_restaurant_alias(
+        prefs[:campus],
+        prefs[:restaurant]
+      )
+      text = CONST::TEXTS[
+        :config_select_campus,
+        aliases[:campus],
+        aliases[:restaurant]
+      ]
+      if exists
+        edit_message(chat, text, markup(buttons))
+      else
+        send_message(chat, text, markup(buttons))
+      end
     end
 
     def handle_callback(callback)
       case callback.data
+      when /config/
+        start(callback.from, callback.message, true)
+      when /cancel/
+        cancel(callback)
       when /restaurant_(.+)&campus_(.+)/
         restaurant = $1.to_sym
         campus = $2.to_sym
-        #send_message(callback.message.chat, "Selected #{campus} and #{restaurant}")
-        edit_message(callback.message, "Selected #{campus} and #{restaurant}", nil, nil)
-        configure_user(callback.from, {campus: campus, restaurant: restaurant})
+        select_restaurant(callback, campus, restaurant)
       when /campus_(.+)/
         campus = $1.to_sym
-        buttons = @bandejao.api.restaurants[campus].model.each_with_object([]) do |(k, v), o|
-          if v.is_a? USP::Restaurant
-            o.push button(text: v.alias, data: "restaurant_#{k}&campus_#{campus}")
-          end
-        end
-        buttons.push button(text: '<< Voltar', data: 'config')
-        edit_message(callback.message, "Selecione um restaurante", markup(buttons))
+        select_campus(callback, campus)
       end
     end
 
     private # Private methods =================================================
 
+    def cancel(callback)
+      prefs = get_user_preferences callback.from
+      aliases = @bandejao.get_restaurant_alias(
+        prefs[:campus],
+        prefs[:restaurant]
+      )
+      edit_message(
+        callback.message,
+        CONST::TEXTS[
+          :config_cancel,
+          aliases[:campus],
+          aliases[:restaurant]
+        ],
+        nil
+      )
+    end
+
+    def select_restaurant(callback, campus, restaurant)
+      aliases = @bandejao.get_restaurant_alias(
+        campus,
+        restaurant
+      )
+      edit_message(
+        callback.message,
+        CONST::TEXTS[
+          :config_selected,
+          aliases[:campus],
+          aliases[:restaurant]
+        ],
+        nil
+      )
+      configure_user(callback.from, {campus: campus, restaurant: restaurant})
+    end
+
+    def select_campus(callback, campus)
+      campus_model = @bandejao.api.restaurants[campus]
+      buttons = campus_model.model.each_with_object([]) do |(k, v), o|
+        if v.is_a? USP::Restaurant
+          o.push button(text: v.alias, data: "restaurant_#{k}&campus_#{campus}")
+        end
+      end
+      buttons.push button(text: CONST::TEXTS[:config_back], data: 'config')
+      edit_message(
+        callback.message,
+        CONST::TEXTS[:config_select_restaurant, campus_model.alias],
+        markup(buttons)
+      )
+    end
+
     def configure_user(user, options)
       u = User.find user.id
       u.preferences = options
       u.save
+    end
+
+    def get_user_preferences(telegram_user)
+      user = User.find telegram_user.id
+      user.preferences
     end
 
     def markup(buttons)

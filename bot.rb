@@ -34,8 +34,8 @@ class Bot
     end
   end
 
-  def start_config(chat)
-    @config.start(chat)
+  def start_config(user, chat)
+    @config.start(user, chat)
   end
 
   private # Private methods ===================================================

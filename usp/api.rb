@@ -54,6 +54,15 @@ module USP
                                   end
     end
 
+    def calories_footer(menu_entry)
+      cal = menu_entry.calories
+      if cal.empty? || cal.to_i == 0
+        ''
+      else
+        CONST::TEXTS[:calories_footer, cal]
+      end
+    end
+
     def menus
       restaurants.each do |campus_name, campus|
         campus.each_key do |rest_name|

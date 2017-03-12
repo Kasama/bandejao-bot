@@ -10,13 +10,6 @@ module USP
       super
     end
 
-    def normalize_week(menu)
-      menu.each_with_object({}) do |meal, o|
-        date = Date.parse meal[:date]
-        o[CONST::WEEK[date.wday]] = meal
-      end
-    end
-
     def [](week_day)
       if CONST::WEEK.include? week_day
         ret = model[week_day]
@@ -42,6 +35,15 @@ module USP
       define_method per do |week_day|
         return '' unless CONST::WEEK.include? week_day
         model[week_day][per][:menu]
+      end
+    end
+
+    private # Private methods =================================================
+
+    def normalize_week(menu)
+      menu.each_with_object({}) do |meal, o|
+        date = Date.parse meal[:date]
+        o[CONST::WEEK[date.wday]] = meal
       end
     end
 

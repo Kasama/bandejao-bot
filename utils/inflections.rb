@@ -12,7 +12,7 @@ require 'active_support/core_ext/string/inflections'
 #   inflect.irregular 'person', 'people'
 #   inflect.uncountable %w( fish sheep )
 # end
-ActiveSupport::Inflector.inflections(:pt) do |inflect|
+ActiveSupport::Inflector.inflections do |inflect|
   inflect.clear
 
   inflect.plural(/$/,  's')
@@ -67,4 +67,7 @@ ActiveSupport::Inflector.inflections(:pt) do |inflect|
   inflect.acronym 'CRHEA'
   inflect.acronym 'PUSP-C'
   inflect.acronym 'EACH'
+
+  # Especiais
+  inflect.plural(/(user|schedule)$/i, '\1s')
 end
