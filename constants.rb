@@ -6,8 +6,11 @@ module CONST
   USP_API_URL = 'https://uspdigital.usp.br/rucard/servicos/'.freeze
   USP_RESTAURANTS_PATH = '/restaurants'.freeze
   USP_MENU_PATH = '/menu/%s'.freeze
+
   DEFAULT_CAMPUS = :campus_de_sao_carlos
+  DEFAULT_CAMPUS_ALIAS = 'São Carlos'.freeze
   DEFAULT_RESTAURANT = :restaurante_area1
+  DEFAULT_RESTAURANT_ALIAS = 'Área 1'.freeze
 
   PARSE_MODE = 'Markdown'.freeze
 
@@ -191,8 +194,8 @@ module CONST
     fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',
     pdf_update_success: 'PDF foi atualizado com sucesso',
     pdf_update_error: 'O PDF não foi atualizado',
-    dinner_header: "*%s, %s\nJantar de %s:*\n%s%s",
-    lunch_header: "*%s, %s\nAlmoço de %s:*\n%s%s",
+    dinner_header: "*%s, %s\nJantar de %s (%s):*\n%s%s",
+    lunch_header: "*%s, %s\nAlmoço de %s (%s):*\n%s%s",
     calories_footer: "\n\n_Valor energético médio: %sKcal_",
     wtf: 'WTF!?'
   }.freeze

@@ -16,15 +16,18 @@ module USP
       options = normalize_options options
 
       menu = api.menu options[:campus], options[:restaurant]
-      ret = menu[options[:weekday]][options[:period]]
+      day = menu[options[:weekday]]
+      ret = day[options[:period]]
       calories = api.calories_footer ret
 
+      date = Date.parse day[:date]
       aliases = get_restaurant_alias(options[:campus], options[:restaurant])
       ret = CONST::TEXTS[
         :"#{options[:period]}_header",
         aliases[:campus],
         aliases[:restaurant],
         CONST::WEEK_NAMES[options[:weekday]],
+        date.strftime("%d/%m"),
         ret,
         calories
       ]

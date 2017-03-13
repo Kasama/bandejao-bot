@@ -13,16 +13,12 @@ class Bot
         button(text: CONST::TEXTS[:config_cancel_button], data: 'cancel')
       ]
       prefs = User.find(user.id).preferences
-      aliases = @bandejao.get_restaurant_alias(
-        prefs[:campus],
-        prefs[:restaurant]
-      )
       send_message(
         chat,
         CONST::TEXTS[
           :config_main_menu,
-          aliases[:campus],
-          aliases[:restaurant]
+          prefs[:campus_alias],
+          prefs[:restaurant_alias],
         ],
         markup(buttons)
       )
@@ -50,16 +46,12 @@ class Bot
       buttons = get_campi_buttons
 
       prefs = get_user_preferences callback.from
-      aliases = @bandejao.get_restaurant_alias(
-        prefs[:campus],
-        prefs[:restaurant]
-      )
       text = edit_message(
         callback.message,
         CONST::TEXTS[
           :config_select_campus,
-          aliases[:campus],
-          aliases[:restaurant]
+          prefs[:campus_alias],
+          prefs[:restaurant_alias],
         ],
         markup(buttons)
       )
@@ -67,16 +59,12 @@ class Bot
 
     def cancel(callback)
       prefs = get_user_preferences callback.from
-      aliases = @bandejao.get_restaurant_alias(
-        prefs[:campus],
-        prefs[:restaurant]
-      )
       edit_message(
         callback.message,
         CONST::TEXTS[
           :config_cancel,
-          aliases[:campus],
-          aliases[:restaurant]
+          prefs[:campus_alias],
+          prefs[:restaurant_alias],
         ],
         nil
       )
@@ -96,7 +84,15 @@ class Bot
         ],
         nil
       )
-      configure_user(callback.from, {campus: campus, restaurant: restaurant})
+      configure_user(
+        callback.from,
+        {
+          campus: campus,
+          campus_alias: aliases[:campus],
+          restaurant: restaurant,
+          restaurant_alias: aliases[:restaurant]
+        }
+      )
     end
 
     def select_campus(callback, campus)
@@ -115,7 +111,7 @@ class Bot
     end
 
     def get_campi_buttons
-      buttons =@bandejao.api.restaurants.each_with_object([]) do |(k, c), o|
+      buttons = @bandejao.api.restaurants.each_with_object([]) do |(k, c), o|
         if c.restaurants.size == 1
           o.push button(
             text: c.alias,

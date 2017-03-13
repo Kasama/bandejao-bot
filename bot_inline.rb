@@ -15,17 +15,19 @@ class Bot
       msg = message.query
       CONST::WEEK.each_with_object(results) do |wday, arr|
         if CONST::WEEK_REGEX[wday] =~ msg
-          arr.push result_with_week(wday, msg)
+          arr.push result_with_week(wday, msg, message.from)
         end
       end
-      results.push(result_next)
+      results.push(result_next message.from)
       #results.push(get_pdf)
 
       @bot.bot.api.answer_inline_query(
         inline_query_id: message.id,
         results: results,
         switch_pm_text: get_info(message),
-        switch_pm_parameter: 'config'
+        switch_pm_parameter: 'config',
+        cache_time: 5,
+        is_personal: true
       )
     end
 
@@ -33,24 +35,33 @@ class Bot
 
     def get_info(message)
       user = User.find message.from.id
-      aliases = @bandejao.get_restaurant_alias(
-        user.preferences[:campus],
-        user.preferences[:restaurant]
-      )
-      CONST::TEXTS[:inline_info, aliases[:campus], aliases[:restaurant]]
+      prefs = user.preferences
+      CONST::TEXTS[:inline_info, prefs[:campus_alias], prefs[:restaurant_alias]]
     end
 
-    def result_next
-      text = @bandejao.get_menu
+    def result_next(telegram_user)
+      user = User.find telegram_user.id
+      prefs = user.preferences
+      text = @bandejao.get_menu(
+        campus: prefs[:campus],
+        restaurant: prefs[:restaurant]
+      )
       title = CONST::TEXTS[:inline_title_next]
       inline_result(title, text)
     end
 
-    def result_with_week(wday, msg)
+    def result_with_week(wday, msg, telegram_user)
       period = get_period msg
       period_text = get_period_text period
       week_text = CONST::WEEK_NAMES[wday]
-      text = @bandejao.get_menu(weekday: wday, period: period)
+      user = User.find telegram_user.id
+      prefs = user.preferences
+      text = @bandejao.get_menu(
+        weekday: wday,
+        period: period,
+        campus: prefs[:campus],
+        restaurant: prefs[:restaurant]
+      )
       title = CONST::TEXTS[:inline_title_specific, week_text, period_text]
 
       inline_result(title, text)
