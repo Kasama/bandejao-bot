@@ -1,15 +1,17 @@
 module CONST
-  Token = ENV['BANDECO_BOT_TOKEN'].freeze
+  TOKEN = ENV['BANDECO_BOT_TOKEN'].freeze
   ENVIRONMENT = ENV['RACK_ENV'].freeze
-  USP_API_KEY = ENV['USP_API_KEY']
+  USP_API_KEY = ENV['USP_API_KEY'].freeze
 
   USP_API_URL = 'https://uspdigital.usp.br/rucard/servicos/'.freeze
   USP_RESTAURANTS_PATH = '/restaurants'.freeze
   USP_MENU_PATH = '/menu/%s'.freeze
+  DEFAULT_CAMPUS = :campus_de_sao_carlos
+  DEFAULT_RESTAURANT = :restaurante_area1
 
   PARSE_MODE = 'Markdown'.freeze
 
-  MASTER_ID = 41_487_359
+  MASTER_ID = 41_487_359.freeze
   BOT_SOURCE = 'github.com/Kasama/bandejao-bot'.freeze
 
   PDF_DOMAIN = 'www.prefeitura.sc.usp.br'.freeze
@@ -28,15 +30,23 @@ module CONST
   DB_CONFIG = './db/config.yml'.freeze
 
   CRON_EXP = {
-    lunch: '0 0 11 * * MON-FRI',
+    lunch: '0 0 11 * * MON-SAT',
     # lunch: '30 21 23 * * MON-FRI',
     # dinner: '0 0 22 * * MON-SAT'
-    dinner: '0 0 17 * * MON-SAT'
-  }
+    dinner: '0 0 17 * * MON-FRI'
+  }.freeze
 
+	PUSP_NAME = 'Prefeitura'.freeze
+
+  LUNCH_END_TIME = '14:30'
+  DINNER_END_TIME = '20:00'
   PERIODS = [:lunch, :dinner].freeze
-  PERIOD_HEADERS = /\A(?:Almoço \(\d\d?\/\d\d?\)|Jantar \(\d\d?\/\d\d?\)):/.freeze
-  DATE_REGEX = %r{\d?\d\/\d?\d.*$}
+  PERIOD_HEADERS = /.+,.+\n(?:Almoço|Jantar) de .+:\n/.freeze
+  DATE_REGEX = %r{\d?\d\/\d?\d.*$}.freeze
+  PERIOD_REGEX = {
+    lunch: /almo(?:ç|c)o/i,
+    dinner: /jantar?/i
+  }.freeze
 
   CLEAR_SCREEN = "\e[H\e[2J".freeze
 
@@ -47,39 +57,25 @@ module CONST
     supergroup: 'supergroup'
   }.freeze
 
-  MAIN_COMMANDS = [
-    'Próximo', 'Almoço',
-    'Jantar', 'Cardápio',
-    :subscribe, 'Ajuda'
+  WEEK = [
+    :sunday,
+    :monday,
+    :tuesday,
+    :wednesday,
+    :thursday,
+    :friday,
+    :saturday
   ].freeze
-
-  MAIN_COMMAND_SUBSCRIBE = 'Inscrever (WIP)'
-  MAIN_COMMAND_UNSUB = 'Desinscrever'
-
-  SUBSCRIBE = {
-    create: {
-      true => 'Inscrição realizada com sucesso, tenha em mente que essa funcionalidade ainda está em desenvolvimento. Por favor reporte qualquer problema usando o comando /feedback',
-      false => 'Não foi possível realizar a inscrição',
-    },
-    destroy: {
-      true => 'Inscrição removida com sucesso',
-      false => 'Não foi possível remover a inscrição',
-    }
-  }
-
-  COMMANDS = {
-    start: /\/start/i,
-    help: /help|ajuda/i,
-    next: /next|pr(?:ó|o)xim(?:o|a)/i,
-    lunch: /almo(?:ç|c)o/i,
-    dinner: /jantar?/i,
-    menu: /card(?:a|á)pio/i,
-    update: /update/i,
-    tomorrow: /\bamanh(?:a|ã)\b/i,
-    subscribe: /subscribe|inscrever/i,
-    unsubscribe: /unsubscribe|des(?:in|en?)screver/i,
-    feedback: /feedback|report/i,
-    alguem: /\balgu(?:e|é)m\b/i,
+  WEEK_NAMES = {
+    sunday: 'Domingo',
+    monday: 'Segunda',
+    tuesday: 'Terça',
+    wednesday: 'Quarta',
+    thursday: 'Quinta',
+    friday: 'Sexta',
+    saturday: 'Sábado',
+  }.freeze
+  WEEK_REGEX = {
     sunday: /d(?:o|u)m(?:ingo)?/i,
     monday: /seg(?:unda)?(?:(?: |-)feira)?/i,
     tuesday: /ter(?:c|ça)?(?:(?: |-)feira)?/i,
@@ -87,6 +83,47 @@ module CONST
     thursday: /qui(?:nta)?(?:(?: |-)feira)?/i,
     friday: /sex(?:ta)?(?:(?: |-)feira)?/i,
     saturday: /s(?:a|á)bado/i
+  }.freeze
+
+  CALLBACKS = {
+    initial: 'teste',
+  }
+
+  MAIN_COMMANDS = [
+    'Próximo',
+    ['Almoço', 'Jantar'],
+    :subscribe,
+    ['Configurações', 'Ajuda']
+  ].freeze
+
+  MAIN_COMMAND_SUBSCRIBE = 'Inscrever (WIP)'.freeze
+  MAIN_COMMAND_UNSUB = 'Desinscrever'.freeze
+
+  SUBSCRIBE = {
+    create: {
+      true => 'Inscrição realizada com sucesso, tenha em mente que essa funcionalidade ainda está em desenvolvimento. Por favor reporte qualquer problema usando o comando /feedback',
+      false => 'Não foi possível realizar a inscrição',
+    }.freeze,
+    destroy: {
+      true => 'Inscrição removida com sucesso',
+      false => 'Não foi possível remover a inscrição',
+    }.freeze
+  }.freeze
+
+  COMMANDS = {
+    start: /\/start/i,
+    help: /help|ajuda/i,
+    next: /next|pr(?:ó|o)xim(?:o|a)/i,
+    lunch: PERIOD_REGEX[:lunch],
+    dinner: PERIOD_REGEX[:dinner],
+    menu: /card(?:a|á)pio/i,
+    update: /update/i,
+    tomorrow: /\bamanh(?:a|ã)\b/i,
+    subscribe: /subscribe|inscrever/i,
+    unsubscribe: /unsubscribe|des(?:in|en?)screver/i,
+    config: /\bconfig(?:ura(?:r|(?:c|ç)(?:o|õ)es)|\b)|\bpref(?:er(?:e|ê)nc(?:es|ias)|\b)/i,
+    feedback: /\b(?:feedback|report)\b/i,
+    alguem: /\balgu(?:e|é)m\b/i
   }.freeze
 
   CONSOLE_COMMANDS = {
@@ -100,6 +137,7 @@ module CONST
   CONSOLE_HASH = {
     inline_problem: 'Something went wrong in the inline query',
     chat_problem: 'Something went wrong in chat',
+    callback_problem: 'Something went wrong in config',
     welcome_problem: 'Something went wrong in the welcome message',
     bot_problem: 'Something went wrong in the bot communication',
     quitting: 'Quitting..',
@@ -111,15 +149,16 @@ module CONST
     prompt: '>> '
   }.freeze
 
+    #"-- Em ambos /almoço e /jantar pode-se colocar a palavra 'amanha' para receber o cardápio do dia seguinte\n" \
+    #"/cardapio - Envia o PDF do cardápio do jeito que é disponibilizado pela prefeitura do campus\n" \
   TEXTS_HASH = {
     help:
     "Enviando uma mensagem com qualquer texto você receberá o cardápio para a próxima refeição.\n\n" \
     "Comandos: \n" \
     "/proximo - Envia o cardápio da próxima refeição, da mesma forma que enviar qualquer texto\n" \
-    "/almoco [<DIA>/<MES>] - Envia o cardápio do almoço do dia indicado (hoje caso não indicado)\n" \
-    "/jantar [<DIA>/<MES>] - Envia o cardápio do jantar do dia indicado (hoje caso não indicado)\n" \
-    "-- Em ambos /almoço e /jantar pode-se colocar a palavra 'amanha' para receber o cardápio do dia seguinte\n" \
-    "/cardapio - Envia o PDF do cardápio do jeito que é disponibilizado pela prefeitura do campus\n" \
+    "/almoco [<Dia da Semana>] - Envia o cardápio do almoço do dia indicado (hoje caso não indicado)\n" \
+    "/jantar [<Dia da Semana>] - Envia o cardápio do jantar do dia indicado (hoje caso não indicado)\n" \
+    "/configuracoes - Abre o menu de configurações, que permite alterar o restaurante atual\n" \
     "/inscrever - Cadastra o chat para receber o cardápio para a próxima refeição antes do restaurante abrir, todos os dias (seg-sab 11:00 e seg-sex 17:00)\n" \
     "/desinscrever - Remove a inscrição efetuada pelo comando acima\n" \
     "/ajuda - Envia essa mensagem\n\n" \
@@ -131,9 +170,18 @@ module CONST
     alguem: 'Alguém sim! Por isso vai ter fila!',
     inline_lunch_extra: ' no almoço',
     inline_dinner_extra: ' no jantar',
-    inline_title_next: 'Mostrar cardápio do próximo bandejão',
-    inline_title_specific: "Mostrar cardápio para dia %d/%d %s",
+    inline_info: '%s, %s. Toque para alterar',
+    inline_title_next: 'Mostrar cardápio da próxima refeição',
+    inline_title_specific: "Mostrar cardápio para %s%s",
     inline_pdf: 'Mostrar pdf do cardápio da semana',
+    config_back: '<< Voltar',
+    config_cancel_button: 'Cancelar',
+    config_change_button: 'Alterar Restaurante',
+    config_main_menu: "*Restaurante atual:\n%s, %s*.\nSelecione uma opção",
+    config_select_campus: "*Restaurante atual:\n%s, %s*.\nSelecione um novo Campus abaixo",
+    config_select_restaurant: "*%s*:\n Selecione um Restaurante abaixo",
+    config_selected: "Restaurante *%s, %s* selecionado",
+    config_cancel: "Operação cancelada\nRestaurante atual:\n*%s, %s*",
     error_message:
     "\nO restaurante está fechado ou o"\
     " cardápio ainda não foi atualizado.\n"\
@@ -143,29 +191,11 @@ module CONST
     fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',
     pdf_update_success: 'PDF foi atualizado com sucesso',
     pdf_update_error: 'O PDF não foi atualizado',
-    dinner_header: '*Jantar (%s/%s):*%s',
-    lunch_header: '*Almoço (%s/%s):*%s',
+    dinner_header: "*%s, %s\nJantar de %s:*\n%s%s",
+    lunch_header: "*%s, %s\nAlmoço de %s:*\n%s%s",
+    calories_footer: "\n\n_Valor energético médio: %sKcal_",
     wtf: 'WTF!?'
   }.freeze
-
-  WEEK = [
-    :sunday,
-    :monday,
-    :tuesday,
-    :wednesday,
-    :thursday,
-    :friday,
-    :saturday
-  ]
-  WEEK_NAMES = {
-    sunday: 'Domingo',
-    monday: 'Segunda',
-    tuesday: 'Terça',
-    wednesday: 'Quarta',
-    thursday: 'Quinta',
-    friday: 'Sexta',
-    saturday: 'Sábado',
-  }
 
   # TODO: refactor this, DRY!
   # This module serves as a hash accessor
