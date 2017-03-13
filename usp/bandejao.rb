@@ -1,5 +1,5 @@
 require './usp/api'
-require './constants'
+require './utils/constants'
 require './utils/time'
 
 require 'active_support/core_ext/numeric/time'

@@ -1,6 +1,6 @@
 require './usp/model'
 require './utils/hash_utils.rb'
-require './constants'
+require './utils/constants'
 require 'time'
 
 module USP
