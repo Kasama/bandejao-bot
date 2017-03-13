@@ -38,6 +38,10 @@ module USP
       end
     end
 
+    def valid?
+      Date.parse(self[:sunday][:date]).future? && super
+    end
+
     private # Private methods =================================================
 
     def normalize_week(menu)

@@ -34,6 +34,10 @@ class Bot
     end
   end
 
+  def run_schedule(respond_to_msg)
+    run_chat respond_to_msg
+  end
+
   def start_config(user, chat)
     @config.start(user, chat)
   end

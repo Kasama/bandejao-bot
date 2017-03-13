@@ -22,7 +22,7 @@ module USP
 
       date = Date.parse day[:date]
       aliases = get_restaurant_alias(options[:campus], options[:restaurant])
-      ret = CONST::TEXTS[
+      CONST::TEXTS[
         :"#{options[:period]}_header",
         aliases[:campus],
         aliases[:restaurant],

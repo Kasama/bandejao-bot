@@ -27,14 +27,14 @@ class Scheduler
           )
           chat = Telegram::Bot::Types::Chat.new(
             id: schedule.chat_id,
-            type: CONST::CHAT_TYPES[:group]
+            type: CONST::CHAT_TYPES[:private]
           )
           message = Telegram::Bot::Types::Message.new(
             text: '/proximo',
             from: user,
             chat: chat
           )
-          bot.run_chat message
+          bot.run_schedule message
         end
       end
     end

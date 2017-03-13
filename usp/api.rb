@@ -18,28 +18,30 @@ module USP
       @menus = nil
     end
 
-    def restaurants
-      return @restaurants if @restaurants
+    def restaurants(force_update = false)
+      exists = @restaurants.is_a? Restaurant
+      return @restaurants if exists && @restaurants.valid? && !force_update
+
       res = http.post(CONST::USP_RESTAURANTS_PATH, @auth_params)
       json = JSON.parse res.body
       campi = json.deep_symbolize_keys
       restaurants_hash = campi.each_with_object({}) do |campus, h|
         key = USP.symbolize_name campus[:name]
-        campi_hash = campus[:restaurants].each_with_object({}) do |restaurant, r|
-          k= USP.symbolize_name restaurant[:alias]
+        campi_h = campus[:restaurants].each_with_object({}) do |restaurant, r|
+          k = USP.symbolize_name restaurant[:alias]
           r[k] = Restaurant.new restaurant
         end
-        campi_hash[:name] = campus[:name]
-        h[key] = Campus.new campi_hash
+        campi_h[:name] = campus[:name]
+        h[key] = Campus.new campi_h
       end
       @restaurants = restaurants_hash
     end
 
-    def menu(campus, restaurant)
+    def menu(campus, restaurant, force = false)
       @menu ||= {}
       @menu[campus] ||= {}
       exists = @menu[campus][restaurant].is_a? Menu
-      if exists && @menu[campus][restaurant].valid?
+      if exists && @menu[campus][restaurant].valid? && !force
         return @menu[campus][restaurant]
       end
 

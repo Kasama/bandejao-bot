@@ -21,7 +21,7 @@ module USP
     end
 
     def valid?
-      20.hours.ago < created
+      created.after 20.hours.ago
     end
 
     def size
@@ -39,7 +39,7 @@ module USP
 
       aliased_name = aliased_name.singularize.mb_chars.titleize.to_s
 
-      model[:alias] = aliased_name
+      model[:alias] = aliased_name.titleize #handles edge cases for acronyms
     end
 
     def method_missing(name, *args)
