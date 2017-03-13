@@ -1,5 +1,5 @@
-require './constants'
-require './bot'
+require './utils/constants'
+require './bot/bot'
 require './console'
 require './bandejao_api'
 require './scheduler'

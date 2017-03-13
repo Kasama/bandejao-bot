@@ -1,3 +1,5 @@
+require './utils/constants'
+
 class Bot
   # Module to handle the chat bot
   class Chat
@@ -16,13 +18,14 @@ class Bot
       end
 
       user = User.find message.from.id
+      prefs = user.preferences
 
       unless text
         text = @bandejao.get_menu(
           weekday: weekday,
           period: period,
-          campus: user.preferences[:campus],
-          restaurant: user.preferences[:restaurant]
+          campus: prefs[:campus],
+          restaurant: prefs[:restaurant]
         )
       end
       send_message(message.chat, text)
@@ -85,7 +88,7 @@ class Bot
         "user (#{message.from.inspect}) enviou feedback:\n#{message.text}",
         nil
       )
-      "Feedback enviado com sucesso!"
+      CONST::TEXTS[:feedback_success]
     end
 
     def get_keyboard(chat)

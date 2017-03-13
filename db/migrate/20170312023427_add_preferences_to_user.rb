@@ -1,4 +1,4 @@
-require './constants'
+require './utils/constants'
 require 'yaml'
 
 class AddPreferencesToUser < ActiveRecord::Migration

@@ -3,7 +3,7 @@ require 'json'
 
 require './bandejao'
 require './user'
-require './constants'
+require './utils/constants'
 
 class API < Sinatra::Base
 

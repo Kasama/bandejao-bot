@@ -1,7 +1,7 @@
-require './bot_inline'
-require './bot_chat'
-require './bot_config'
-require './constants'
+require './bot/bot_inline'
+require './bot/bot_chat'
+require './bot/bot_config'
+require './utils/constants'
 require './usp/bandejao'
 
 require 'telegram/bot'
@@ -21,7 +21,7 @@ class Bot
   end
 
   def run
-    puts "==== Initializing Scheduler"
+    puts '==== Initializing Scheduler'
     @scheduler.setup self
     loop do
       begin

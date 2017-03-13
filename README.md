@@ -1,23 +1,31 @@
-Telegram Bandejao Bot
+Telegram Bandejão Bot
 =====================
 
-Esse bot usa a [API][1] do [Telegram][2] para mostrar o cardápio do Restaurante Universitário da USP São Carlos
+Esse bot usa a [API][1] do [Telegram][2] para mostrar o cardápio do Restaurante Universitário da USP
 
 Como Usar
 ---------
 
-Para usar o bot, basta mandar qualquer mensagem para [@BandejaoBot][3] no [Telegram][2] e o bot responderá com o cardápio do dia.
+Para usar o bot, basta enviar qualquer mensagem para [@BandejaoBot][3] no [Telegram][2] e o bot responderá com o cardápio da próxima refeição
 
-Existem também dois comandos principais, /almoco <data> e /jantar <data> quando esses comandos são recebidos, o bot responde com o cardápio da data oferecida (ou da atual, caso não seja especificada) no respectivo período (almoço ou jantar)
+Interface:
 
-Também é possivel usar o bot na função [inline][4]. Para isso basta digitar [@BandejaoBot][3] na caixa de texto do [Telegram][2] em qualquer conversa. Aparecerá uma janela de seleção como na imagem ![Exemplo inline][5]
+![Interface][5]
 
-No modo [inline][4], o bot aceita também uma data uma opção almoço ou janta ![Exemplo inline 2][6]
+Existem também dois comandos principais, /almoco <Dia da Semana> e /jantar <Dia da Semana> a resposta desses comandos é o cardápio do almoço/jantar do dia da semana especificado (ou do dia atual, caso vazio)
+
+É possível alterar o Restaurante nas configurações do bot, através do comando /configuracoes
+
+Também é possivel usar o bot no modo [inline][4]. Para isso basta digitar [@BandejaoBot][3] na caixa de texto do [Telegram][2] em qualquer conversa. Aparecerá uma janela de seleção como na imagem abaixo
+
+No modo [inline][4], o bot aceita também um dia da semana e opção de almoço ou janta
+ 
+![Exemplo inline][5]
 
 API Web
 -------
 
-Status: **Ativada**
+Status: **Desativada**
 
 O bot também está equipado com uma simples API web, disponível no endereço [http://bit.ly/2lQagON](http://bit.ly/2lQagON)
 
@@ -36,7 +44,7 @@ Problemas/Bugs
 
 Para bugs no código, favor usar o canal de [Issues][7] do GitHub.
 
-Para outros problemas, dúvidas ou sugestões, mande-me uma mensagem [@Kasama][8] ou use o canal de [Issues][7] do GitHub.
+Para outros problemas, dúvidas ou sugestões, mande-me uma mensagem [@Kasama][8], use o comando /feedback do bot, ou use o canal de [Issues][7] do GitHub.
 
 Contribuindo
 ------------
@@ -58,10 +66,10 @@ Esse bot é distribuido sob a licença [MIT][9].
 
 [1]: https://core.telegram.org/bots/api
 [2]: https://telegram.org/
-[3]: http://telegram.me/BandejaoBot
+[3]: https://t.me/BandejaoBot
 [4]: https://core.telegram.org/bots/inline
 [5]: img/inlineEx1.png
-[6]: img/inlineEx2.png
+[6]: img/interface.png
 [7]: https://github.com/Kasama/bandejao-bot/issues
 [8]: http://telegram.me/Kasama
 [9]: https://opensource.org/licenses/MIT

@@ -94,9 +94,9 @@ module CONST
 
   MAIN_COMMANDS = [
     'Próximo',
-    ['Almoço', 'Jantar'],
+    %w(Almoço Jantar),
     :subscribe,
-    ['Configurações', 'Ajuda']
+    %w(Configurações Ajuda)
   ].freeze
 
   MAIN_COMMAND_SUBSCRIBE = 'Inscrever (WIP)'.freeze
@@ -152,8 +152,6 @@ module CONST
     prompt: '>> '
   }.freeze
 
-    #"-- Em ambos /almoço e /jantar pode-se colocar a palavra 'amanha' para receber o cardápio do dia seguinte\n" \
-    #"/cardapio - Envia o PDF do cardápio do jeito que é disponibilizado pela prefeitura do campus\n" \
   TEXTS_HASH = {
     help:
     "Enviando uma mensagem com qualquer texto você receberá o cardápio para a próxima refeição.\n\n" \
@@ -175,7 +173,7 @@ module CONST
     inline_dinner_extra: ' no jantar',
     inline_info: '%s, %s. Toque para alterar',
     inline_title_next: 'Mostrar cardápio da próxima refeição',
-    inline_title_specific: "Mostrar cardápio para %s%s",
+    inline_title_specific: 'Mostrar cardápio para %s%s',
     inline_pdf: 'Mostrar pdf do cardápio da semana',
     config_back: '<< Voltar',
     config_cancel_button: 'Cancelar',
@@ -183,7 +181,7 @@ module CONST
     config_main_menu: "*Restaurante atual:\n%s, %s*.\nSelecione uma opção",
     config_select_campus: "*Restaurante atual:\n%s, %s*.\nSelecione um novo Campus abaixo",
     config_select_restaurant: "*%s*:\n Selecione um Restaurante abaixo",
-    config_selected: "Restaurante *%s, %s* selecionado",
+    config_selected: 'Restaurante *%s, %s* selecionado',
     config_cancel: "Operação cancelada\nRestaurante atual:\n*%s, %s*",
     error_message:
     "\nO restaurante está fechado ou o"\
@@ -194,6 +192,7 @@ module CONST
     fim_bandeco: 'O bandejão está fechado! Use /help para mais informações',
     pdf_update_success: 'PDF foi atualizado com sucesso',
     pdf_update_error: 'O PDF não foi atualizado',
+    feedback_success: 'Feedback enviado com sucesso',
     dinner_header: "*%s, %s\nJantar de %s (%s):*\n%s%s",
     lunch_header: "*%s, %s\nAlmoço de %s (%s):*\n%s%s",
     calories_footer: "\n\n_Valor energético médio: %sKcal_",

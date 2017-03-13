@@ -1,4 +1,4 @@
-require './constants'
+require './utils/constants'
 require './utils/http'
 require './utils/hash_utils'
 require './usp/usp'
