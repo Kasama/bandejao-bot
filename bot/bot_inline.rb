@@ -13,10 +13,8 @@ class Bot
       @id.set 0
       results = []
       msg = message.query
-      week = false
       CONST::WEEK.each_with_object(results) do |wday, arr|
         if CONST::WEEK_REGEX[wday] =~ msg
-          week = true
           arr.push result_with_week(wday, msg, message.from)
         end
       end
