@@ -173,6 +173,7 @@ module CONST
     inline_dinner_extra: ' no jantar',
     inline_info: '%s, %s. Toque para alterar',
     inline_title_next: 'Mostrar cardápio da próxima refeição',
+    inline_title_period: 'Mostrar cardápio de hoje%s',
     inline_title_specific: 'Mostrar cardápio para %s%s',
     inline_pdf: 'Mostrar pdf do cardápio da semana',
     config_back: '<< Voltar',

@@ -13,12 +13,14 @@ class Bot
       @id.set 0
       results = []
       msg = message.query
+      week = false
       CONST::WEEK.each_with_object(results) do |wday, arr|
         if CONST::WEEK_REGEX[wday] =~ msg
+          week = true
           arr.push result_with_week(wday, msg, message.from)
         end
       end
-      results.push(result_next message.from)
+      results.push(result_next msg, message.from)
       #results.push(get_pdf)
 
       @bot.bot.api.answer_inline_query(
@@ -39,14 +41,20 @@ class Bot
       CONST::TEXTS[:inline_info, prefs[:campus_alias], prefs[:restaurant_alias]]
     end
 
-    def result_next(telegram_user)
+    def result_next(msg, telegram_user)
+      period = get_period msg
+      period_text = get_period_text(period)
       user = User.find telegram_user.id
       prefs = user.preferences
       text = @bandejao.get_menu(
         campus: prefs[:campus],
         restaurant: prefs[:restaurant]
       )
-      title = CONST::TEXTS[:inline_title_next]
+      title = if period_text.empty?
+                CONST::TEXTS[:inline_title_next]
+              else
+                CONST::TEXTS[:inline_title_period, period_text]
+              end
       inline_result(title, text)
     end
 
