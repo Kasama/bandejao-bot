@@ -194,6 +194,7 @@ module CONST
     pdf_update_success: 'PDF foi atualizado com sucesso',
     pdf_update_error: 'O PDF não foi atualizado',
     feedback_success: 'Feedback enviado com sucesso',
+    feedback_fail: 'Feedback vazio não foi enviado, por favor use /feedback <mensagem> para enviar um feedback',
     dinner_header: "*%s, %s\nJantar de %s (%s):*\n%s%s",
     lunch_header: "*%s, %s\nAlmoço de %s (%s):*\n%s%s",
     calories_footer: "\n\n_Valor energético médio: %sKcal_",
