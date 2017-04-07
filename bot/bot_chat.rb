@@ -88,7 +88,7 @@ class Bot
         "user (#{message.from.inspect}) enviou feedback:\n'#{message.text}'",
         nil
       )
-      if /\A\s*\/*\s*(?:feedback|report)\s*\z/i =~ message.text
+      if /\A\s*\/*\s*(?:feedback|report)(?:@bandejao.+bot)?\s*\z/i =~ message.text
         if message.chat.type == CONST::CHAT_TYPES[:private]
           CONST::TEXTS[:feedback_fail]
         else
