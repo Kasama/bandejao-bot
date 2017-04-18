@@ -166,6 +166,8 @@ module CONST
     "/feedback <TEXTO> - Envia o texto especificado para o desenvolvedor do bot. Pode ser usado para reportar problemas, erros, sugerir funcionalidades, etc\n" \
     "Também é possível entrar em contato direto com o desenvolvedor @Kasama, para qualquer dificuldade\n\n" \
     "O código fonte desse bot está disponível em #{CONST::BOT_SOURCE}",
+    group_help: 'Para evitar mensagens grandes no grupo, clique no botão abaixo para ler a ajuda',
+    help_text: 'Ajuda',
     start: 'Bem vindo ao BandejaoBot. envie /ajuda para uma descrição detalhada de funcionalidades',
     menu: "Cardapio: #{CONST::PDF_SHORT}",
     alguem: 'Alguém sim! Por isso vai ter fila!',

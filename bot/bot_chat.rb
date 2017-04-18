@@ -9,6 +9,10 @@ class Bot
     end
 
     def handle_inchat(message)
+      if CONST::COMMANDS[:help] =~ message.text
+        send_message(message.chat, CONST::TEXTS[:group_help], nil, help_button)
+        return
+      end
       text, period, tomorrow = handle_command message
       weekday = nil
       CONST::WEEK.each do |wday|
@@ -119,18 +123,27 @@ class Bot
       Telegram::Bot::Types::KeyboardButton.new(text: value)
     end
 
-    def send_message(chat, text, parse = CONST::PARSE_MODE)
+    def help_button
+      Telegram::Bot::Types::InlineKeyboardMarkup.new(
+        inline_keyboard: [
+          Telegram::Bot::Types::InlineKeyboardButton.new(
+            text: CONST::TEXTS[:help_text],
+            url: 'tg://resolve?domain=BandejaoBot'
+          )
+        ]
+      )
+    end
+
+    def send_message(chat, text, parse = CONST::PARSE_MODE, markup = nil)
       return if text.empty?
-      if chat.type == CONST::CHAT_TYPES[:private]
-        reply = get_keyboard chat
-      else
-        reply = nil
+      if markup.nil? && chat.type == CONST::CHAT_TYPES[:private]
+        markup = get_keyboard chat
       end
       @bot.bot.api.send_message(
         chat_id: chat.id,
         text: text,
         parse_mode: parse,
-        reply_markup: reply
+        reply_markup: markup
       )
     end
 
