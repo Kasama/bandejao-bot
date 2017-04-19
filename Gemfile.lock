@@ -59,6 +59,7 @@ GEM
     multipart-post (2.0.0)
     nokogiri (1.7.0.1)
       mini_portile2 (~> 2.1.0)
+    parallel (1.11.1)
     pdf-reader (2.0.0)
       Ascii85 (~> 1.0.0)
       afm (~> 0.2.1)
@@ -117,6 +118,7 @@ PLATFORMS
 
 DEPENDENCIES
   json!
+  parallel
   pdf-reader
   pg
   rufus-scheduler
@@ -129,4 +131,4 @@ RUBY VERSION
    ruby 2.4.0p0
 
 BUNDLED WITH
-   1.14.3
+   1.14.6
