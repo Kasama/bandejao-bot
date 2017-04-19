@@ -9,6 +9,7 @@ gem 'json', github: 'flori/json', branch: 'v1.8'
 #gem 'activerecord'
 #gem 'activesupport'
 gem 'rufus-scheduler'
+gem 'parallel'
 gem 'standalone_migrations'
 
 group :production do
