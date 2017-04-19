@@ -20,7 +20,7 @@ class Scheduler
           chat_id: CONST::MASTER_ID,
           text: "Reached schedule at #{now}."
         )
-        all_schedules = Schedule.all
+        all_schedules = Schedule.all.to_a
         threads = (all_schedules.size / 10)
         if threads > CONST::MAX_THREADS
           threads = CONST::MAX_THREADS
