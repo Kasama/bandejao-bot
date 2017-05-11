@@ -136,7 +136,7 @@ class Bot
         inline_keyboard: [
           Telegram::Bot::Types::InlineKeyboardButton.new(
             text: CONST::TEXTS[:help_text],
-            url: 'tg://resolve?domain=BandejaoBot'
+            url: 'https://telegram.me/BandejaoBot?start=help'
           )
         ]
       )
