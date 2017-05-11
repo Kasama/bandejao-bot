@@ -36,7 +36,7 @@ module CONST
     lunch: '0 0 11 * * MON-SAT',
     # lunch: '0 55 11 * * MON-FRI',
     # dinner: '0 0 22 * * MON-SAT'
-    dinner: '0 15 17 * * MON-FRI'
+    dinner: '0 0 17 * * MON-FRI'
   }.freeze
   MAX_THREADS = 100.freeze
 
