@@ -1,4 +1,5 @@
 require 'rufus-scheduler'
+require 'parallel'
 
 class Scheduler
 
@@ -19,11 +20,22 @@ class Scheduler
           chat_id: CONST::MASTER_ID,
           text: "Reached schedule at #{now}."
         )
+        all_schedules = Schedule.all.to_a
+        threads = (all_schedules.size / 10)
+        if threads > CONST::MAX_THREADS
+          threads = CONST::MAX_THREADS
+        end
         Schedule.all.each do |schedule|
-          puts "Sending message to #{schedule.user_id}"
-          puts "============================================================"
-          message = build_message(schedule.user_id, schedule.chat_id)
-          bot.run_schedule message
+          # Parallel.each(all_schedules, in_threads: threads) do |schedule|
+          begin
+            puts "Sending message to #{schedule.user_id} from thread" #{Parallel.worker_number}"
+            puts "============================================================"
+            message = build_message(schedule.user_id, schedule.chat_id)
+            bot.run_schedule message
+          rescue => e
+            puts "Could not Send message to #{schedule.user_id}, skipping"
+            puts "============================================================"
+          end
         end
         bot.bot.api.send_message(
           chat_id: CONST::MASTER_ID,

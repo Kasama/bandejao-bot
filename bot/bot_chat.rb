@@ -89,10 +89,18 @@ class Bot
     def send_feedback(message)
       send_message(
         Telegram::Bot::Types::Chat.new(id: CONST::MASTER_ID, type: :private),
-        "user (#{message.from.inspect}) enviou feedback:\n#{message.text}",
+        "user (#{message.from.inspect}) enviou feedback:\n'#{message.text}'",
         nil
       )
-      CONST::TEXTS[:feedback_success]
+      if /\A\s*\/*\s*(?:feedback|report)(?:@bandejao.+bot)?\s*\z/i =~ message.text
+        if message.chat.type == CONST::CHAT_TYPES[:private]
+          CONST::TEXTS[:feedback_fail]
+        else
+          ''
+        end
+      else
+        CONST::TEXTS[:feedback_success]
+      end
     end
 
     def get_keyboard(chat)

@@ -8,5 +8,7 @@ tmp/*
 .rubocop.yml
 .env
 .idea/
+.bundle/
+vendor/
 bandejao-bot.iml
 *.json

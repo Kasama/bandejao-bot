@@ -34,10 +34,11 @@ module CONST
 
   CRON_EXP = {
     lunch: '0 0 11 * * MON-SAT',
-    # lunch: '30 21 23 * * MON-FRI',
+    # lunch: '0 55 11 * * MON-FRI',
     # dinner: '0 0 22 * * MON-SAT'
-    dinner: '0 0 17 * * MON-FRI'
+    dinner: '0 15 17 * * MON-FRI'
   }.freeze
+  MAX_THREADS = 100.freeze
 
 	PUSP_NAME = 'Prefeitura'.freeze
 
@@ -196,6 +197,7 @@ module CONST
     pdf_update_success: 'PDF foi atualizado com sucesso',
     pdf_update_error: 'O PDF não foi atualizado',
     feedback_success: 'Feedback enviado com sucesso',
+    feedback_fail: 'Feedback vazio não foi enviado, por favor use /feedback <mensagem> para enviar um feedback',
     dinner_header: "*%s, %s\nJantar de %s (%s):*\n%s%s",
     lunch_header: "*%s, %s\nAlmoço de %s (%s):*\n%s%s",
     calories_footer: "\n\n_Valor energético médio: %sKcal_",
