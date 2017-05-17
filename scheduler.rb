@@ -25,20 +25,40 @@ class Scheduler
           chat_id: CONST::MASTER_ID,
           text: "Reached schedule at #{now}. Allocating #{ all_schedules.size } messages in #{ threads } threads."
         )
+        successes = []
+        total = []
+        messages = []
         # Schedule.all.each do |schedule|
         Parallel.each(all_schedules, in_threads: threads) do |schedule|
           begin
             puts "Sending message to #{schedule.user_id} from thread #{Parallel.worker_number}"
             puts "============================================================"
             bot.run_schedule build_message(schedule.user_id, schedule.chat_id)
+            successes << 1
+            total << 1
           rescue => e
             puts "Could not Send message to #{schedule.user_id}, skipping"
+            puts "Error:\n#{e.message}\n======"
             puts "============================================================"
+            messages << e.message
+            total << 1
           end
+        end
+        successes = successes.reduce(&:+)
+        total = total.reduce(&:+)
+        bot.bot.api.send_message(
+          chat_id: CONST::MASTER_ID,
+          text: "Finished schedule. Took #{Time.now - now}s.\n Successful: #{successes}/#{total} #{successes*100/total}%\nErrors:"
+        )
+        messages.each do |m|
+          bot.bot.api.send_message(
+            chat_id: CONST::MASTER_ID,
+            text: m
+          )
         end
         bot.bot.api.send_message(
           chat_id: CONST::MASTER_ID,
-          text: "Finished schedule. Took #{Time.now - now}s"
+          text: "Finished error messages."
         )
       end
     end
