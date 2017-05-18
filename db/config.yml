@@ -1,6 +1,7 @@
 database: &default
     adapter: postgresql
     url: postgres://@localhost/bandejao-bot
+    pool: 20
 
 development:
     <<: *default
@@ -10,5 +11,5 @@ test:
     url: postgres://@localhost/bandejao-bot-test
 
 production:
-    adapter: postgresql
+    <<: *default
     url: <%= ENV['DATABASE_URL'] %>
