@@ -9,7 +9,7 @@ class Bot
     end
 
     def handle_inchat(message)
-      if CONST::COMMANDS[:help] =~ message.text && message.chat.type == CONST::CHAT_TYPES[:group]
+      if CONST::COMMANDS[:help] =~ message.text && message.chat.type != CONST::CHAT_TYPES[:private]
         send_message(message.chat, CONST::TEXTS[:group_help], nil, help_button)
         return
       end
