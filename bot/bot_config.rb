@@ -43,9 +43,10 @@ class Bot
     private # Private methods =================================================
 
     def main_menu(callback)
-      buttons = get_campi_buttons
-
       prefs = get_user_preferences callback.from
+
+      buttons = get_campi_buttons prefs
+
       text = edit_message(
         callback.message,
         CONST::TEXTS[
@@ -97,9 +98,13 @@ class Bot
 
     def select_campus(callback, campus)
       campus_model = @bandejao.api.restaurants[campus]
+
+      prefs = get_user_preferences callback.from
+
       buttons = campus_model.model.each_with_object([]) do |(k, v), o|
         if v.is_a? USP::Restaurant
-          o.push button(text: v.alias, data: "restaurant_#{k}&campus_#{campus}")
+          text = get_emoji(prefs[:restaurant], k) + ' ' + v.alias
+          o.push button(text: text, data: "restaurant_#{k}&campus_#{campus}")
         end
       end
       buttons.push button(text: CONST::TEXTS[:config_back], data: 'config')
@@ -110,16 +115,17 @@ class Bot
       )
     end
 
-    def get_campi_buttons
+    def get_campi_buttons(preferences)
       buttons = @bandejao.api.restaurants.each_with_object([]) do |(k, c), o|
         if c.restaurants.size == 1
+          text = get_emoji(c.name, k) + ' ' + c.alias
           o.push button(
-            text: c.alias,
+            text: text,
             data: "restaurant_#{c.restaurants.first}&campus_#{k}"
           )
         else
           o.push button(
-            text: c.alias,
+            text: c.alias + ' ' + CONST::MORE_EMOJI,
             data: "campus_#{k}"
           )
         end
@@ -175,6 +181,14 @@ class Bot
         parse_mode: parse,
         reply_markup: markup
       )
+    end
+
+    def get_emoji(a, b)
+      if a == b
+        return CONST::CHECKED_BOX_EMOJI
+      else
+        return CONST::UNCHECKED_BOX_EMOJI
+      end
     end
 
   end

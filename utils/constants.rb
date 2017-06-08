@@ -12,6 +12,10 @@ module CONST
   DEFAULT_RESTAURANT = :restaurante_area1
   DEFAULT_RESTAURANT_ALIAS = 'Área 1'.freeze
 
+  UNCHECKED_BOX_EMOJI = "\u{2B1C}"
+  CHECKED_BOX_EMOJI = "\u{2705}"
+  MORE_EMOJI = "\u{25B6}"
+
   PARSE_MODE = 'Markdown'.freeze
 
   MASTER_ID = 41_487_359.freeze
