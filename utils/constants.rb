@@ -200,6 +200,7 @@ module CONST
     feedback_fail: 'Feedback vazio não foi enviado, por favor use /feedback <mensagem> para enviar um feedback',
     dinner_header: "*%s, %s\nJantar de %s (%s):*\n%s%s",
     lunch_header: "*%s, %s\nAlmoço de %s (%s):*\n%s%s",
+    late_update: "O cardápio do restaurante *%s, %s* ainda não foi atualizado para essa semana. Tente novamente mais tarde.\nDesculpe pelo inconveniante",
     calories_footer: "\n\n_Valor energético médio: %sKcal_",
     wtf: 'WTF!?'
   }.freeze
