@@ -22,7 +22,7 @@ module USP
 
       date = Date.parse day[:date]
       aliases = get_restaurant_alias(options[:campus], options[:restaurant])
-      if date.at_beginning_of_week < Time.now.at_beginning_of_week
+      if date < Time.now.at_beginning_of_week
         CONST::TEXTS[
           :late_update,
           aliases[:campus],
