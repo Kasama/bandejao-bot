@@ -22,12 +22,7 @@ module USP
 
       date = Date.parse day[:date]
       aliases = get_restaurant_alias(options[:campus], options[:restaurant])
-      tnow = Time.now
-      puts "DEBUG - date is: #{date.strftime("%b %d, %Y - %H:%M:%S.%24N")}"
-      puts "DEBUG -  now is: #{tnow.strftime("%b %d, %Y - %H:%M:%S.%24N")}"
-      puts "DEBUG - dwek is: #{date.at_beginning_of_week.strftime("%b %d, %Y - %H:%M:%S.%24N")}"
-      puts "DEBUG - twek is: #{tnow.at_beginning_of_week.strftime("%b %d, %Y - %H:%M:%S.%24N")}"
-      if date < tnow.at_beginning_of_week
+      if date < Time.now.at_beginning_of_week
         CONST::TEXTS[
           :late_update,
           aliases[:campus],
