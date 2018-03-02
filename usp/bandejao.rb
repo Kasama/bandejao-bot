@@ -27,7 +27,7 @@ module USP
       puts "DEBUG -  now is: #{tnow.strftime("%b %d, %Y - %H:%M:%S.%24N")}"
       puts "DEBUG - dwek is: #{date.at_beginning_of_week.strftime("%b %d, %Y - %H:%M:%S.%24N")}"
       puts "DEBUG - twek is: #{tnow.at_beginning_of_week.strftime("%b %d, %Y - %H:%M:%S.%24N")}"
-      if date.at_beginning_of_week < tnow.at_beginning_of_week
+      if date < tnow.at_beginning_of_week
         CONST::TEXTS[
           :late_update,
           aliases[:campus],
