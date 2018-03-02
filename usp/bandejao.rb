@@ -22,23 +22,15 @@ module USP
 
       date = Date.parse day[:date]
       aliases = get_restaurant_alias(options[:campus], options[:restaurant])
-      if date.at_beginning_of_week < Time.now.at_beginning_of_week
-        CONST::TEXTS[
-          :late_update,
-          aliases[:campus],
-          aliases[:restaurant]
-        ]
-      else
-        CONST::TEXTS[
-          :"#{options[:period]}_header",
-          aliases[:campus],
-          aliases[:restaurant],
-          CONST::WEEK_NAMES[options[:weekday]],
-          date.strftime("%d/%m"),
-          ret,
-          calories
-        ]
-      end
+      CONST::TEXTS[
+        :"#{options[:period]}_header",
+        aliases[:campus],
+        aliases[:restaurant],
+        CONST::WEEK_NAMES[options[:weekday]],
+        date.strftime("%d/%m"),
+        ret,
+        calories
+      ]
     end
 
     def get_restaurant_alias(campus, restaurant)
