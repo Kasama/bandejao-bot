@@ -20,7 +20,7 @@ module USP
       ret = day[options[:period]]
       calories = api.calories_footer ret
 
-      date = Date.parse day[:date]
+      date = Date.parse(day[:date]).at_noon
       aliases = get_restaurant_alias(options[:campus], options[:restaurant])
       if date < Time.now.at_beginning_of_week
         CONST::TEXTS[
