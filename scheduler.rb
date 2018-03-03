@@ -46,7 +46,6 @@ class Scheduler
         end
         successes = successes.reduce(&:+)
         total = total.reduce(&:+)
-        puts "olha esse successes: #{successes}"
         bot.bot.api.send_message(
           chat_id: CONST::MASTER_ID,
           text: "Finished schedule. Took #{Time.now - now}s.\n Successful: #{successes}/#{total} #{successes*100/total}%\nErrors:"
