@@ -16,7 +16,7 @@ class Scheduler
       @scheduler.cron CONST::CRON_EXP[per] do
         puts "==================== REACHED SCHEDULE ========================"
         now = Time.now
-        all_schedules = Schedule.includes(:user)
+        all_schedules = Schedule.includes(:user).to_a
         threads = (all_schedules.size / 5).to_i + 1
         if threads > CONST::MAX_THREADS
           threads = CONST::MAX_THREADS
