@@ -16,7 +16,7 @@ class Scheduler
       @scheduler.cron CONST::CRON_EXP[per] do
         puts "==================== REACHED SCHEDULE ========================"
         now = Time.now
-        all_schedules = Schedule.all.to_a
+        all_schedules = Schedule.includes(:user).to_a
         threads = (all_schedules.size / 5).to_i + 1
         if threads > CONST::MAX_THREADS
           threads = CONST::MAX_THREADS
@@ -25,20 +25,20 @@ class Scheduler
           chat_id: CONST::MASTER_ID,
           text: "Reached schedule at #{now}. Allocating #{ all_schedules.size } messages in #{ threads } threads."
         )
-        successes = []
-        total = []
+        successes = [0]
+        total = [0]
         messages = []
         # Schedule.all.each do |schedule|
         Parallel.each(all_schedules, in_threads: threads) do |schedule|
           begin
-            puts "Sending message to #{schedule.user_id} from thread #{Parallel.worker_number}"
+            puts "Sending message to @#{schedule.user.username}, #{schedule.user_id} from thread #{Parallel.worker_number}"
             puts "============================================================"
-            bot.run_schedule build_message(schedule.user_id, schedule.chat_id)
+            bot.run_schedule build_message(schedule.user_id, schedule.chat_id), schedule.user.preferences
             successes << 1
             total << 1
           rescue => e
-            puts "Could not Send message to #{schedule.user_id}, skipping"
-            puts "Error:\n#{e.message}\n======"
+            puts "Could not Send message to @#{schedule.user.username}, #{schedule.user_id}, skipping"
+            puts "Error:\n#{e.message}\n======\nStacktrace: #{e.backtrace.join "\n    "}"
             puts "============================================================"
             messages << e.message
             total << 1
