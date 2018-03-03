@@ -34,8 +34,8 @@ class Bot
     end
   end
 
-  def run_schedule(respond_to_msg)
-    run_chat respond_to_msg
+  def run_schedule(respond_to_msg, preferences = nil)
+    run_chat respond_to_msg, preferences
   end
 
   def start_config(user, chat)
@@ -115,8 +115,8 @@ class Bot
     @inline.handle_inline message
   end
 
-  def run_chat(message)
-    @chat.handle_inchat message
+  def run_chat(message, preferences = nil)
+    @chat.handle_inchat message, preferences
   end
 
   def run_callback(message)

@@ -3,12 +3,7 @@ require 'yaml'
 require 'erb'
 require './db/user'
 require './db/schedule'
-
-if CONST::ENVIRONMENT == 'production'
-  require 'pg'
-else
-  require 'sqlite3'
-end
+require 'pg'
 
 # A module to manage the Schema and database stuff
 module DBHandler
@@ -18,7 +13,7 @@ module DBHandler
     parsed_configs = ERB.new(File.read(CONST::DB_CONFIG)).result
     yaml = YAML.load(parsed_configs).deep_symbolize_keys
     db_config = yaml[configuration]
-    puts "==== Got confg #{db_config.inspect}"
+    puts "==== Got config #{db_config.inspect}"
     if db_config.has_key? :url
       db_config = db_config[:url]
     end
