@@ -17,7 +17,7 @@ class Main
       bot = Bot.new
       @bot_thread = Thread.new { bot.run }
       @api_thread = Thread.new { API.run! }
-      unless CONST::ENVIRONMENT == 'production'
+      if STDIN.tty? && CONST::ENVIRONMENT != 'production'
         console = Console.new @bot_thread, @api_thread
         quit = console.handle_console
       end

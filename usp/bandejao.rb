@@ -20,17 +20,25 @@ module USP
       ret = day[options[:period]]
       calories = api.calories_footer ret
 
-      date = Date.parse day[:date]
+      date = Date.parse(day[:date]).at_noon
       aliases = get_restaurant_alias(options[:campus], options[:restaurant])
-      CONST::TEXTS[
-        :"#{options[:period]}_header",
-        aliases[:campus],
-        aliases[:restaurant],
-        CONST::WEEK_NAMES[options[:weekday]],
-        date.strftime("%d/%m"),
-        ret,
-        calories
-      ]
+      if date < Time.now.at_beginning_of_week
+        CONST::TEXTS[
+          :late_update,
+          aliases[:campus],
+          aliases[:restaurant]
+        ]
+      else
+        CONST::TEXTS[
+          :"#{options[:period]}_header",
+          aliases[:campus],
+          aliases[:restaurant],
+          CONST::WEEK_NAMES[options[:weekday]],
+          date.strftime("%d/%m"),
+          ret,
+          calories
+        ]
+      end
     end
 
     def get_restaurant_alias(campus, restaurant)

@@ -1,14 +1,15 @@
 database: &default
     adapter: postgresql
-    url: postgres://@localhost/bandejao-bot
+    url: postgres://postgres<%= ":#{ENV['DATABASE_PASSWORD']}" if ENV['DATABASE_PASSWORD'] %>@db/bandejao-bot
+    pool: 20
 
 development:
     <<: *default
 
 test:
     <<: *default
-    url: postgres://@localhost/bandejao-bot-test
+    url: postgres://postgres@db/bandejao-bot-test
 
 production:
-    adapter: postgresql
+    <<: *default
     url: <%= ENV['DATABASE_URL'] %>

@@ -8,8 +8,8 @@ class Bot
       @bot = bot
     end
 
-    def handle_inchat(message)
-      if CONST::COMMANDS[:help] =~ message.text && message.chat.type == CONST::CHAT_TYPES[:group]
+    def handle_inchat(message, prefs = nil)
+      if CONST::COMMANDS[:help] =~ message.text && message.chat.type != CONST::CHAT_TYPES[:private]
         send_message(message.chat, CONST::TEXTS[:group_help], nil, help_button)
         return
       end
@@ -21,8 +21,10 @@ class Bot
         end
       end
 
-      user = User.find message.from.id
-      prefs = user.preferences
+      unless prefs
+        user = User.find message.from.id
+        prefs = user.preferences
+      end
 
       unless text
         text = @bandejao.get_menu(
