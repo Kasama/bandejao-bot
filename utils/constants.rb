@@ -160,7 +160,7 @@ module CONST
 
   TEXTS_HASH = {
     help:
-    "Enviando uma mensagem com qualquer texto você receberá o cardápio para a próxima refeição.\n\n" \
+    "Enviando uma mensagem com qualquer texto você receberá o cardápio para a próxima refeição.\nO restaurante pode ser alterado nas configurações.\n\n" \
     "Comandos: \n" \
     "/proximo - Envia o cardápio da próxima refeição, da mesma forma que enviar qualquer texto\n" \
     "/almoco [<Dia da Semana>] - Envia o cardápio do almoço do dia indicado (hoje caso não indicado)\n" \
@@ -179,19 +179,19 @@ module CONST
     alguem: 'Alguém sim! Por isso vai ter fila!',
     inline_lunch_extra: ' no almoço',
     inline_dinner_extra: ' no jantar',
-    inline_info: '%s, %s. Toque para alterar',
-    inline_title_next: 'Mostrar cardápio da próxima refeição',
-    inline_title_period: 'Mostrar cardápio de hoje%s',
-    inline_title_specific: 'Mostrar cardápio para %s%s',
+    inline_info: 'Configurar Restaurantes',
+    inline_title_next: 'Próxima refeição de %s, %s',
+    inline_title_period: 'Cardápio de %s, %s para hoje%s',
+    inline_title_specific: 'Cardápio de %s, %s para %s%s',
     inline_pdf: 'Mostrar pdf do cardápio da semana',
     config_back: '<< Voltar',
-    config_cancel_button: 'Cancelar',
+    config_cancel_button: 'Finalizar',
     config_change_button: 'Alterar Restaurante',
-    config_main_menu: "*Restaurante atual:\n%s, %s*.\nSelecione uma opção",
-    config_select_campus: "*Restaurante atual:\n%s, %s*.\nSelecione um novo Campus abaixo",
+    config_main_menu: "*Restaurantes selecionados:*\n  - %s\nSelecione uma opção",
+    config_select_campus: "*Restaurantes selecionados:*\n  - %s\nAdicione ou remova restaurantes abaixo",
     config_select_restaurant: "*%s*:\n Selecione um Restaurante abaixo",
     config_selected: 'Restaurante *%s, %s* selecionado',
-    config_cancel: "Operação cancelada\nRestaurante atual:\n*%s, %s*",
+    config_cancel: "Operação finalizada\n*Restaurantes atuais:*\n  - %s",
     error_message:
     "\nO restaurante está fechado ou o"\
     " cardápio ainda não foi atualizado.\n"\

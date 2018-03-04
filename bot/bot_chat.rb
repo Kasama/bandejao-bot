@@ -8,7 +8,8 @@ class Bot
       @bot = bot
     end
 
-    def handle_inchat(message, prefs = nil)
+    def handle_inchat(message, restaurants = nil)
+      send_typing message.chat
       if CONST::COMMANDS[:help] =~ message.text && message.chat.type != CONST::CHAT_TYPES[:private]
         send_message(message.chat, CONST::TEXTS[:group_help], nil, help_button)
         return
@@ -21,20 +22,26 @@ class Bot
         end
       end
 
-      unless prefs
+      unless restaurants
         user = User.find message.from.id
-        prefs = user.preferences
+        restaurants = user.restaurants
       end
 
-      unless text
+      if text
+        send_message(message.chat, text)
+        return
+      end
+
+      restaurants.each do |restaurant|
+        send_typing message.chat
         text = @bandejao.get_menu(
           weekday: weekday,
           period: period,
-          campus: prefs[:campus],
-          restaurant: prefs[:restaurant]
+          campus: restaurant[:campus],
+          restaurant: restaurant[:restaurant]
         )
+        send_message(message.chat, text)
       end
-      send_message(message.chat, text)
     end
 
     private # Private methods =================================================
@@ -141,6 +148,13 @@ class Bot
             url: 'https://telegram.me/BandejaoBot?start=help'
           )
         ]
+      )
+    end
+
+    def send_typing(chat)
+      @bot.bot.api.send_chat_action(
+        chat_id: chat.id,
+        action: 'typing'
       )
     end
 
