@@ -191,6 +191,9 @@ module CONST
     config_select_campus: "*Restaurantes selecionados:*\n  - %s\nAdicione ou remova restaurantes abaixo",
     config_select_restaurant: "*%s*:\n Selecione um Restaurante abaixo",
     config_selected: 'Restaurante *%s, %s* selecionado',
+    config_remove_last: "Não foi possível remover *%s, %s* pois não há outro restaurante selecionado.\n" \
+                        "Por favor selecione outro restaurante antes de remover este",
+    config_ok: 'OK! Ententi.',
     config_cancel: "Operação finalizada\n*Restaurantes atuais:*\n  - %s",
     error_message:
     "\nO restaurante está fechado ou o"\

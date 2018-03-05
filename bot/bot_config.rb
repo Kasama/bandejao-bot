@@ -88,7 +88,7 @@ class Bot
       #   ],
       #   nil
       # )
-      configure_user(
+      status = configure_user(
         callback.from,
         {
           campus: campus,
@@ -97,7 +97,21 @@ class Bot
           restaurant_alias: aliases[:restaurant]
         }
       )
-      main_menu callback
+      return main_menu callback if status
+      edit_message(
+        callback.message,
+        CONST::TEXTS[
+          :config_remove_last,
+          aliases[:campus],
+          aliases[:restaurant]
+        ],
+        markup(
+          button(
+            text: CONST::TEXTS[:config_ok],
+            data: 'config'
+          )
+        )
+      )
     end
 
     def select_campus(callback, campus)
@@ -145,6 +159,7 @@ class Bot
     def configure_user(user, options)
       u = User.find user.id
       u.restaurants.push options unless u.restaurants.delete options
+      return false if u.restaurants.empty?
       u.save
     end
 
