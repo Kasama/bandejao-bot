@@ -12,12 +12,13 @@ class Bot
         button(text: CONST::TEXTS[:config_change_button], data: 'config'),
         button(text: CONST::TEXTS[:config_cancel_button], data: 'cancel')
       ]
-      restaurants = get_user_restaurants user
+      prefs = User.find(user.id).preferences
       send_message(
         chat,
         CONST::TEXTS[
           :config_main_menu,
-          restaurant_list(restaurants)
+          prefs[:campus_alias],
+          prefs[:restaurant_alias],
         ],
         markup(buttons)
       )
@@ -41,34 +42,29 @@ class Bot
 
     private # Private methods =================================================
 
-    def restaurant_list(restaurants)
-      restaurants.map { |restaurant|
-        restaurant[:campus_alias] + ', ' + restaurant[:restaurant_alias]
-      }.join("\n  - ")
-    end
-
     def main_menu(callback)
-      restaurants = get_user_restaurants callback.from
+      buttons = get_campi_buttons
 
-      buttons = get_campi_buttons restaurants
-
-      edit_message(
+      prefs = get_user_preferences callback.from
+      text = edit_message(
         callback.message,
         CONST::TEXTS[
           :config_select_campus,
-          restaurant_list(restaurants)
+          prefs[:campus_alias],
+          prefs[:restaurant_alias],
         ],
         markup(buttons)
       )
     end
 
     def cancel(callback)
-      restaurants = get_user_restaurants callback.from
+      prefs = get_user_preferences callback.from
       edit_message(
         callback.message,
         CONST::TEXTS[
           :config_cancel,
-          restaurant_list(restaurants)
+          prefs[:campus_alias],
+          prefs[:restaurant_alias],
         ],
         nil
       )
@@ -79,16 +75,16 @@ class Bot
         campus,
         restaurant
       )
-      # edit_message(
-      #   callback.message,
-      #   CONST::TEXTS[
-      #     :config_selected,
-      #     aliases[:campus],
-      #     aliases[:restaurant]
-      #   ],
-      #   nil
-      # )
-      status = configure_user(
+      edit_message(
+        callback.message,
+        CONST::TEXTS[
+          :config_selected,
+          aliases[:campus],
+          aliases[:restaurant]
+        ],
+        nil
+      )
+      configure_user(
         callback.from,
         {
           campus: campus,
@@ -97,33 +93,13 @@ class Bot
           restaurant_alias: aliases[:restaurant]
         }
       )
-      return main_menu callback if status
-      edit_message(
-        callback.message,
-        CONST::TEXTS[
-          :config_remove_last,
-          aliases[:campus],
-          aliases[:restaurant]
-        ],
-        markup(
-          button(
-            text: CONST::TEXTS[:config_ok],
-            data: 'config'
-          )
-        )
-      )
     end
 
     def select_campus(callback, campus)
       campus_model = @bandejao.api.restaurants[campus]
-
-      prefs = get_user_restaurants callback.from
-
-      restaurants = prefs.map {|r| r[:restaurant]}
       buttons = campus_model.model.each_with_object([]) do |(k, v), o|
         if v.is_a? USP::Restaurant
-          text = get_emoji(restaurants, k) + v.alias
-          o.push button(text: text, data: "restaurant_#{k}&campus_#{campus}")
+          o.push button(text: v.alias, data: "restaurant_#{k}&campus_#{campus}")
         end
       end
       buttons.push button(text: CONST::TEXTS[:config_back], data: 'config')
@@ -134,17 +110,16 @@ class Bot
       )
     end
 
-    def get_campi_buttons(restaurants)
-      campi = restaurants.map {|r| r[:campus]}
+    def get_campi_buttons
       buttons = @bandejao.api.restaurants.each_with_object([]) do |(k, c), o|
         if c.restaurants.size == 1
           o.push button(
-            text: get_emoji(campi, k) + c.alias,
+            text: c.alias,
             data: "restaurant_#{c.restaurants.first}&campus_#{k}"
           )
         else
           o.push button(
-            text: get_emoji(campi, k) + c.alias + ' ' + CONST::MORE_EMOJI,
+            text: c.alias,
             data: "campus_#{k}"
           )
         end
@@ -158,19 +133,13 @@ class Bot
 
     def configure_user(user, options)
       u = User.find user.id
-      u.restaurants.push options unless u.restaurants.delete options
-      return false if u.restaurants.empty?
+      u.preferences = options
       u.save
     end
 
-    def get_user_restaurants(telegram_user)
+    def get_user_preferences(telegram_user)
       user = User.find telegram_user.id
-      user.restaurants
-    end
-
-    def is_restaurant_selected?(telegram_user, restaurant)
-      restaurants = get_user_restaurants telegram_user
-      restaurants.include restaurant
+      user.preferences
     end
 
     def markup(buttons)
@@ -206,14 +175,6 @@ class Bot
         parse_mode: parse,
         reply_markup: markup
       )
-    end
-
-    def get_emoji(a, b)
-      if a.include? b
-        return CONST::CHECKED_BOX_EMOJI + ' '
-      else
-        return CONST::UNCHECKED_BOX_EMOJI + ' '
-      end
     end
 
   end

@@ -15,16 +15,16 @@ class Bot
       msg = message.query
       CONST::WEEK.each_with_object(results) do |wday, arr|
         if CONST::WEEK_REGEX[wday] =~ msg
-          arr.concat result_with_week(wday, msg, message.from)
+          arr.push result_with_week(wday, msg, message.from)
         end
       end
-      results.concat result_next(msg, message.from)
+      results.push(result_next msg, message.from)
       #results.push(get_pdf)
 
       @bot.bot.api.answer_inline_query(
         inline_query_id: message.id,
         results: results,
-        switch_pm_text: CONST::TEXTS[:inline_info],
+        switch_pm_text: get_info(message),
         switch_pm_parameter: 'config',
         cache_time: 5,
         is_personal: true
@@ -33,31 +33,27 @@ class Bot
 
     private # Private methods =================================================
 
+    def get_info(message)
+      user = User.find message.from.id
+      prefs = user.preferences
+      CONST::TEXTS[:inline_info, prefs[:campus_alias], prefs[:restaurant_alias]]
+    end
+
     def result_next(msg, telegram_user)
       period = get_period msg
       period_text = get_period_text(period)
       user = User.find telegram_user.id
-      user.restaurants.map do |restaurant|
-        text = @bandejao.get_menu(
-          campus: restaurant[:campus],
-          restaurant: restaurant[:restaurant]
-        )
-        title = if period_text.empty?
-                  CONST::TEXTS[
-                    :inline_title_next,
-                    restaurant[:campus_alias],
-                    restaurant[:restaurant_alias]
-                  ]
-                else
-                  CONST::TEXTS[
-                    :inline_title_period,
-                    restaurant[:campus_alias],
-                    restaurant[:restaurant_alias],
-                    period_text
-                  ]
-                end
-        inline_result(title, text)
-      end
+      prefs = user.preferences
+      text = @bandejao.get_menu(
+        campus: prefs[:campus],
+        restaurant: prefs[:restaurant]
+      )
+      title = if period_text.empty?
+                CONST::TEXTS[:inline_title_next]
+              else
+                CONST::TEXTS[:inline_title_period, period_text]
+              end
+      inline_result(title, text)
     end
 
     def result_with_week(wday, msg, telegram_user)
@@ -65,23 +61,16 @@ class Bot
       period_text = get_period_text period
       week_text = CONST::WEEK_NAMES[wday]
       user = User.find telegram_user.id
-      user.restaurants.map do |restaurant|
-        text = @bandejao.get_menu(
-          weekday: wday,
-          period: period,
-          campus: restaurant[:campus],
-          restaurant: restaurant[:restaurant]
-        )
-        title = CONST::TEXTS[
-          :inline_title_specific,
-          restaurant[:campus_alias],
-          restaurant[:restaurant_alias],
-          week_text,
-          period_text
-        ]
+      prefs = user.preferences
+      text = @bandejao.get_menu(
+        weekday: wday,
+        period: period,
+        campus: prefs[:campus],
+        restaurant: prefs[:restaurant]
+      )
+      title = CONST::TEXTS[:inline_title_specific, week_text, period_text]
 
-        inline_result(title, text)
-      end
+      inline_result(title, text)
     end
 
     def get_period_text(period)

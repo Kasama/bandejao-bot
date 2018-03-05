@@ -12,10 +12,6 @@ module CONST
   DEFAULT_RESTAURANT = :restaurante_area1
   DEFAULT_RESTAURANT_ALIAS = 'Área 1'.freeze
 
-  UNCHECKED_BOX_EMOJI = "\u{2B1C}"
-  CHECKED_BOX_EMOJI = "\u{2705}"
-  MORE_EMOJI = "\u{25B6}"
-
   PARSE_MODE = 'Markdown'.freeze
 
   MASTER_ID = 41_487_359.freeze
@@ -160,7 +156,7 @@ module CONST
 
   TEXTS_HASH = {
     help:
-    "Enviando uma mensagem com qualquer texto você receberá o cardápio para a próxima refeição.\nO restaurante pode ser alterado nas configurações.\n\n" \
+    "Enviando uma mensagem com qualquer texto você receberá o cardápio para a próxima refeição.\n\n" \
     "Comandos: \n" \
     "/proximo - Envia o cardápio da próxima refeição, da mesma forma que enviar qualquer texto\n" \
     "/almoco [<Dia da Semana>] - Envia o cardápio do almoço do dia indicado (hoje caso não indicado)\n" \
@@ -179,22 +175,19 @@ module CONST
     alguem: 'Alguém sim! Por isso vai ter fila!',
     inline_lunch_extra: ' no almoço',
     inline_dinner_extra: ' no jantar',
-    inline_info: 'Configurar Restaurantes',
-    inline_title_next: 'Próxima refeição de %s, %s',
-    inline_title_period: 'Cardápio de %s, %s para hoje%s',
-    inline_title_specific: 'Cardápio de %s, %s para %s%s',
+    inline_info: '%s, %s. Toque para alterar',
+    inline_title_next: 'Mostrar cardápio da próxima refeição',
+    inline_title_period: 'Mostrar cardápio de hoje%s',
+    inline_title_specific: 'Mostrar cardápio para %s%s',
     inline_pdf: 'Mostrar pdf do cardápio da semana',
     config_back: '<< Voltar',
-    config_cancel_button: 'Finalizar',
+    config_cancel_button: 'Cancelar',
     config_change_button: 'Alterar Restaurante',
-    config_main_menu: "*Restaurantes selecionados:*\n  - %s\nSelecione uma opção",
-    config_select_campus: "*Restaurantes selecionados:*\n  - %s\nAdicione ou remova restaurantes abaixo",
+    config_main_menu: "*Restaurante atual:\n%s, %s*.\nSelecione uma opção",
+    config_select_campus: "*Restaurante atual:\n%s, %s*.\nSelecione um novo Campus abaixo",
     config_select_restaurant: "*%s*:\n Selecione um Restaurante abaixo",
     config_selected: 'Restaurante *%s, %s* selecionado',
-    config_remove_last: "Não foi possível remover *%s, %s* pois não há outro restaurante selecionado.\n" \
-                        "Por favor selecione outro restaurante antes de remover este",
-    config_ok: 'OK! Ententi.',
-    config_cancel: "Operação finalizada\n*Restaurantes atuais:*\n  - %s",
+    config_cancel: "Operação cancelada\nRestaurante atual:\n*%s, %s*",
     error_message:
     "\nO restaurante está fechado ou o"\
     " cardápio ainda não foi atualizado.\n"\
@@ -208,7 +201,7 @@ module CONST
     feedback_fail: 'Feedback vazio não foi enviado, por favor use /feedback <mensagem> para enviar um feedback',
     dinner_header: "*%s, %s\nJantar de %s (%s):*\n%s%s",
     lunch_header: "*%s, %s\nAlmoço de %s (%s):*\n%s%s",
-    late_update: "O cardápio do restaurante *%s, %s* ainda não foi atualizado para essa semana. Tente novamente mais tarde.\nDesculpe pelo inconveniente",
+    late_update: "O cardápio do restaurante *%s, %s* ainda não foi atualizado para essa semana. Tente novamente mais tarde.\nDesculpe pelo inconveniante",
     calories_footer: "\n\n_Valor energético médio: %sKcal_",
     wtf: 'WTF!?'
   }.freeze

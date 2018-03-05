@@ -1,0 +1,70 @@
+reading file bandeco.pdf
+------------------------
+      Dia                          Almoço                                         Jantar
+Segunda-feira    Arroz/Feijão/Arroz Integral                  Arroz/Feijão/Arroz Integral
+23/01            Saladas Diversas                             Saladas Diversas
+                 Bife à suiça                                 Peixe ao molho com legumes
+                 Opção Vegetariana: PVT com azeitona          Opção Vegetariana: PVT com vagem
+                 Mandioca sautê                               Batata gratinada
+                 Sobremesa: Maxi chocolate/ Laranja           Sobremesa: Doce de leite/ Maçã
+                 Minipão / Suco                               Minipão / Suco
+Terça-feira      Arroz/Feijão/Arroz Integral                  Arroz/Feijão/Arroz Integral
+24/01            Saladas Diversas                             Saladas Diversas
+                 Sobrecoxa assada                             Kibe de assadeira
+                 Opção Vegetariana: Fricassé de PVT           Opção Vegetariana: Kibe de PVT
+                 Purê de batatas                              Abobrinha refogada
+                 Sobremesa: Gelatina de uva/ Melancia         Sobremesa: Canjica/ Banana
+                 Minipão / Suco                               Minipão / Suco
+Quarta-Feira     Arroz/Feijão/Arroz Integral                  Arroz/Feijão/Arroz Integral
+25/01            Saladas Diversas                             Saladas Diversas
+                 Hambúrguer ao sugo                           Bife ao molho barbecue
+                 Opção Vegetariana: Hambúrguer de PVT         Opção Vegetariana: PVT com cogumelo
+                 Polenta cremosa                              Berinjela de forno
+                 Sobremesa: Flan de baunilha com calda/       Sobremesa: Torrone/ Laranja
+                 Maçã                                         Minipão / Suco
+                 Minipão / Suco
+Quinta-Feira     Arroz/Feijão/Arroz Integral                  Arroz/Feijão/Arroz Integral
+26/01            Saladas Diversas                             Saladas Diversas
+                 Bife acebolado                               File de frango ao molho com muçarela
+                 Opção Vegetariana: PVT ao vinagrete          Opção Vegetariana: Bife de PVT
+                 Acelga ao shoyo                              Couve refogada
+                 Sobremesa: Gelatina de morango/ Banana       Sobremesa: Curau/ Melão
+                 Minipão / Suco                               Minipão / Suco
+Sexta-Feira      Arroz/Feijão/Arroz Integral                  Arroz/Feijão/Arroz Integral
+27/01            Saladas Diversas                             Saladas Diversas
+                 Strogonofe de carne                          Hambúrguer ao molho pizzaiolo
+                 Opção Vegetariana: Strogonofe de PVT         Opção Vegetariana: Hambúrguer de PVT
+                 Batata palha                                 Purê misto
+                 Sobremesa: Manjar com calda/ Mamão           Sobremesa: Maria mole/ Melancia
+                 Minipão / Suco                               Minipão / Suco
+Sábado           Arroz/Feijão/Arroz Integral
+28/01            Saladas Diversas
+                 Lingüiça toscana
+                 Opção Vegetariana: PVT ao pizzaiolo                     -------------------------------
+                 Legumes refogados
+                 Sobremesa: Banana caramelada/ Melão
+                 Minipão / Suco
+* Este cardápio poderá ser alterado sem aviso prévioHorário de Atendimento (refeitório)
+Área 1
+De segunda a sexta feira
+Almoço: das 11h00 às 13h15min
+Jantar: das 17h15min as 19h15min
+Aos sábados
+Almoço: das 11h30 as 13h
+Área 2
+De segunda a sexta feira
+Almoço: das 11h15min às 12h45min
+CRHEA (Broa)
+De segunda a sexta feira
+Almoço: das 11h30 às 13h
+Horário de Venda de Crédito
+Recarga de Cartão (Venda de Créditos)
+De segunda a sexta-feira: das 9 às 14 horas
+Atendimento Geral
+De segunda a sexta-feira: das 9 às 17 horas
+Valor das refeições
+Aluno: R$ 1,90
+Especial: R$ 6,00
+Visitante: R$ 12,00
+                                       contato.prefeitura@sc.usp.br
+                                      Prefeitura do Campus USP de São Carlos

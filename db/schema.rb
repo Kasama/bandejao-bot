@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180304010007) do
+ActiveRecord::Schema.define(version: 20170312023427) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,10 +27,9 @@ ActiveRecord::Schema.define(version: 20180304010007) do
     t.string   "username"
     t.string   "first_name"
     t.string   "last_name"
-    t.datetime "created_at",                                                                                                                                                   null: false
-    t.datetime "updated_at",                                                                                                                                                   null: false
+    t.datetime "created_at",                                                                                                                                           null: false
+    t.datetime "updated_at",                                                                                                                                           null: false
     t.text     "preferences", default: "---\n:campus: :campus_de_sao_carlos\n:restaurant: :restaurante_area1\n:campus_alias: São Carlos\n:restaurant_alias: Área 1\n"
-    t.text     "restaurants", default: "---\n- :campus: :campus_de_sao_carlos\n  :restaurant: :restaurante_area1\n  :campus_alias: São Carlos\n  :restaurant_alias: Área 1\n"
   end
 
   add_index "users", ["id"], name: "index_users_on_id", using: :btree
