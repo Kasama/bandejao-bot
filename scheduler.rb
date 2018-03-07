@@ -33,7 +33,7 @@ class Scheduler
           begin
             puts "Sending message to @#{schedule.user.username}, #{schedule.user_id} from thread #{Parallel.worker_number}"
             puts "============================================================"
-            bot.run_schedule build_message(schedule.user_id, schedule.chat_id), schedule.user.preferences
+            bot.run_schedule build_message(schedule.user_id, schedule.chat_id), schedule.user.restaurants
             successes << 1
             total << 1
           rescue => e
