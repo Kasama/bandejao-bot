@@ -98,7 +98,11 @@ class Bot
     def send_feedback(message)
       send_message(
         Telegram::Bot::Types::Chat.new(id: CONST::MASTER_ID, type: :private),
-        "user (#{message.from.inspect}) enviou feedback:\n'#{message.text}'",
+        "[#{message.from.first_name} #{message.from.last_name}](tg://user?id=#{message.from.id}) Enviou um feedback:"
+      )
+      send_message(
+        Telegram::Bot::Types::Chat.new(id: CONST::MASTER_ID, type: :private),
+        "#{message.text}",
         nil
       )
       if /\A\s*\/*\s*(?:feedback|report)(?:@bandejao.+bot)?\s*\z/i =~ message.text

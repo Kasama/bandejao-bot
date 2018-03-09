@@ -19,3 +19,7 @@ end
 group :development do
 	gem 'sqlite3'
 end
+
+group :development, :test do
+  gem "rerun"
+end
