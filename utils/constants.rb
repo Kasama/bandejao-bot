@@ -45,7 +45,7 @@ module CONST
   }.freeze
   MAX_THREADS = 100.freeze
 
-	PUSP_NAME = 'Prefeitura'.freeze
+  PUSP_NAME = 'Prefeitura'.freeze
 
   LUNCH_END_TIME = '14:30'
   DINNER_END_TIME = '20:00'
@@ -99,23 +99,23 @@ module CONST
   }
 
   MAIN_COMMANDS = [
-    'Próximo',
-    %w(Almoço Jantar),
+    '🍱 Próximo',
+    ["☀️ Almoço", "🌙 Jantar"],
     :subscribe,
-    %w(Configurações Ajuda)
+    ["⚙️ Configurações", "❓ Ajuda"]
   ].freeze
 
-  MAIN_COMMAND_SUBSCRIBE = 'Inscrever (WIP)'.freeze
-  MAIN_COMMAND_UNSUB = 'Desinscrever'.freeze
+  MAIN_COMMAND_SUBSCRIBE = '🔔 Ativar Notificações'.freeze
+  MAIN_COMMAND_UNSUB = '🔕 Desativar Notificações'.freeze
 
   SUBSCRIBE = {
     create: {
-      true => 'Inscrição realizada com sucesso, tenha em mente que essa funcionalidade ainda está em desenvolvimento. Por favor reporte qualquer problema usando o comando /feedback',
-      false => 'Não foi possível realizar a inscrição',
+      true => "🔔 *Notificações ativadas com sucesso!*\nVocê será notificado diariamente antes do horario de abertura do bandejão!",
+      false => "Não foi possível ativar as notificações!\n talvez você já esteja inscrito 🤔",
     }.freeze,
     destroy: {
-      true => 'Inscrição removida com sucesso',
-      false => 'Não foi possível remover a inscrição',
+      true => "🔕 *Notificações desativadas com sucesso!*\nVocê pode se ativá-las novamente /inscrever",
+      false => 'Não foi possível remover a inscrição, talvez você não esteja inscrito 🤔',
     }.freeze
   }.freeze
 
@@ -128,8 +128,8 @@ module CONST
     menu: /card(?:a|á)pio/i,
     update: /update/i,
     tomorrow: /\bamanh(?:a|ã)\b/i,
-    subscribe: /subscribe|inscrever/i,
-    unsubscribe: /unsubscribe|des(?:in|en?)screver/i,
+    subscribe: /subscribe|inscrever|notif/i,
+    unsubscribe: /unsubscribe|des(?:in|en?)screver|desativar/i,
     config: /\bconfig(?:ura(?:r|(?:c|ç)(?:o|õ)es)|\b)|\bpref(?:er(?:e|ê)nc(?:es|ias)|\b)/i,
     feedback: /\b(?:feedback|report)\b/i,
     alguem: /\balgu(?:e|é)m\b/i
@@ -206,10 +206,10 @@ module CONST
     pdf_update_error: 'O PDF não foi atualizado',
     feedback_success: 'Feedback enviado com sucesso',
     feedback_fail: 'Feedback vazio não foi enviado, por favor use /feedback <mensagem> para enviar um feedback',
-    dinner_header: "*%s, %s\nJantar de %s (%s):*\n%s%s",
-    lunch_header: "*%s, %s\nAlmoço de %s (%s):*\n%s%s",
+    dinner_header: "🏫 *%s, %s 🍽\n🌙 Jantar de %s (%s):*\n%s%s",
+    lunch_header: "🏫 *%s, %s 🍽\n☀️ Almoço de %s (%s):*\n%s%s",
     late_update: "O cardápio do restaurante *%s, %s* ainda não foi atualizado para essa semana. Tente novamente mais tarde.\nDesculpe pelo inconveniente",
-    calories_footer: "\n\n_Valor energético médio: %sKcal_",
+    calories_footer: "\n\n_Valor energético médio: ⚡️ %sKcal_",
     wtf: 'WTF!?'
   }.freeze
 

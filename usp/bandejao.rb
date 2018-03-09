@@ -35,7 +35,7 @@ module USP
           aliases[:restaurant],
           CONST::WEEK_NAMES[options[:weekday]],
           date.strftime("%d/%m"),
-          ret,
+          ret.split("/ ").join("\n"),
           calories
         ]
       end
