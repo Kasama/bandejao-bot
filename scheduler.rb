@@ -21,10 +21,10 @@ class Scheduler
         if threads > CONST::MAX_THREADS
           threads = CONST::MAX_THREADS
         end
-        bot.bot.api.send_message(
-          chat_id: CONST::MASTER_ID,
-          text: "Reached schedule at #{now}. Allocating #{ all_schedules.size } messages in #{ threads } threads."
-        )
+        # bot.bot.api.send_message(
+        #   chat_id: CONST::MASTER_ID,
+        #   text: "Reached schedule at #{now}. Allocating #{ all_schedules.size } messages in #{ threads } threads."
+        # )
         successes = [0]
         total = [0]
         messages = []
@@ -50,16 +50,16 @@ class Scheduler
           chat_id: CONST::MASTER_ID,
           text: "Finished schedule. Took #{Time.now - now}s.\n Successful: #{successes}/#{total} #{successes*100/total}%\nErrors:"
         )
-        messages.each do |m|
-          bot.bot.api.send_message(
-            chat_id: CONST::MASTER_ID,
-            text: m
-          )
-        end
-        bot.bot.api.send_message(
-          chat_id: CONST::MASTER_ID,
-          text: "Finished error messages."
-        )
+        # messages.each do |m|
+        #   bot.bot.api.send_message(
+        #     chat_id: CONST::MASTER_ID,
+        #     text: m
+        #   )
+        # end
+        # bot.bot.api.send_message(
+        #   chat_id: CONST::MASTER_ID,
+        #   text: "Finished error messages."
+        # )
       end
     end
   end
