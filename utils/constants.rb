@@ -37,7 +37,8 @@ module CONST
   DB_CONFIG = './db/config.yml'.freeze
 
   CRON_EXP = {
-    lunch: '0 0 11 * * MON-SAT',
+    # lunch: '0 0 11 * * MON-SAT',
+    lunch: '0 10 11 * * MON-SAT',
     # lunch: '0 * * * * *',
     # lunch: '0 15 19 * * MON-FRI',
     # dinner: '0 0 22 * * MON-SAT'
