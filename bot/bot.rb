@@ -1,6 +1,7 @@
 require './bot/bot_inline'
 require './bot/bot_chat'
 require './bot/bot_config'
+require './bot/bot_papoco'
 require './utils/constants'
 require './usp/bandejao'
 
@@ -16,6 +17,7 @@ class Bot
     @inline = Inline.new self
     @chat = Chat.new self
     @config = Config.new self
+    @papoco = Papoco.new self
     @bot = Telegram::Bot::Client.run(CONST::TOKEN) { |bot| bot }
     @scheduler = Scheduler.new
   end
@@ -40,6 +42,10 @@ class Bot
 
   def start_config(user, chat)
     @config.start(user, chat)
+  end
+
+  def start_papoco(chat)
+    @papoco.start(chat)
   end
 
   private # Private methods ===================================================
