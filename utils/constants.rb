@@ -133,6 +133,7 @@ module CONST
     config: /\bconfig(?:ura(?:r|(?:c|ç)(?:o|õ)es)|\b)|\bpref(?:er(?:e|ê)nc(?:es|ias)|\b)/i,
     feedback: /\b(?:feedback|report)\b/i,
     alguem: /\balgu(?:e|é)m\b/i
+    papoco: /\bacende\b/i
   }.freeze
 
   CONSOLE_COMMANDS = {
