@@ -81,6 +81,7 @@ class Bot
         text = send_feedback message
       when CONST::COMMANDS[:papoco]
         valid = true
+        text = ''
         @bot.start_papoco message.chat
       else
         CONST::COMMANDS.each do |k, v|
