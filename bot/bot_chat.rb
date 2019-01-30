@@ -48,7 +48,7 @@ class Bot
 
     # rubocop:disable Metrics/MethodLength
     def handle_command(message)
-      text = period = tomorrow = subscribe = nil
+      text = period = tomorrow = subscribe = type = nil
       valid = false
       case message.text
       when CONST::COMMANDS[:lunch]
@@ -89,8 +89,9 @@ class Bot
         end
       end
       if subscribe
-        success = Schedule.handle_subscription(subscribe, message)
-        text = CONST::SUBSCRIBE[subscribe][success]
+        type = message.chat.type == 'private' ? :private : :group
+        success = @bot.start_subscription subscribe, message
+        text = CONST::SUBSCRIBE[subscribe][type][success]
       end
       tomorrow = CONST::COMMANDS[:tomorrow] =~ message.text
       unless valid
