@@ -13,7 +13,7 @@ class Schedule < ActiveRecord::Base
     from = message.from
     user_id = if from then from.id else CONST::MASTER_ID end
 
-    s = Schedule.find_by_user_id_and_chat_id user_id, message.chat.id
+    s = Schedule.find_by_chat_id message.chat.id
     if s
       return false
     end
@@ -29,7 +29,7 @@ class Schedule < ActiveRecord::Base
   def self.destroy_subscription(message)
     from = message.from
     user_id = if from then from.id else CONST::MASTER_ID end
-    s = Schedule.find_by_user_id_and_chat_id user_id, message.chat.id
+    s = Schedule.find_by_chat_id message.chat.id
     unless s
       return false
     end
