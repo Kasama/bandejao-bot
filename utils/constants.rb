@@ -110,12 +110,24 @@ module CONST
 
   SUBSCRIBE = {
     create: {
-      true => "🔔 *Notificações ativadas com sucesso!*\nVocê será notificado diariamente antes do horario de abertura do bandejão!",
-      false => "Não foi possível ativar as notificações!\n talvez você já esteja inscrito 🤔",
+      group: {
+        true => "🔔 *Notificações ativadas com sucesso!*\n O grupo será notificado diariamente antes do horario de abertura do bandejão!",
+        false => "Não foi possível ativar as notificações!\n O grupo já está inscrito ou você não é administrador 🤔",
+      },
+      private: {
+        true => "🔔 *Notificações ativadas com sucesso!*\nVocê será notificado diariamente antes do horario de abertura do bandejão!",
+        false => "Não foi possível ativar as notificações!\n talvez você já esteja inscrito 🤔",
+      }
     }.freeze,
     destroy: {
-      true => "🔕 *Notificações desativadas com sucesso!*\nVocê pode se ativá-las novamente /inscrever",
-      false => 'Não foi possível remover a inscrição, talvez você não esteja inscrito 🤔',
+      group: {
+        true => "🔕 *Notificações desativadas com sucesso!*\nVocê pode ativá-las novamente /inscrever",
+        false => 'Não foi possível remover a inscrição, o grupo não está inscrito ou você não é administrador 🤔',
+      },
+      private: {
+        true => "🔕 *Notificações desativadas com sucesso!*\nVocê pode ativá-las novamente /inscrever",
+        false => 'Não foi possível remover a inscrição, talvez você não esteja inscrito 🤔',
+      }
     }.freeze
   }.freeze
 
