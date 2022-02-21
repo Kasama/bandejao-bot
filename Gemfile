@@ -4,6 +4,8 @@ ruby '3.0.0'
 gem 'telegram-bot-ruby'
 # gem 'pdf-reader'
 gem 'sinatra'
+  gem 'thin'
+
 gem 'json'
 #gem 'json', github: 'flori/json', branch: 'v1.8'
 #gem 'activerecord'
