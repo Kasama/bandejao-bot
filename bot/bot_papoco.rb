@@ -21,15 +21,15 @@ class Bot
           num = shots
         end
         shots -= num
-        send_message(
-          chat,
-          "pra " * num
-        )
+        # send_message(
+        #   chat,
+        #   "pra " * num
+        # )
       end
-      send_message(
-        chat,
-        boom
-      )
+      # send_message(
+      #   chat,
+      #   boom
+      # )
 
     end
 

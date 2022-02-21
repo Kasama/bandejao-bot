@@ -1,0 +1,1 @@
+/home/roberto/.rbenv/versions/2.4.1/lib/ruby/gems/2.4.0/gems/telegram-bot-ruby-0.7.2/lib/telegram/bot/client.rb

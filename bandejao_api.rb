@@ -1,7 +1,6 @@
 require 'sinatra/base'
 require 'json'
 
-require './bandejao'
 require './user'
 require './utils/constants'
 
@@ -10,26 +9,9 @@ class API < Sinatra::Base
   set :port, CONST::API_PORT
   set :environment, :production
 
-  before do
-    @bandejao = Bandejao.new CONST::MENU_FILE unless @bandejao
-  end
-
-  get /\/date\/(\d?\d)\/(\d?\d)(:?\/(\w+)\/?)?/ do |day, month, _, period|
-    if CONST::COMMANDS[:dinner] =~ period
-      period = :dinner
-    else
-      period = :lunch
-    end
-    text = @bandejao.get_bandeco day, month, period, false, false
-    { status: get_status(text),
-      message: text
-    }.to_json
-  end
-
   get '/next' do
-    text = @bandejao.get_bandeco
     { status: get_status(text),
-      message: text
+      message: "API not implemented yet"
     }.to_json
   end
 

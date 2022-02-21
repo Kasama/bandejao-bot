@@ -61,7 +61,16 @@ class Bot
     puts "==== Running Bot"
     Telegram::Bot::Client.run(CONST::TOKEN) { |bot|
       bot.listen do |message|
-        update_user message.from
+        puts "got message: #{message.inspect}"
+        begin
+          unless message.respond_to? :from
+            update_user message.from
+          end
+        rescue => e
+          puts "Could not get message.from: #{e}"
+          puts "================================"
+        end
+        puts "processed message =============================================================="
         case message
         when Telegram::Bot::Types::Message
           # If the message is a reply to this bot's message,
