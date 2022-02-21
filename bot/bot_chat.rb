@@ -11,7 +11,7 @@ class Bot
     def handle_inchat(message, restaurants = nil)
       send_typing message.chat
       if CONST::COMMANDS[:help] =~ message.text && message.chat.type != CONST::CHAT_TYPES[:private]
-        # send_message(message.chat, CONST::TEXTS[:group_help], nil, help_button)
+        send_message(message.chat, CONST::TEXTS[:group_help], nil, help_button)
         return
       end
       text, period, tomorrow = handle_command message
@@ -28,7 +28,7 @@ class Bot
       end
 
       if text
-        # send_message(message.chat, text)
+        send_message(message.chat, text)
         return
       end
 
@@ -40,7 +40,7 @@ class Bot
           campus: restaurant[:campus],
           restaurant: restaurant[:restaurant]
         )
-        # send_message(message.chat, text)
+        send_message(message.chat, text)
       end
     end
 
