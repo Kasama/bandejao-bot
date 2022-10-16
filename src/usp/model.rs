@@ -16,6 +16,12 @@ pub struct Restaurant {
     pub id: String,
 }
 
+#[derive(Debug, Clone)]
+pub enum Period {
+    Dinner,
+    Lunch,
+}
+
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct Meal {
     pub menu: String,
@@ -31,6 +37,15 @@ pub struct Meals {
         serialize_with = "naive_date_into_str"
     )]
     pub date: NaiveDate,
+}
+
+impl Meals {
+    pub fn get_meal(&self, period: Period) -> &Meal {
+        match period {
+            Period::Dinner => &self.dinner,
+            Period::Lunch => &self.lunch,
+        }
+    }
 }
 
 fn naive_date_from_str<'de, D: Deserializer<'de>>(d: D) -> Result<NaiveDate, D::Error> {

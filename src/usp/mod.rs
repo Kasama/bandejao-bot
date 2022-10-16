@@ -24,6 +24,11 @@ pub struct Usp {
 }
 
 impl Usp {
+    /// Creates a new Usp client using environment variables for the base URL and API Key.
+    /// Expect the environment variables below to exist. Returns an Err otherwise
+    ///
+    /// `USP_BASE_URL`: will be used as the base URL for calls
+    /// `USP_API_KEY`:  will use this key for all requests
     pub fn new_from_env() -> Result<Self, std::env::VarError> {
         let base_url = ::std::env::var("USP_BASE_URL")?;
         let api_key = ::std::env::var("USP_API_KEY")?;
@@ -104,9 +109,7 @@ impl Usp {
                         self.meal_cache.cache_set(k, meals.clone());
                         meals
                     })
-                    .filter(|meals| {
-                        meals.date == date
-                    })
+                    .filter(|meals| meals.date == date)
                     .collect();
 
                 meals.pop().ok_or(anyhow!("couldn't fetch meals"))

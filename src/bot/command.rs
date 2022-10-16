@@ -1,15 +1,14 @@
 use std::str::pattern::Pattern;
-use std::sync::Arc;
 
 use chrono::Weekday;
-use futures::lock::Mutex;
 
-use crate::usp::Usp;
+use crate::usp::model::{Meals, Period};
 
-#[derive(Debug)]
+use super::HandlerContext;
+
+#[derive(Debug, Clone)]
 pub enum Command {
-    Dinner(Period),
-    Lunch(Period),
+    Meal(Period, Moment),
     Fireworks,
     Help,
     Next,
@@ -19,18 +18,18 @@ pub enum Command {
 }
 
 #[derive(Debug, Clone)]
-pub enum Period {
+pub enum Moment {
     Explicit(chrono::Weekday),
     Today,
     Tomorrow,
 }
 
-impl Period {
+impl Moment {
     pub fn into_weekday<T: chrono::Datelike>(self, today: T) -> chrono::Weekday {
         match self {
-            Period::Explicit(weekday) => weekday,
-            Period::Today => today.weekday(),
-            Period::Tomorrow => today.weekday().succ(),
+            Moment::Explicit(weekday) => weekday,
+            Moment::Today => today.weekday(),
+            Moment::Tomorrow => today.weekday().succ(),
         }
     }
 
@@ -47,14 +46,14 @@ impl Period {
 mod period_tests {
     use chrono::{Datelike, Duration, Weekday};
 
-    use super::Period;
+    use super::Moment;
 
     #[test]
     fn explicit_period_midweek() {
         let today = chrono::NaiveDate::from_ymd(2022, 10, 16); // it's sunday
         let current_weekday = today.weekday();
         let target_weekday = today.weekday().pred();
-        let period = Period::Explicit(target_weekday.clone());
+        let period = Moment::Explicit(target_weekday.clone());
 
         let date = period.into_date(today);
         println!(
@@ -73,7 +72,7 @@ mod period_tests {
         let today = chrono::NaiveDate::from_ymd(2022, 10, 17); // it's monday
         let current_weekday = Weekday::Mon;
         let target_weekday = Weekday::Sun;
-        let period = Period::Explicit(target_weekday.clone());
+        let period = Moment::Explicit(target_weekday.clone());
 
         let date = period.into_date(today);
         println!(
@@ -92,7 +91,7 @@ mod period_tests {
     fn implicit_period_tomorrow() {
         let current_weekday = Weekday::Tue;
         let today = chrono::NaiveDate::from_isoywd(2022, 13, current_weekday);
-        let period = Period::Tomorrow;
+        let period = Moment::Tomorrow;
 
         let date = period.into_date(today);
         println!(
@@ -109,7 +108,7 @@ mod period_tests {
     fn implicit_period_today() {
         let current_weekday = Weekday::Tue;
         let today = chrono::NaiveDate::from_isoywd(2022, 13, current_weekday);
-        let period = Period::Today;
+        let period = Moment::Today;
 
         let date = period.into_date(today);
         println!(
@@ -127,51 +126,51 @@ fn one_of_is_contained_in(checks: Vec<&str>, haystack: &str) -> bool {
     checks.iter().any(|c| return c.is_contained_in(haystack))
 }
 
-fn parse_period(command: &String) -> Period {
+fn parse_period(command: &String) -> Moment {
     if one_of_is_contained_in(vec!["seg", "mon"], command) {
-        return Period::Explicit(Weekday::Mon);
+        return Moment::Explicit(Weekday::Mon);
     }
 
     if one_of_is_contained_in(vec!["ter", "tue"], command) {
-        return Period::Explicit(Weekday::Tue);
+        return Moment::Explicit(Weekday::Tue);
     }
 
     if one_of_is_contained_in(vec!["qua", "wed"], command) {
-        return Period::Explicit(Weekday::Wed);
+        return Moment::Explicit(Weekday::Wed);
     }
 
     if one_of_is_contained_in(vec!["qui", "thu"], command) {
-        return Period::Explicit(Weekday::Thu);
+        return Moment::Explicit(Weekday::Thu);
     }
 
     if one_of_is_contained_in(vec!["sex", "fri"], command) {
-        return Period::Explicit(Weekday::Fri);
+        return Moment::Explicit(Weekday::Fri);
     }
 
     if one_of_is_contained_in(vec!["sab", "sat"], command) {
-        return Period::Explicit(Weekday::Sat);
+        return Moment::Explicit(Weekday::Sat);
     }
 
     if one_of_is_contained_in(vec!["dom", "sun"], command) {
-        return Period::Explicit(Weekday::Sun);
+        return Moment::Explicit(Weekday::Sun);
     }
 
     if one_of_is_contained_in(vec!["amanha", "amanhã", "tomorrow"], command) {
-        return Period::Tomorrow;
+        return Moment::Tomorrow;
     }
 
-    return Period::Today;
+    return Moment::Today;
 }
 
 pub fn parse_command(command: &String) -> Command {
     let lower_cmd = command.to_lowercase();
 
     if one_of_is_contained_in(vec!["janta"], &lower_cmd) {
-        return Command::Dinner(parse_period(&lower_cmd));
+        return Command::Meal(Period::Dinner, parse_period(&lower_cmd));
     }
 
     if one_of_is_contained_in(vec!["almoco", "almoço"], &lower_cmd) {
-        return Command::Lunch(parse_period(&lower_cmd));
+        return Command::Meal(Period::Lunch, parse_period(&lower_cmd));
     }
 
     if one_of_is_contained_in(vec!["acende"], &lower_cmd) {
@@ -202,27 +201,42 @@ pub fn parse_command(command: &String) -> Command {
 }
 
 #[derive(Debug)]
+pub struct MealResponse {
+    pub campus: String,
+    pub restaurant: String,
+    pub period: Period,
+    pub meal: Meals,
+}
+
+#[derive(Debug)]
 pub enum Response {
-    Text(String),
+    Meal(MealResponse),
     Noop,
 }
 
 pub async fn execute_command(
-    usp: Arc<Mutex<Usp>>,
+    ctx: HandlerContext,
     command: Command,
 ) -> Result<Response, anyhow::Error> {
     let today = chrono::offset::Local::now();
     let restaurant_id = "6".to_string();
 
     return match command {
-        Command::Dinner(period) => {
-            let meal = usp.lock().await.get_meal(&restaurant_id, period.clone().into_date(today)).await?;
-            Ok(Response::Text(meal.dinner.menu.to_string()))
+        Command::Meal(period, moment) => {
+            let meal = ctx
+                .0
+                .usp_client
+                .lock()
+                .await
+                .get_meal(&restaurant_id, moment.clone().into_date(today))
+                .await?;
+            Ok(Response::Meal(MealResponse {
+                campus: "Algum".to_string(),
+                restaurant: "olar".to_string(),
+                period,
+                meal,
+            }))
         }
-        Command::Lunch(period) => {
-            let meal = usp.lock().await.get_meal(&restaurant_id, period.clone().into_date(today)).await?;
-            Ok(Response::Text(meal.lunch.menu.to_string()))
-        },
         _ => Ok(Response::Noop),
     };
 }

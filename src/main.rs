@@ -1,56 +1,30 @@
 #![feature(pattern)]
 mod bot;
+mod database;
 mod usp;
 
 use crate::usp::Usp;
 
-use futures::lock::Mutex;
-use std::sync::Arc;
-
-use dotenv;
-use teloxide::dispatching::UpdateFilterExt;
-use teloxide::prelude::*;
-
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
     pretty_env_logger::init();
 
     log::info!("Starting 🍱 bandejao bot");
 
-    let b = bot::bot();
+    // Consumes env vars
+    // `USP_API_TOKEN` and `USP_BASE_URL`
     let usp = Usp::new_from_env()?;
-    let context = Arc::new(Mutex::new(usp));
+    // Consumes env vars
+    // `DATABASE_URL`
+    let db = database::DB::from_env().await?;
+    let context = bot::HandlerContext::new(usp, db);
+    // Consumes env vars
+    // `TELOXIDE_TOKEN` as the telegram bot's token
+    let b = bot::Bot::from_env(context);
 
-    let handler = Update::filter_message().endpoint(
-        |bot: Bot, ctx: Arc<Mutex<Usp>>, msg: Message| async move {
-            let message_text = msg.text().unwrap_or_default().to_string();
-            let command = bot::command::parse_command(&message_text);
-
-            match bot::command::execute_command(ctx,command).await {
-                Ok(resp) => {
-                    bot.send_message(msg.chat.id, format!("Hello good sir: {:?}", resp))
-                        .send()
-                    .await?;
-                },
-                Err(err) => {
-                    bot.send_message(msg.chat.id, format!("failed: {:?}", err))
-                        .send()
-                    .await?;
-                },
-            };
-
-
-            respond(())
-        },
-    );
-
-    Dispatcher::builder(b, handler)
-        .dependencies(dptree::deps![context])
-        .enable_ctrlc_handler()
-        .build()
-        .dispatch()
-        .await;
+    // Run dispatcher. await will block until bot is done
+    b.dispatcher().dispatch().await;
 
     Ok(())
 }
