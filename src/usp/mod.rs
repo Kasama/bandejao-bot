@@ -10,8 +10,8 @@ use chrono::NaiveDate;
 use reqwest;
 use serde::de::DeserializeOwned;
 
-use self::cache::{CacheKey, MealCache};
-use self::model::{Campus, Meals, Menu};
+use self::cache::{MealCache, MealCacheKey};
+use self::model::{Campus, Meals, Menu, Restaurant};
 pub mod model;
 
 const USP_RESTAURANTS_ENDPOINT: &str = "restaurants";
@@ -63,12 +63,39 @@ impl Usp {
         return Ok(result);
     }
 
-    async fn get_restaurants_raw(&self) -> Result<Vec<Campus>, anyhow::Error> {
+    async fn get_campi_raw(&self) -> Result<Vec<Campus>, anyhow::Error> {
         return self.request_usp(USP_RESTAURANTS_ENDPOINT).await;
     }
 
-    async fn get_restaurants(&self) -> Result<Vec<Campus>, anyhow::Error> {
-        self.get_restaurants_raw().await
+    pub async fn get_campi(&self) -> Result<Vec<Campus>, anyhow::Error> {
+        self.get_campi_raw().await
+    }
+
+    pub async fn get_campi_by_restaurant(
+        &self,
+        restaurant_id: &String,
+    ) -> anyhow::Result<(Campus, Restaurant)> {
+        let campi = self.get_campi().await?;
+
+        let campus = campi
+            .into_iter()
+            .find(|campus| {
+                campus
+                    .restaurants
+                    .iter()
+                    .find(|restaurant| &restaurant.id == restaurant_id)
+                    .is_some()
+            })
+            .ok_or(anyhow!("couldn't find campus from restaurant id"))?;
+
+        let rest = campus
+            .restaurants
+            .iter()
+            .find(|r| &r.id == restaurant_id)
+            .ok_or(anyhow!("couldn't find restaurant id"))?
+            .clone();
+
+        Ok((campus, rest))
     }
 
     async fn get_menu_raw(&self, restaurant_id: &String) -> Result<Menu, anyhow::Error> {
@@ -86,7 +113,7 @@ impl Usp {
         restaurant_id: &String,
         date: NaiveDate,
     ) -> Result<Meals, anyhow::Error> {
-        let key = CacheKey::new(date, restaurant_id.clone());
+        let key = MealCacheKey::new(date, restaurant_id.clone());
         let cached_meals = self.meal_cache.cache_get(&key);
 
         match cached_meals {
@@ -105,7 +132,7 @@ impl Usp {
                     .meals
                     .into_iter()
                     .map(|meals| {
-                        let k = CacheKey::new(meals.date, restaurant_id.clone());
+                        let k = MealCacheKey::new(meals.date, restaurant_id.clone());
                         self.meal_cache.cache_set(k, meals.clone());
                         meals
                     })

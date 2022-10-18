@@ -1,19 +1,68 @@
+use cached::lazy_static::lazy_static;
 use chrono::{Datelike, NaiveDate};
+use inflection_rs::inflection::Inflection;
+use regex::Regex;
 use serde::{Deserialize, Deserializer, Serializer};
 
-#[derive(serde::Deserialize, serde::Serialize, Debug)]
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct Campus {
     pub name: String,
     pub restaurants: Vec<Restaurant>,
 }
 
-#[derive(serde::Deserialize, serde::Serialize, Debug)]
+impl Campus {
+    pub fn normalized_name(&self) -> String {
+        normalize_name(self.name.clone())
+    }
+}
+
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct Restaurant {
     pub alias: String,
     pub address: String,
     pub name: String,
     pub phones: String,
     pub id: String,
+}
+
+impl Restaurant {
+    pub fn normalized_name(&self) -> String {
+        normalize_name(self.name.clone())
+    }
+
+    pub fn normalized_alias(&self) -> String {
+        normalize_name(self.alias.clone())
+    }
+}
+
+fn normalize_name(name: String) -> String {
+    lazy_static! {
+        static ref QUOTE: Regex = Regex::new(r#""|'"#).unwrap();
+        static ref CAMPUS: Regex = Regex::new(r#"(?i)\s*campus\s*(de)?\s*"#).unwrap();
+        static ref RESTAURANT: Regex = Regex::new(r#"(?i)\s*restaurante\s*"#).unwrap();
+        static ref FAC: Regex = Regex::new(r#"(?i)\s*fac\.?\s*"#).unwrap();
+        static ref PUSP: Regex = Regex::new(r#"(?i)pusp.(c)"#).unwrap();
+    }
+
+    let mut inflection = Inflection::new();
+
+    let replaced = vec![
+        (&*QUOTE, ""),
+        (&*CAMPUS, ""),
+        (&*RESTAURANT, ""),
+        (&*FAC, ""),
+        (&*PUSP, "Prefeitura"),
+    ]
+    .into_iter()
+    .fold(name, |val, (re, replacement)| {
+        re.replace_all(&val, replacement).to_string()
+    });
+
+    // let singular = inflection.singularize(replaced);
+    let titlelized = inflection.titleize(replaced);
+
+    // Titleize a second time to handle edge cases with acronyms
+    inflection.titleize(titlelized)
 }
 
 #[derive(Debug, Clone)]

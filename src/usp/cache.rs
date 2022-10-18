@@ -4,12 +4,12 @@ use chrono::{Duration, NaiveDate};
 use super::model::Meals;
 
 #[derive(Clone, Eq, PartialEq, Hash, Debug)]
-pub struct CacheKey {
+pub struct MealCacheKey {
     date: NaiveDate,
     restaurant_id: String,
 }
 
-impl CacheKey {
+impl MealCacheKey {
     pub fn new(date: NaiveDate, restaurant_id: String) -> Self {
         Self {
             date,
@@ -18,7 +18,7 @@ impl CacheKey {
     }
 }
 
-pub type MealCache = TimedSizedCache<CacheKey, Meals>;
+pub type MealCache = TimedSizedCache<MealCacheKey, Meals>;
 
 pub fn new_meal_cache() -> MealCache {
     MealCache::with_size_and_lifespan_and_refresh(

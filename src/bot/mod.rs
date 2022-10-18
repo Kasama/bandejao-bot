@@ -1,22 +1,46 @@
+pub mod callback;
 pub mod command;
+pub mod config;
+pub mod keyboard;
 pub mod meal_menu;
 
 use std::sync::Arc;
 
+use anyhow::anyhow;
 use futures::lock::Mutex;
 use teloxide::dispatching::UpdateFilterExt;
+use teloxide::payloads::{EditMessageTextSetters, SendMessageSetters};
 use teloxide::prelude::Dispatcher;
 use teloxide::requests::{Request, Requester};
-use teloxide::types::{Message, Update};
+use teloxide::types::{CallbackQuery, Message, Update};
 use teloxide::{dptree, respond};
 
-use crate::database::users::User;
+use crate::database::users::{User, UserId};
 use crate::database::DB;
+use crate::usp::model::{Meals, Period};
 use crate::usp::Usp;
+
+use self::callback::CallbackCommand;
 
 pub struct Bot {
     bot: teloxide::Bot,
     context: HandlerContext,
+}
+
+#[derive(Debug)]
+pub struct MealResponse {
+    pub campus: String,
+    pub restaurant: String,
+    pub period: Period,
+    pub meal: Meals,
+}
+
+#[derive(Debug)]
+pub enum Response {
+    Meals(Vec<MealResponse>),
+    Buttons(Option<String>, Vec<(String, String)>),
+    Text(String),
+    Noop,
 }
 
 #[derive(Debug, Clone)]
@@ -38,21 +62,38 @@ impl HandlerContext {
         }
     }
 
-    pub async fn dispatch_handler(self, bot: teloxide::Bot, msg: Message) -> anyhow::Result<()> {
+    pub async fn message_handler(self, bot: teloxide::Bot, msg: Message) -> anyhow::Result<()> {
         if let Some(user) = Bot::get_user(msg.from()).await {
-            self.0.db.upinsert_user(user).await?;
+            self.0.db.upsert_user(user).await?;
         }
 
         let message_text = msg.text().unwrap_or_default().to_string();
         let command = command::parse_command(&message_text);
 
-        match command::execute_command(self, command.clone()).await {
+        match command::execute_command(self, command.clone(), msg.from().unwrap().id.0 as UserId)
+            .await
+        {
             Ok(resp) => match resp {
-                command::Response::Meal(meal_response) => {
-                    let message = meal_menu::format_message(meal_response);
-                    bot.send_message(msg.chat.id, message).send().await?;
+                Response::Meals(meal_responses) => {
+                    for meal_response in meal_responses {
+                        let message = meal_menu::format_message(meal_response);
+                        let msg = bot.send_message(msg.chat.id, message);
+                        msg.send().await?;
+                    }
                 }
-                command::Response::Noop => (),
+                Response::Buttons(text, buttons) => {
+                    bot.send_message(
+                        msg.chat.id,
+                        text.unwrap_or(msg.text().unwrap_or("").to_string()),
+                    )
+                    .reply_markup(keyboard::create_inline(buttons))
+                    .await?;
+                }
+                Response::Text(txt) => {
+                    let msg = bot.send_message(msg.chat.id, txt);
+                    msg.send().await?;
+                }
+                Response::Noop => (),
             },
             Err(err) => {
                 bot.send_message(msg.chat.id, format!("failed: {:?}", err))
@@ -62,6 +103,39 @@ impl HandlerContext {
         };
 
         respond(()).map_err(anyhow::Error::new)
+    }
+
+    pub async fn callback_handler(
+        self,
+        bot: teloxide::Bot,
+        q: CallbackQuery,
+    ) -> anyhow::Result<()> {
+        let data = q.data.ok_or(anyhow!("got empty callback data"))?;
+        let callback_command: CallbackCommand = serde_json::from_str(data.as_str())?;
+
+        let msg = q
+            .message
+            .ok_or(anyhow!("clicked a button without message"))?;
+
+        match callback::execute_callback(self, callback_command, q.from.id.0 as UserId).await? {
+            Response::Meals(_) => (),
+            Response::Buttons(text, buttons) => {
+                bot.edit_message_text(
+                    msg.chat.id,
+                    msg.id,
+                    text.unwrap_or(msg.text().unwrap_or("").to_string()),
+                )
+                .reply_markup(keyboard::create_inline(buttons))
+                .await?;
+            }
+            Response::Text(text) => {
+                bot.edit_message_text(msg.chat.id, msg.id, text).await?;
+            }
+            Response::Noop => (),
+        };
+
+        bot.answer_callback_query(q.id).await?;
+        Ok(())
     }
 }
 
@@ -88,11 +162,17 @@ impl Bot {
     pub fn dispatcher(
         &self,
     ) -> Dispatcher<teloxide::Bot, anyhow::Error, teloxide::dispatching::DefaultKey> {
-        let handler = Update::filter_message().endpoint(
-            |bot: teloxide::Bot, ctx: HandlerContext, msg: Message| async {
-                ctx.dispatch_handler(bot, msg).await
-            },
-        );
+        let handler = dptree::entry()
+            .branch(Update::filter_message().endpoint(
+                |bot: teloxide::Bot, ctx: HandlerContext, msg: Message| async {
+                    ctx.message_handler(bot, msg).await
+                },
+            ))
+            .branch(Update::filter_callback_query().endpoint(
+                |bot: teloxide::Bot, ctx: HandlerContext, q: CallbackQuery| async {
+                    ctx.callback_handler(bot, q).await
+                },
+            ));
 
         Dispatcher::builder(self.bot.clone(), handler)
             .dependencies(dptree::deps![self.context.clone()])

@@ -1,0 +1,75 @@
+use crate::database::config::Config;
+use crate::usp::model::{Campus, Restaurant};
+
+use super::callback::CallbackCommand;
+use super::Response;
+
+pub fn config_menu(campi: Vec<Campus>, configs: Vec<Config>) -> anyhow::Result<Response> {
+    select_campus_menu(campi, configs)
+}
+
+fn is_checked_emoji(is: bool) -> String {
+    match is {
+        true => "✅",
+        false => "⬜️",
+    }
+    .to_string()
+}
+
+pub fn select_restaurant_menu(
+    restaurants: Vec<Restaurant>,
+    configs: Vec<Config>,
+) -> anyhow::Result<Response> {
+    let buttons: Vec<(String, String)> = restaurants
+        .into_iter()
+        .map(|restaurant| {
+            let restaurant_alias = restaurant.normalized_name();
+            let checked = configs
+                .iter()
+                .find(|c| restaurant.id == c.restaurant_id)
+                .is_some();
+            (
+                format!("{} {}", is_checked_emoji(checked), restaurant_alias),
+                CallbackCommand::SelectRestaurant(restaurant.id, !checked),
+            )
+        })
+        .chain(vec![("Voltar".to_string(), CallbackCommand::ListCampi)])
+        .map(|(s, c)| (s, serde_json::to_string(&c)))
+        .map(|(s, c)| c.map(|a| (s, a)))
+        .collect::<Result<Vec<(String, String)>, serde_json::Error>>()?;
+
+    Ok(Response::Buttons(None, buttons))
+}
+
+fn select_campus_menu(campi: Vec<Campus>, configs: Vec<Config>) -> anyhow::Result<Response> {
+    let buttons: Vec<(String, String)> = campi
+        .into_iter()
+        .map(|campus| {
+            let campus_alias = campus.normalized_name();
+            match campus.restaurants.as_slice() {
+                [r] => {
+                    let checked = configs.iter().find(|c| r.id == c.restaurant_id).is_some();
+                    (
+                        format!("{} {}", is_checked_emoji(checked), campus_alias),
+                        CallbackCommand::SelectRestaurant(r.id.clone(), !checked),
+                    )
+                }
+                rs => {
+                    let checked = rs
+                        .iter()
+                        .find(|r| configs.iter().find(|c| r.id == c.restaurant_id).is_some())
+                        .is_some();
+                    (
+                        format!("{} {} ▶️", is_checked_emoji(checked), campus_alias),
+                        CallbackCommand::SelectCampus(campus.name),
+                    )
+                }
+            }
+        })
+        .chain(vec![("Finalizar".to_string(), CallbackCommand::Cancel)])
+        .map(|(s, c)| (s, serde_json::to_string(&c)))
+        .map(|(s, c)| c.map(|a| (s, a)))
+        .collect::<Result<Vec<(String, String)>, serde_json::Error>>()?;
+
+    Ok(Response::Buttons(None, buttons))
+}

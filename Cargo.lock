@@ -102,8 +102,10 @@ dependencies = [
  "chrono",
  "dotenvy",
  "futures",
+ "inflection-rs",
  "log",
  "pretty_env_logger",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",
@@ -391,6 +393,12 @@ dependencies = [
  "rustc_version",
  "syn",
 ]
+
+[[package]]
+name = "deunicode"
+version = "1.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "08ff6a4480d42625e59bc4e8b5dc3723279fd24d83afe8aa20df217276261cd6"
 
 [[package]]
 name = "digest"
@@ -855,6 +863,17 @@ checksum = "10a35a97730320ffe8e2d410b5d3b69279b98d2c14bdb8b70ea89ecf7888d41e"
 dependencies = [
  "autocfg",
  "hashbrown",
+]
+
+[[package]]
+name = "inflection-rs"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21816c3f2bbdba2cfd87347303060bc03e9b39d9995fcc3dc5c66f5e2fb34292"
+dependencies = [
+ "deunicode",
+ "hashbrown",
+ "regex",
 ]
 
 [[package]]

@@ -2,9 +2,11 @@ use std::str::pattern::Pattern;
 
 use chrono::Weekday;
 
-use crate::usp::model::{Meals, Period};
+use crate::database::users::UserId;
+use crate::usp::model::Period;
 
-use super::HandlerContext;
+use super::callback::CallbackCommand;
+use super::{config, HandlerContext, MealResponse, Response};
 
 #[derive(Debug, Clone)]
 pub enum Command {
@@ -200,42 +202,47 @@ pub fn parse_command(command: &String) -> Command {
     return Command::Next;
 }
 
-#[derive(Debug)]
-pub struct MealResponse {
-    pub campus: String,
-    pub restaurant: String,
-    pub period: Period,
-    pub meal: Meals,
-}
-
-#[derive(Debug)]
-pub enum Response {
-    Meal(MealResponse),
-    Noop,
-}
-
 pub async fn execute_command(
     ctx: HandlerContext,
     command: Command,
+    user_id: UserId,
 ) -> Result<Response, anyhow::Error> {
     let today = chrono::offset::Local::now();
-    let restaurant_id = "6".to_string();
+    let configs = ctx.0.db.get_configs(user_id).await?;
+
+    let client = &ctx.0.usp_client;
 
     return match command {
         Command::Meal(period, moment) => {
-            let meal = ctx
-                .0
-                .usp_client
-                .lock()
+            let zipper = (0..configs.len())
+                .into_iter()
+                .map(|_| (period.clone(), moment.clone()));
+            let a: anyhow::Result<Vec<MealResponse>> =
+                futures::future::join_all(configs.into_iter().zip(zipper).map(
+                    |(config, (period, moment))| async move {
+                        let mut usp = client.lock().await;
+                        let meal = usp
+                            .get_meal(&config.restaurant_id, moment.clone().into_date(today))
+                            .await?;
+                        let (campus, restaurant) =
+                            usp.get_campi_by_restaurant(&config.restaurant_id).await?;
+                        Ok(MealResponse {
+                            campus: campus.normalized_name(),
+                            restaurant: restaurant.normalized_alias(),
+                            period: period.clone(),
+                            meal,
+                        })
+                    },
+                ))
                 .await
-                .get_meal(&restaurant_id, moment.clone().into_date(today))
-                .await?;
-            Ok(Response::Meal(MealResponse {
-                campus: "Algum".to_string(),
-                restaurant: "olar".to_string(),
-                period,
-                meal,
-            }))
+                .into_iter()
+                .collect();
+            let meals = a?;
+            Ok(Response::Meals(meals))
+        }
+        Command::Config => {
+            let campi = client.lock().await.get_campi().await?;
+            config::config_menu(campi, configs)
         }
         _ => Ok(Response::Noop),
     };

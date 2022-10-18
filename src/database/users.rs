@@ -1,6 +1,6 @@
 use super::DB;
 
-type UserId = i64;
+pub type UserId = i64;
 
 #[derive(Debug, Clone)]
 pub struct User {
@@ -17,12 +17,16 @@ impl DB {
             .await
     }
 
-    pub async fn upinsert_user(
+    pub async fn upsert_user(
         &self,
         user: User,
     ) -> Result<sqlx::postgres::PgQueryResult, sqlx::Error> {
         sqlx::query!(
-            r#"INSERT INTO users (id, username, first_name, last_name) VALUES ($1, $2, $3, $4) ON CONFLICT (id) DO UPDATE SET username = $2, first_name = $3, last_name = $4"#,
+            r#"INSERT INTO users (id, username, first_name, last_name)
+               VALUES ($1, $2, $3, $4)
+               ON CONFLICT (id) DO
+                   UPDATE SET username = $2, first_name = $3, last_name = $4
+            "#,
             user.id,
             user.username,
             user.first_name,
