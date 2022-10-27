@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use cached::lazy_static::lazy_static;
 use chrono::{Datelike, NaiveDate};
 use inflection_rs::inflection::Inflection;
@@ -12,7 +14,7 @@ pub struct Campus {
 
 impl Campus {
     pub fn normalized_name(&self) -> String {
-        normalize_name(self.name.clone())
+        normalize_name(&self.name)
     }
 }
 
@@ -27,15 +29,15 @@ pub struct Restaurant {
 
 impl Restaurant {
     pub fn normalized_name(&self) -> String {
-        normalize_name(self.name.clone())
+        normalize_name(&self.name)
     }
 
     pub fn normalized_alias(&self) -> String {
-        normalize_name(self.alias.clone())
+        normalize_name(&self.alias)
     }
 }
 
-fn normalize_name(name: String) -> String {
+fn normalize_name(name: &'_ str) -> String {
     lazy_static! {
         static ref QUOTE: Regex = Regex::new(r#""|'"#).unwrap();
         static ref CAMPUS: Regex = Regex::new(r#"(?i)\s*campus\s*(de)?\s*"#).unwrap();
@@ -54,7 +56,7 @@ fn normalize_name(name: String) -> String {
         (&*PUSP, "Prefeitura"),
     ]
     .into_iter()
-    .fold(name, |val, (re, replacement)| {
+    .fold(name.to_string(), |val, (re, replacement)| {
         re.replace_all(&val, replacement).to_string()
     });
 

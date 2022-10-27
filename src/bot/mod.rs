@@ -7,18 +7,17 @@ pub mod meal_menu;
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use futures::lock::Mutex;
 use teloxide::dispatching::UpdateFilterExt;
 use teloxide::payloads::{EditMessageTextSetters, SendMessageSetters};
 use teloxide::prelude::Dispatcher;
 use teloxide::requests::{Request, Requester};
+use teloxide::types::ParseMode::Html;
 use teloxide::types::{CallbackQuery, Message, Update};
 use teloxide::{dptree, respond};
 
 use crate::database::users::{User, UserId};
-use crate::database::DB;
 use crate::usp::model::{Meals, Period};
-use crate::usp::Usp;
+use crate::Context;
 
 use self::callback::CallbackCommand;
 
@@ -46,38 +45,28 @@ pub enum Response {
 #[derive(Debug, Clone)]
 pub struct HandlerContext(Arc<Context>);
 
-#[derive(Debug)]
-pub struct Context {
-    usp_client: Mutex<Usp>,
-    db: DB,
-}
-
 impl HandlerContext {
-    pub fn new(usp_client: Usp, db: DB) -> Self {
-        Self {
-            0: Arc::new(Context {
-                usp_client: Mutex::new(usp_client),
-                db,
-            }),
-        }
+    pub fn new(ctx: Arc<Context>) -> Self {
+        Self { 0: ctx }
     }
 
     pub async fn message_handler(self, bot: teloxide::Bot, msg: Message) -> anyhow::Result<()> {
-        if let Some(user) = Bot::get_user(msg.from()).await {
+        if let Some(user) = Bot::get_user(msg.from()) {
             self.0.db.upsert_user(user).await?;
         }
+
+        bot.send_chat_action(msg.chat.id, teloxide::types::ChatAction::Typing)
+            .await?;
 
         let message_text = msg.text().unwrap_or_default().to_string();
         let command = command::parse_command(&message_text);
 
-        match command::execute_command(self, command.clone(), msg.from().unwrap().id.0 as UserId)
-            .await
-        {
+        match command::execute_command(self, &command, msg.from().unwrap().id.0 as UserId).await {
             Ok(resp) => match resp {
                 Response::Meals(meal_responses) => {
                     for meal_response in meal_responses {
                         let message = meal_menu::format_message(meal_response);
-                        let msg = bot.send_message(msg.chat.id, message);
+                        let msg = bot.send_message(msg.chat.id, message).parse_mode(Html);
                         msg.send().await?;
                     }
                 }
@@ -86,17 +75,19 @@ impl HandlerContext {
                         msg.chat.id,
                         text.unwrap_or(msg.text().unwrap_or("").to_string()),
                     )
+                    .parse_mode(Html)
                     .reply_markup(keyboard::create_inline(buttons))
                     .await?;
                 }
                 Response::Text(txt) => {
-                    let msg = bot.send_message(msg.chat.id, txt);
+                    let msg = bot.send_message(msg.chat.id, txt).parse_mode(Html);
                     msg.send().await?;
                 }
                 Response::Noop => (),
             },
             Err(err) => {
                 bot.send_message(msg.chat.id, format!("failed: {:?}", err))
+                    .parse_mode(Html)
                     .send()
                     .await?;
             }
@@ -147,7 +138,14 @@ impl Bot {
         }
     }
 
-    async fn get_user(telegram_user: Option<&teloxide::types::User>) -> Option<User> {
+    pub fn new(token: String, context: HandlerContext) -> Self {
+        Bot {
+            bot: teloxide::Bot::new(token),
+            context,
+        }
+    }
+
+    fn get_user(telegram_user: Option<&teloxide::types::User>) -> Option<User> {
         let tu = telegram_user?;
         let user = User {
             id: tu.id.0 as i64,

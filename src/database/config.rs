@@ -8,10 +8,10 @@ pub struct Config {
 }
 
 impl DB {
-    pub async fn get_configs(&self, user_id: UserId) -> Result<Vec<Config>, sqlx::Error> {
+    pub async fn get_configs<'r>(&self, user_id: UserId) -> Result<Vec<Config>, sqlx::Error> {
         let default_config = Config {
             user_id,
-            restaurant_id: "2".to_string(),
+            restaurant_id: "2".to_owned(),
         };
         let cfgs: Vec<Config> = sqlx::query_as!(
             Config,

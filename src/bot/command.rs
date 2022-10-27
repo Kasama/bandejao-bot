@@ -1,11 +1,12 @@
 use std::str::pattern::Pattern;
 
-use chrono::Weekday;
+use chrono::{DateTime, Local, Timelike, Weekday};
 
+use crate::database::config::Config;
 use crate::database::users::UserId;
 use crate::usp::model::Period;
+use crate::usp::Usp;
 
-use super::callback::CallbackCommand;
 use super::{config, HandlerContext, MealResponse, Response};
 
 #[derive(Debug, Clone)]
@@ -27,15 +28,15 @@ pub enum Moment {
 }
 
 impl Moment {
-    pub fn into_weekday<T: chrono::Datelike>(self, today: T) -> chrono::Weekday {
+    pub fn into_weekday<T: chrono::Datelike>(&self, today: T) -> chrono::Weekday {
         match self {
-            Moment::Explicit(weekday) => weekday,
+            Moment::Explicit(weekday) => *weekday,
             Moment::Today => today.weekday(),
             Moment::Tomorrow => today.weekday().succ(),
         }
     }
 
-    pub fn into_date<T: chrono::Datelike>(self, today: T) -> chrono::NaiveDate {
+    pub fn into_date<T: chrono::Datelike>(&self, today: T) -> chrono::NaiveDate {
         let current_week = today.iso_week().week();
         let year = today.year();
         let week_day = self.into_weekday(today);
@@ -202,9 +203,40 @@ pub fn parse_command(command: &String) -> Command {
     return Command::Next;
 }
 
+async fn get_meal(
+    period: &Period,
+    moment: &Moment,
+    configs: Vec<Config>,
+    usp_client: &futures::lock::Mutex<Usp>,
+    today: DateTime<Local>,
+) -> anyhow::Result<Response> {
+    let zipper = (0..configs.len()).into_iter().map(|_| (period, moment));
+    let a: anyhow::Result<Vec<MealResponse>> =
+        futures::future::join_all(configs.into_iter().zip(zipper).map(
+            |(config, (period, moment))| async move {
+                let mut usp = usp_client.lock().await;
+                let meal = usp
+                    .get_meal(&config.restaurant_id, moment.into_date(today))
+                    .await?;
+                let (campus, restaurant) = usp.get_restaurant_by_id(&config.restaurant_id).await?;
+                Ok(MealResponse {
+                    campus: campus.normalized_name(),
+                    restaurant: restaurant.normalized_alias(),
+                    period: period.clone(),
+                    meal,
+                })
+            },
+        ))
+        .await
+        .into_iter()
+        .collect();
+    let meals = a?;
+    Ok(Response::Meals(meals))
+}
+
 pub async fn execute_command(
     ctx: HandlerContext,
-    command: Command,
+    command: &Command,
     user_id: UserId,
 ) -> Result<Response, anyhow::Error> {
     let today = chrono::offset::Local::now();
@@ -214,36 +246,45 @@ pub async fn execute_command(
 
     return match command {
         Command::Meal(period, moment) => {
-            let zipper = (0..configs.len())
-                .into_iter()
-                .map(|_| (period.clone(), moment.clone()));
-            let a: anyhow::Result<Vec<MealResponse>> =
-                futures::future::join_all(configs.into_iter().zip(zipper).map(
-                    |(config, (period, moment))| async move {
-                        let mut usp = client.lock().await;
-                        let meal = usp
-                            .get_meal(&config.restaurant_id, moment.clone().into_date(today))
-                            .await?;
-                        let (campus, restaurant) =
-                            usp.get_campi_by_restaurant(&config.restaurant_id).await?;
-                        Ok(MealResponse {
-                            campus: campus.normalized_name(),
-                            restaurant: restaurant.normalized_alias(),
-                            period: period.clone(),
-                            meal,
-                        })
-                    },
-                ))
-                .await
-                .into_iter()
-                .collect();
-            let meals = a?;
-            Ok(Response::Meals(meals))
+            get_meal(period, moment, configs, client, today).await
         }
+        Command::Next => {
+            let (am, t) = today.time().hour12();
+            if !am && t > 8 {
+                get_meal(&Period::Lunch, &Moment::Tomorrow, configs, client, today).await
+            } else if !am && t > 3 {
+                get_meal(&Period::Dinner, &Moment::Today, configs, client, today).await
+            } else {
+                get_meal(&Period::Lunch, &Moment::Today, configs, client, today).await
+            }
+        },
         Command::Config => {
             let campi = client.lock().await.get_campi().await?;
             config::config_menu(campi, configs)
         }
+        // Command::Subscribe => todo!(),
+        // Command::Unsubscribe => todo!(),
+        Command::Help => {
+            Ok(Response::Text(r#"
+Enviando uma mensagem com qualquer texto você receberá o cardápio para a próxima refeição.
+O restaurante pode ser alterado nas configurações.
+
+Comandos:
+/proximo - Envia o cardápio da próxima refeição, da mesma forma que enviar qualquer texto
+/almoco [<Dia da Semana>] - Envia o cardápio do almoço do dia indicado (hoje caso não indicado)
+/jantar [<Dia da Semana>] - Envia o cardápio do jantar do dia indicado (hoje caso não indicado)
+/configuracoes - Abre o menu de configurações, que permite alterar o restaurante atual
+/inscrever - Cadastra o chat para receber o cardápio para a próxima refeição antes do restaurante abrir, todos os dias (seg-sab 11:00 e seg-sex 17:00)
+/desinscrever - Remove a inscrição efetuada pelo comando acima
+/ajuda - Envia essa mensagem
+
+/feedback <TEXTO> - Envia o texto especificado para o desenvolvedor do bot. Pode ser usado para reportar problemas, erros, sugerir funcionalidades, etc
+Também é possível entrar em contato direto com o desenvolvedor @Kasama, para qualquer dificuldade
+
+O código fonte desse bot está disponível em https://github.com/Kasama/bandejao-bot,
+            "#.to_string()))
+        },
         _ => Ok(Response::Noop),
+        // Command::Fireworks => todo!(),
     };
 }
