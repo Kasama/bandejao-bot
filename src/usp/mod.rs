@@ -271,6 +271,7 @@ impl Usp {
                 Ok(meals.clone())
             }
             None => {
+                log::debug!("checking for date: {:?}", date);
                 log::debug!("Cache miss for key {:?}", key);
                 let menu = self.get_menu(&restaurant_id).await?;
 
@@ -283,6 +284,7 @@ impl Usp {
                     .map(|meals| {
                         let k = MealCacheKey::new(meals.date, restaurant_id.to_string());
                         self.meal_cache.cache_set(k, meals.clone());
+                        log::debug!("cached meal: {:?}", meals);
                         meals
                     })
                     .filter(|meals| meals.date == date)

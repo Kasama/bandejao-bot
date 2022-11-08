@@ -1,20 +1,25 @@
 pub mod callback;
 pub mod command;
 pub mod config;
+pub mod help;
 pub mod keyboard;
-pub mod meal_menu;
+pub mod meal;
+pub mod schedule;
+pub mod subscription;
 
 use std::sync::Arc;
 
 use anyhow::anyhow;
+use futures::future::join_all;
 use teloxide::dispatching::UpdateFilterExt;
 use teloxide::payloads::{EditMessageTextSetters, SendMessageSetters};
 use teloxide::prelude::Dispatcher;
 use teloxide::requests::{Request, Requester};
 use teloxide::types::ParseMode::Html;
-use teloxide::types::{CallbackQuery, Message, Update};
+use teloxide::types::{CallbackQuery, ChatId, Message, Update};
 use teloxide::{dptree, respond};
 
+use crate::database::schedule::DayPeriod;
 use crate::database::users::{User, UserId};
 use crate::usp::model::{Meals, Period};
 use crate::Context;
@@ -24,6 +29,12 @@ use self::callback::CallbackCommand;
 pub struct Bot {
     bot: teloxide::Bot,
     context: HandlerContext,
+    configs: BotConfigs,
+}
+
+#[derive(Debug, Clone)]
+pub struct BotConfigs {
+    pub admin_id: UserId,
 }
 
 #[derive(Debug)]
@@ -31,7 +42,7 @@ pub struct MealResponse {
     pub campus: String,
     pub restaurant: String,
     pub period: Period,
-    pub meal: Meals,
+    pub meal: Option<Meals>,
 }
 
 #[derive(Debug)]
@@ -58,16 +69,26 @@ impl HandlerContext {
         bot.send_chat_action(msg.chat.id, teloxide::types::ChatAction::Typing)
             .await?;
 
-        let message_text = msg.text().unwrap_or_default().to_string();
-        let command = command::parse_command(&message_text);
+        let command = command::parse_command(&msg);
 
-        match command::execute_command(self, &command, msg.from().unwrap().id.0 as UserId).await {
+        match command::execute_command(self, &command, msg.from().unwrap().id.0 as UserId, &bot)
+            .await
+        {
             Ok(resp) => match resp {
                 Response::Meals(meal_responses) => {
-                    for meal_response in meal_responses {
-                        let message = meal_menu::format_message(meal_response);
-                        let msg = bot.send_message(msg.chat.id, message).parse_mode(Html);
-                        msg.send().await?;
+                    if meal_responses.len() == 0 {
+                        bot.send_message(
+                            msg.chat.id,
+                            "nenhum restaurante está selecionado. Use /config para configurar um",
+                        )
+                        .send()
+                        .await?;
+                    } else {
+                        for meal_response in meal_responses {
+                            let message = meal::format_message(meal_response);
+                            let msg = bot.send_message(msg.chat.id, message).parse_mode(Html);
+                            msg.send().await?;
+                        }
                     }
                 }
                 Response::Buttons(text, buttons) => {
@@ -116,6 +137,7 @@ impl HandlerContext {
                     msg.id,
                     text.unwrap_or(msg.text().unwrap_or("").to_string()),
                 )
+                .parse_mode(Html)
                 .reply_markup(keyboard::create_inline(buttons))
                 .await?;
             }
@@ -131,17 +153,19 @@ impl HandlerContext {
 }
 
 impl Bot {
-    pub fn from_env(context: HandlerContext) -> Self {
+    pub fn from_env(context: HandlerContext, configs: BotConfigs) -> Self {
         Bot {
             bot: teloxide::Bot::from_env(),
             context,
+            configs,
         }
     }
 
-    pub fn new(token: String, context: HandlerContext) -> Self {
+    pub fn new(token: String, context: HandlerContext, configs: BotConfigs) -> Self {
         Bot {
             bot: teloxide::Bot::new(token),
             context,
+            configs,
         }
     }
 
@@ -176,5 +200,87 @@ impl Bot {
             .dependencies(dptree::deps![self.context.clone()])
             .enable_ctrlc_handler()
             .build()
+    }
+
+    pub async fn notify_subscribed_users(&self) -> Result<(), anyhow::Error> {
+        let now = chrono::offset::Local::now();
+        let (period, moment) = command::get_next(now);
+        let weekday = moment.into_weekday(now);
+        let day_period = DayPeriod::from((period, weekday));
+
+        let chats = self.context.0.db.get_scheduled_chats(&day_period).await?;
+
+        let total_subscriptions = chats.len();
+
+        let (successes, failures): (Vec<_>, Vec<_>) =
+            join_all(chats.into_iter().map(|(chat, user)| async move {
+                let (period, moment) = command::get_next(now);
+                let configs = self.context.0.db.get_configs(user).await?;
+                let meal =
+                meal::get_meal(&period, &moment, configs, &self.context.0.usp_client, now)
+                .await?;
+                if let Response::Meals(resp) = meal {
+                    match resp.len() {
+                        0 => self.bot.send_message(ChatId(chat), "nenhum restaurante está selecionado. Use /config para configurar um")
+                            .await
+                            .map(|a| vec![a])
+                            .map_err(anyhow::Error::new),
+                        _ => join_all(resp.into_iter().map(|r| async {
+                            let txt = meal::format_message(r);
+                            self.bot
+                                .send_message(ChatId(chat), txt)
+                                .parse_mode(Html)
+                            .await
+                        }))
+                        .await
+                        .into_iter()
+                        .collect::<Result<Vec<_>, _>>()
+                        .map_err(anyhow::Error::new)
+                    }
+                } else {
+                    Ok(vec![])
+                }
+            }))
+            .await
+            .into_iter()
+            .partition(|r| r.is_ok());
+
+        let errors: Vec<String> = failures
+            .into_iter()
+            .filter_map(|f| f.err())
+            .map(|e| e.to_string())
+            .collect();
+
+        if total_subscriptions > 0 {
+            let admin_id = self.configs.admin_id;
+
+            if let Err(e) = self
+                .bot
+                .send_message(
+                    ChatId(admin_id),
+                    format!(
+                        "Got {}/{} successess and {} errors:{}",
+                        successes.len(),
+                        total_subscriptions,
+                        errors.len(),
+                        errors
+                            .iter()
+                            .map(|e| format!("\n- {}", e))
+                            .collect::<Vec<_>>()
+                            .join(""),
+                    ),
+                )
+                .await
+            {
+                log::error!(
+                    "could not notify schedule failure: {}: {}/{} successes",
+                    e,
+                    successes.len(),
+                    total_subscriptions,
+                )
+            };
+        }
+
+        Ok(())
     }
 }

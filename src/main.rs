@@ -7,11 +7,12 @@ mod bot;
 mod database;
 mod usp;
 
-use std::sync::Arc;
-
 use clap::Parser;
 use futures::lock::Mutex;
+use std::sync::Arc;
+use tokio::spawn;
 
+use crate::bot::BotConfigs;
 use crate::usp::Usp;
 
 use self::database::DB;
@@ -25,7 +26,7 @@ pub struct Context {
 
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
-struct Config {
+struct App {
     // Usp Parameters
     #[arg(long, env = "USP_API_KEY", required = true)]
     usp_api_key: String,
@@ -43,6 +44,8 @@ struct Config {
     // Bot parameters
     #[arg(long, env = "TELOXIDE_TOKEN", required = true)]
     bot_token: String,
+    #[arg(long, env = "ADMIN_ID", default_value = "41487359")] // @Kasama's id by default
+    admin_id: i64,
 }
 
 #[tokio::main]
@@ -53,21 +56,31 @@ async fn main() -> Result<(), anyhow::Error> {
     log::info!("Starting 🍱 bandejao bot");
 
     // Will consume the env vars specified in the struct definition above
-    let cfg = Config::parse();
+    let app = App::parse();
 
-    let usp = Usp::new(cfg.usp_base_url, cfg.usp_api_key);
-    let db = database::DB::new(cfg.database_url).await?;
+    let usp = Usp::new(app.usp_base_url, app.usp_api_key);
+    let db = database::DB::new(app.database_url).await?;
     let context = Arc::new(Context {
         usp_client: Mutex::new(usp),
         db,
-        // config: cfg.clone(),
+        // config: app.clone(),
     });
 
     // Telegram bot
     let bot_context = bot::HandlerContext::new(
         context.clone(), /* doesn't actually clone, but increments RC */
     );
-    let b = bot::Bot::new(cfg.bot_token, bot_context);
+    let b = Arc::new(bot::Bot::new(
+        app.bot_token,
+        bot_context,
+        BotConfigs {
+            admin_id: app.admin_id,
+        },
+    ));
+
+    // Run bot scheduler for automatic notifications
+    let schedule_task = bot::schedule::spawn_schedules(b.clone());
+    spawn(schedule_task); // spawn to run schedules concurrently
 
     // Run dispatcher. await will block until bot is done
     let mut bot_dispatcher = b.dispatcher();
@@ -79,9 +92,10 @@ async fn main() -> Result<(), anyhow::Error> {
     // )
     // .await?
     // .launch();
+    // let api_joiner = spawn(api);
 
-    // futures::join!(dispatched_bot, api).1?.shutdown().await;
     dispatched_bot.await;
+    // tokio::join!(api).0?.shutdown().await;
 
     Ok(())
 }

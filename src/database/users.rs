@@ -1,3 +1,4 @@
+use super::config::Config;
 use super::DB;
 
 pub type UserId = i64;
@@ -21,7 +22,7 @@ impl DB {
         &self,
         user: User,
     ) -> Result<sqlx::postgres::PgQueryResult, sqlx::Error> {
-        sqlx::query!(
+        let query = sqlx::query!(
             r#"INSERT INTO users (id, username, first_name, last_name)
                VALUES ($1, $2, $3, $4)
                ON CONFLICT (id) DO
@@ -31,8 +32,21 @@ impl DB {
             user.username,
             user.first_name,
             user.last_name
-        )
-        .execute(&self.pool)
-        .await
+        );
+        if let Err(sqlx::Error::RowNotFound) = self.get_user(user.id).await {
+            let mut result = query.execute(&self.pool).await?;
+
+            let default_config = Config {
+                user_id: user.id,
+                restaurant_id: "2".to_owned(),
+            };
+
+            let default_config_result = self.upsert_config(default_config).await?;
+
+            result.extend(Some(default_config_result));
+            Ok(result)
+        } else {
+            query.execute(&self.pool).await
+        }
     }
 }

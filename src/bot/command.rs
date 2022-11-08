@@ -1,13 +1,22 @@
 use std::str::pattern::Pattern;
 
-use chrono::{DateTime, Local, Timelike, Weekday};
+use chrono::{Timelike, Weekday};
+use teloxide::requests::Requester;
+use teloxide::types::{ChatId, Message};
+use teloxide::Bot;
 
-use crate::database::config::Config;
 use crate::database::users::UserId;
 use crate::usp::model::Period;
-use crate::usp::Usp;
 
-use super::{config, HandlerContext, MealResponse, Response};
+use super::help;
+use super::subscription;
+use super::{config, meal, HandlerContext, Response};
+
+#[derive(Debug, Clone)]
+pub enum SubscriptionType {
+    User(UserId),
+    Group(ChatId),
+}
 
 #[derive(Debug, Clone)]
 pub enum Command {
@@ -15,7 +24,7 @@ pub enum Command {
     Fireworks,
     Help,
     Next,
-    Subscribe,
+    Subscribe(SubscriptionType),
     Unsubscribe,
     Config,
 }
@@ -39,9 +48,16 @@ impl Moment {
     pub fn into_date<T: chrono::Datelike>(&self, today: T) -> chrono::NaiveDate {
         let current_week = today.iso_week().week();
         let year = today.year();
-        let week_day = self.into_weekday(today);
-
-        chrono::NaiveDate::from_isoywd(year, current_week, week_day)
+        let today_weekday = today.weekday();
+        match self {
+            Moment::Explicit(weekday) => {
+                chrono::NaiveDate::from_isoywd(year, current_week, *weekday)
+            }
+            Moment::Today => chrono::NaiveDate::from_isoywd(year, current_week, today_weekday),
+            Moment::Tomorrow => {
+                chrono::NaiveDate::from_isoywd(year, current_week, today_weekday).succ()
+            }
+        }
     }
 }
 
@@ -78,16 +94,16 @@ mod period_tests {
         let period = Moment::Explicit(target_weekday.clone());
 
         let date = period.into_date(today);
-        println!(
-            "Got {:?} ({:?}) for today {:?} ({:?}) and target {:?}",
+        let six_days_before_date = date.checked_add_signed(Duration::days(-6)).unwrap();
+        assert!(
+            six_days_before_date == today,
+            "Expected {:?} ({:?}) for today {:?} ({:?}) and target {:?}",
             date,
             date.weekday(),
             today,
             current_weekday,
             target_weekday
         );
-        let six_days_before_date = date.checked_add_signed(Duration::days(-6)).unwrap();
-        assert!(six_days_before_date == today);
     }
 
     #[test]
@@ -97,14 +113,14 @@ mod period_tests {
         let period = Moment::Tomorrow;
 
         let date = period.into_date(today);
-        println!(
-            "Got {:?} ({:?}) as tomorrow of {:?} ({:?})",
+        assert!(
+            date == today.succ(),
+            "Expected {:?} ({:?}) to be tomorrow of {:?} ({:?})",
             date,
             date.weekday(),
             today,
             current_weekday
         );
-        assert!(date.pred() == today);
     }
 
     #[test]
@@ -114,130 +130,128 @@ mod period_tests {
         let period = Moment::Today;
 
         let date = period.into_date(today);
-        println!(
-            "Got {:?} ({:?}) as tomorrow of {:?} ({:?})",
+        assert!(
+            date == today,
+            "Expected {:?} ({:?}) to be the same as {:?} ({:?})",
             date,
             date.weekday(),
             today,
             current_weekday
         );
-        assert!(date == today);
     }
 }
 
-fn one_of_is_contained_in(checks: Vec<&str>, haystack: &str) -> bool {
+fn one_of_is_contained_in(checks: &[&str], haystack: &str) -> bool {
     checks.iter().any(|c| return c.is_contained_in(haystack))
 }
 
 fn parse_period(command: &String) -> Moment {
-    if one_of_is_contained_in(vec!["seg", "mon"], command) {
+    if one_of_is_contained_in(&["seg", "mon"], command) {
         return Moment::Explicit(Weekday::Mon);
     }
 
-    if one_of_is_contained_in(vec!["ter", "tue"], command) {
+    if one_of_is_contained_in(&["ter", "tue"], command) {
         return Moment::Explicit(Weekday::Tue);
     }
 
-    if one_of_is_contained_in(vec!["qua", "wed"], command) {
+    if one_of_is_contained_in(&["qua", "wed"], command) {
         return Moment::Explicit(Weekday::Wed);
     }
 
-    if one_of_is_contained_in(vec!["qui", "thu"], command) {
+    if one_of_is_contained_in(&["qui", "thu"], command) {
         return Moment::Explicit(Weekday::Thu);
     }
 
-    if one_of_is_contained_in(vec!["sex", "fri"], command) {
+    if one_of_is_contained_in(&["sex", "fri"], command) {
         return Moment::Explicit(Weekday::Fri);
     }
 
-    if one_of_is_contained_in(vec!["sab", "sat"], command) {
+    if one_of_is_contained_in(&["sab", "sat"], command) {
         return Moment::Explicit(Weekday::Sat);
     }
 
-    if one_of_is_contained_in(vec!["dom", "sun"], command) {
+    if one_of_is_contained_in(&["dom", "sun"], command) {
         return Moment::Explicit(Weekday::Sun);
     }
 
-    if one_of_is_contained_in(vec!["amanha", "amanhã", "tomorrow"], command) {
+    if one_of_is_contained_in(&["amanha", "amanhã", "tomorrow"], command) {
         return Moment::Tomorrow;
     }
 
     return Moment::Today;
 }
 
-pub fn parse_command(command: &String) -> Command {
-    let lower_cmd = command.to_lowercase();
+pub fn parse_command(command: &Message) -> Command {
+    let message_text = command.text().unwrap_or_default().to_string();
+    let lower_cmd = message_text.to_lowercase();
 
-    if one_of_is_contained_in(vec!["janta"], &lower_cmd) {
+    if one_of_is_contained_in(&["janta"], &lower_cmd) {
         return Command::Meal(Period::Dinner, parse_period(&lower_cmd));
     }
 
-    if one_of_is_contained_in(vec!["almoco", "almoço"], &lower_cmd) {
+    if one_of_is_contained_in(&["almoco", "almoço"], &lower_cmd) {
         return Command::Meal(Period::Lunch, parse_period(&lower_cmd));
     }
 
-    if one_of_is_contained_in(vec!["acende"], &lower_cmd) {
+    if one_of_is_contained_in(&["acende"], &lower_cmd) {
         return Command::Fireworks;
     }
 
-    if one_of_is_contained_in(vec!["help", "ajuda"], &lower_cmd) {
+    if one_of_is_contained_in(&["help", "ajuda"], &lower_cmd) {
         return Command::Help;
     }
 
-    if one_of_is_contained_in(vec!["next", "prox"], &lower_cmd) {
+    if one_of_is_contained_in(&["next", "prox", "próx"], &lower_cmd) {
         return Command::Next;
     }
 
-    if one_of_is_contained_in(vec!["desinscrever", "unsubscribe", "desativar"], &lower_cmd) {
+    if one_of_is_contained_in(&["desinscrever", "unsubscribe", "desativar"], &lower_cmd) {
         return Command::Unsubscribe;
     }
 
-    if one_of_is_contained_in(vec!["inscrever", "subscribe", "ativar"], &lower_cmd) {
-        return Command::Subscribe;
+    if one_of_is_contained_in(&["inscrever", "subscribe", "ativar"], &lower_cmd) {
+        let private_chat = command.chat.is_private();
+        if private_chat {
+            return Command::Subscribe(SubscriptionType::User(
+                command
+                    .from()
+                    .map(|a| a.id.0 as i64)
+                    .unwrap_or(command.chat.id.0),
+            ));
+        } else {
+            return Command::Subscribe(SubscriptionType::Group(command.chat.id));
+        }
     }
 
-    if one_of_is_contained_in(vec!["config", "preferencias", "preferências"], &lower_cmd) {
+    if one_of_is_contained_in(&["config", "preferencias", "preferências"], &lower_cmd) {
         return Command::Config;
     }
 
-    return Command::Next;
+    match parse_period(&lower_cmd) {
+        Moment::Today => Command::Next,
+        others => Command::Meal(Period::Lunch, others),
+    }
 }
 
-async fn get_meal(
-    period: &Period,
-    moment: &Moment,
-    configs: Vec<Config>,
-    usp_client: &futures::lock::Mutex<Usp>,
-    today: DateTime<Local>,
-) -> anyhow::Result<Response> {
-    let zipper = (0..configs.len()).into_iter().map(|_| (period, moment));
-    let a: anyhow::Result<Vec<MealResponse>> =
-        futures::future::join_all(configs.into_iter().zip(zipper).map(
-            |(config, (period, moment))| async move {
-                let mut usp = usp_client.lock().await;
-                let meal = usp
-                    .get_meal(&config.restaurant_id, moment.into_date(today))
-                    .await?;
-                let (campus, restaurant) = usp.get_restaurant_by_id(&config.restaurant_id).await?;
-                Ok(MealResponse {
-                    campus: campus.normalized_name(),
-                    restaurant: restaurant.normalized_alias(),
-                    period: period.clone(),
-                    meal,
-                })
-            },
-        ))
-        .await
-        .into_iter()
-        .collect();
-    let meals = a?;
-    Ok(Response::Meals(meals))
+pub fn get_next<T>(now: T) -> (Period, Moment)
+where
+    T: Timelike,
+{
+    let (pm, hour) = now.hour12();
+    if pm && hour >= 8 {
+        (Period::Lunch, Moment::Tomorrow)
+    } else if pm && hour >= 2 {
+        (Period::Dinner, Moment::Today)
+    } else {
+        (Period::Lunch, Moment::Today)
+    }
 }
 
 pub async fn execute_command(
     ctx: HandlerContext,
     command: &Command,
     user_id: UserId,
+    bot: &Bot,
 ) -> Result<Response, anyhow::Error> {
     let today = chrono::offset::Local::now();
     let configs = ctx.0.db.get_configs(user_id).await?;
@@ -246,45 +260,60 @@ pub async fn execute_command(
 
     return match command {
         Command::Meal(period, moment) => {
-            get_meal(period, moment, configs, client, today).await
+            meal::get_meal(period, moment, configs, client, today).await
         }
         Command::Next => {
-            let (am, t) = today.time().hour12();
-            if !am && t > 8 {
-                get_meal(&Period::Lunch, &Moment::Tomorrow, configs, client, today).await
-            } else if !am && t > 3 {
-                get_meal(&Period::Dinner, &Moment::Today, configs, client, today).await
-            } else {
-                get_meal(&Period::Lunch, &Moment::Today, configs, client, today).await
-            }
-        },
+            let (period, moment) = get_next(today.time());
+            meal::get_meal(&period, &moment, configs, client, today).await
+        }
         Command::Config => {
             let campi = client.lock().await.get_campi().await?;
             config::config_menu(campi, configs)
         }
-        // Command::Subscribe => todo!(),
-        // Command::Unsubscribe => todo!(),
-        Command::Help => {
-            Ok(Response::Text(r#"
-Enviando uma mensagem com qualquer texto você receberá o cardápio para a próxima refeição.
-O restaurante pode ser alterado nas configurações.
+        Command::Subscribe(SubscriptionType::User(_)) => {
+            let subscribed = subscription::subscribe_user(&ctx.0.db, user_id, user_id).await?;
+            if subscribed {
+                Ok(Response::Text(
+                    "🔔 <b>Notificações ativadas com sucesso!</b>\nVocê será notificado(a) diariamente antes do horário de abertura do bandejão!".to_string(),
+                ))
+            } else {
+                Ok(Response::Text(
+                    "Não foi possível ativar as notificações!\n talvez você já esteja inscrito(a) 🤔"
+                        .to_string(),
+                ))
+            }
+        }
+        Command::Subscribe(SubscriptionType::Group(id)) => {
+            let membership = bot
+                .get_chat_member(*id, teloxide::types::UserId(user_id as u64))
+                .await?;
 
-Comandos:
-/proximo - Envia o cardápio da próxima refeição, da mesma forma que enviar qualquer texto
-/almoco [<Dia da Semana>] - Envia o cardápio do almoço do dia indicado (hoje caso não indicado)
-/jantar [<Dia da Semana>] - Envia o cardápio do jantar do dia indicado (hoje caso não indicado)
-/configuracoes - Abre o menu de configurações, que permite alterar o restaurante atual
-/inscrever - Cadastra o chat para receber o cardápio para a próxima refeição antes do restaurante abrir, todos os dias (seg-sab 11:00 e seg-sex 17:00)
-/desinscrever - Remove a inscrição efetuada pelo comando acima
-/ajuda - Envia essa mensagem
-
-/feedback <TEXTO> - Envia o texto especificado para o desenvolvedor do bot. Pode ser usado para reportar problemas, erros, sugerir funcionalidades, etc
-Também é possível entrar em contato direto com o desenvolvedor @Kasama, para qualquer dificuldade
-
-O código fonte desse bot está disponível em https://github.com/Kasama/bandejao-bot,
-            "#.to_string()))
-        },
-        _ => Ok(Response::Noop),
-        // Command::Fireworks => todo!(),
+            if membership.is_privileged() {
+                let subscribed = subscription::subscribe_user(&ctx.0.db, id.0, user_id).await?;
+                if subscribed {
+                    Ok(Response::Text(
+                        "🔔 <b>Notificações ativadas com sucesso!</b>\n O grupo será notificado diariamente antes do horário de abertura do bandejão!".to_string(),
+                    ))
+                } else {
+                    Ok(Response::Text(
+                        "Não foi possível ativar as notificações!\n Talvez o grupo já esteja inscrito 🤔".to_string()
+                    ))
+                }
+            } else {
+                Ok(Response::Text(
+                    "Não foi possível ativar as notificações!\n Apenas administradores podem ativar as notificações 🤔".to_string()
+                ))
+            }
+        }
+        Command::Unsubscribe => {
+            let unsubscribed = subscription::unsubscribe_user(&ctx.0.db, user_id).await?;
+            if unsubscribed {
+                Ok(Response::Text("🔕 <b>Notificações desativadas com sucesso!</b>\nVocê pode ativá-las novamente /inscrever".to_owned()))
+            } else {
+                Ok(Response::Text("Inscrição não existe".to_string()))
+            }
+        }
+        Command::Help => Ok(Response::Text(help::help_text())),
+        Command::Fireworks => Ok(Response::Noop),
     };
 }

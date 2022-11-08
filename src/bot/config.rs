@@ -5,7 +5,31 @@ use super::callback::CallbackCommand;
 use super::Response;
 
 pub fn config_menu(campi: Vec<Campus>, configs: Vec<Config>) -> anyhow::Result<Response> {
-    select_campus_menu(campi, configs)
+    let restaurant_list = selected_restaurants(&campi, &configs);
+
+    let restaurant_text_list = restaurant_list
+        .into_iter()
+        .map(|(a, b)| campus_restaurant_list_text(a, b))
+        .collect::<Vec<String>>()
+        .join("\n");
+
+    Ok(Response::Buttons(
+        Some(format!(
+            "<b>Restaurantes selecionados</b>:\n{}\nSelecione uma opção",
+            restaurant_text_list
+        )),
+        vec![
+            (
+                "Alterar Restaurantes".to_string(),
+                CallbackCommand::ListCampi,
+            ),
+            ("Finalizar".to_string(), CallbackCommand::Cancel),
+        ]
+        .into_iter()
+        .map(|(s, c)| (s, serde_json::to_string(&c)))
+        .map(|(s, c)| c.map(|a| (s, a)))
+        .collect::<Result<Vec<(String, String)>, serde_json::Error>>()?,
+    ))
 }
 
 fn is_checked_emoji(is: bool) -> String {
@@ -16,38 +40,49 @@ fn is_checked_emoji(is: bool) -> String {
     .to_string()
 }
 
-fn selected_restaurants(campi: Vec<Campus>, configs: Vec<Config>) -> String {
+fn selected_restaurants<'a>(
+    campi: &'a [Campus],
+    configs: &'a [Config],
+) -> Vec<(&'a Campus, &'a Restaurant)> {
     let find_campus = |id: &str| {
         campi
             .iter()
             .find(|c| c.restaurants.iter().any(|r| r.id == id))
     };
-    let find_restaurant = |campus: &Campus, id: &str| {
-        campus
-            .restaurants
-            .iter()
-            .find(|r| r.id == id)
-            .map(|r| r.clone())
-    };
+    let find_restaurant =
+        |campus: &'a Campus, id: &str| campus.restaurants.iter().find(|r| r.id == id);
 
-    let restaurant_list = configs
+    configs
         .into_iter()
         .map(|c| {
             let campus = find_campus(&c.restaurant_id);
             let restaurant = campus.and_then(|camp| find_restaurant(camp, &c.restaurant_id));
-            format!(
-                " - {}, {}",
-                campus
-                    .map(|c| c.normalized_name())
-                    .unwrap_or("Unknown Campus".to_string()),
-                restaurant
-                    .map(|r| r.normalized_name())
-                    .unwrap_or("Unknown Restaurant".to_string())
-            )
+            Some((campus?, restaurant?))
         })
+        .filter_map(|c| c)
+        .collect::<Vec<(&Campus, &Restaurant)>>()
+}
+
+pub fn campus_restaurant_list_text(campus: &Campus, restaurant: &Restaurant) -> String {
+    format!(
+        " - {}, {}",
+        campus.normalized_name(),
+        restaurant.normalized_name()
+    )
+}
+
+fn selected_restaurants_text(campi: Vec<Campus>, configs: Vec<Config>) -> String {
+    let restaurant_list = selected_restaurants(&campi, &configs);
+
+    let restaurant_text_list = restaurant_list
+        .into_iter()
+        .map(|(a, b)| campus_restaurant_list_text(a, b))
         .collect::<Vec<String>>()
         .join("\n");
-    format!("Restaurantes selecionados:\n{}", restaurant_list)
+    format!(
+        "<b>Restaurantes selecionados:</b>\n{}\nAdicione ou remova restaurantes abaixo",
+        restaurant_text_list
+    )
 }
 
 pub fn select_restaurant_menu(
@@ -75,7 +110,7 @@ pub fn select_restaurant_menu(
     Ok(Response::Buttons(None, buttons))
 }
 
-fn select_campus_menu(campi: Vec<Campus>, configs: Vec<Config>) -> anyhow::Result<Response> {
+pub fn select_campus_menu(campi: Vec<Campus>, configs: Vec<Config>) -> anyhow::Result<Response> {
     let buttons: Vec<(String, String)> = campi
         .iter()
         .map(|campus| {
@@ -106,7 +141,7 @@ fn select_campus_menu(campi: Vec<Campus>, configs: Vec<Config>) -> anyhow::Resul
         .collect::<Result<Vec<(String, String)>, serde_json::Error>>()?;
 
     Ok(Response::Buttons(
-        Some(selected_restaurants(campi, configs)),
+        Some(selected_restaurants_text(campi, configs)),
         buttons,
     ))
 }

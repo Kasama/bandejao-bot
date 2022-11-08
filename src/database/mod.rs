@@ -1,4 +1,5 @@
 pub mod config;
+pub mod schedule;
 pub mod users;
 
 use sqlx::postgres::PgPoolOptions;

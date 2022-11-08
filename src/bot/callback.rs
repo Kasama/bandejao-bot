@@ -39,7 +39,7 @@ pub async fn execute_callback<'r>(
                     })
                     .await?;
                 let new_configs = ctx.0.db.get_configs(user_id).await?;
-                config::config_menu(campi, new_configs)
+                config::select_campus_menu(campi, new_configs)
             }
             false => {
                 ctx.0
@@ -50,10 +50,10 @@ pub async fn execute_callback<'r>(
                     })
                     .await?;
                 let new_configs = ctx.0.db.get_configs(user_id).await?;
-                config::config_menu(campi, new_configs)
+                config::select_campus_menu(campi, new_configs)
             }
         },
-        CallbackCommand::ListCampi => config::config_menu(campi, configs),
-        CallbackCommand::Cancel => Ok(Response::Text("Cancelled".to_string())),
+        CallbackCommand::ListCampi => config::select_campus_menu(campi, configs),
+        CallbackCommand::Cancel => Ok(Response::Text("Finalizado!".to_string())),
     }
 }

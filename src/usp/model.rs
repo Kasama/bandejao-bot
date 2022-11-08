@@ -1,10 +1,8 @@
-use std::borrow::Cow;
-
 use cached::lazy_static::lazy_static;
 use chrono::{Datelike, NaiveDate};
 use inflection_rs::inflection::Inflection;
 use regex::Regex;
-use serde::{Deserialize, Deserializer, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct Campus {
@@ -67,7 +65,7 @@ fn normalize_name(name: &'_ str) -> String {
     inflection.titleize(titlelized)
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum Period {
     Dinner,
     Lunch,
@@ -91,7 +89,7 @@ pub struct Meals {
 }
 
 impl Meals {
-    pub fn get_meal(&self, period: Period) -> &Meal {
+    pub fn get_meal(&self, period: &Period) -> &Meal {
         match period {
             Period::Dinner => &self.dinner,
             Period::Lunch => &self.lunch,

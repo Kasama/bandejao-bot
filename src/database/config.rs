@@ -8,11 +8,7 @@ pub struct Config {
 }
 
 impl DB {
-    pub async fn get_configs<'r>(&self, user_id: UserId) -> Result<Vec<Config>, sqlx::Error> {
-        let default_config = Config {
-            user_id,
-            restaurant_id: "2".to_owned(),
-        };
+    pub async fn get_configs(&self, user_id: UserId) -> Result<Vec<Config>, sqlx::Error> {
         let cfgs: Vec<Config> = sqlx::query_as!(
             Config,
             r#"SELECT * FROM configurations WHERE user_id = $1"#,
@@ -21,11 +17,7 @@ impl DB {
         .fetch_all(&self.pool)
         .await?;
 
-        if cfgs.is_empty() {
-            Ok(vec![default_config])
-        } else {
-            Ok(cfgs)
-        }
+        Ok(cfgs)
     }
 
     pub async fn upsert_config(
