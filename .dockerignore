@@ -1,9 +1,0 @@
-*.pdf
-users.yaml
-db.sqlite*
-tags
-tmp/*
-.idea/
-.bundle/
-vendor/
-db/data/
