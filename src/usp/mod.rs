@@ -1,5 +1,4 @@
 pub mod cache;
-pub mod error;
 
 use std::collections::HashMap;
 use std::fmt::Display;
@@ -7,7 +6,6 @@ use std::fmt::Display;
 use anyhow::anyhow;
 use cached::Cached;
 use chrono::NaiveDate;
-use reqwest;
 use serde::de::DeserializeOwned;
 
 use self::cache::{MealCache, MealCacheKey, RestaurantCache, RestaurantCacheKey};
@@ -25,17 +23,6 @@ pub struct Usp {
 }
 
 impl Usp {
-    /// Creates a new Usp client using environment variables for the base URL and API Key.
-    /// Expect the environment variables below to exist. Returns an Err otherwise
-    ///
-    /// `USP_BASE_URL`: will be used as the base URL for calls
-    /// `USP_API_KEY`:  will use this key for all requests
-    pub fn new_from_env() -> Result<Self, std::env::VarError> {
-        let base_url = ::std::env::var("USP_BASE_URL")?;
-        let api_key = ::std::env::var("USP_API_KEY")?;
-        Ok(Usp::new(base_url, api_key))
-    }
-
     pub fn new(base_url: String, api_key: String) -> Self {
         let meal_cache = cache::new_meal_cache();
         let restaurant_cache = cache::new_restaurant_cache();
@@ -63,7 +50,7 @@ impl Usp {
             .json()
             .await?;
 
-        return Ok(result);
+        Ok(result)
     }
 
     async fn get_campi_raw(&self) -> Result<Vec<Campus>, anyhow::Error> {
@@ -132,16 +119,15 @@ impl Usp {
                         campus
                             .restaurants
                             .iter()
-                            .find(|restaurant| &restaurant.id == restaurant_id)
-                            .is_some()
+                            .any(|restaurant| restaurant.id == restaurant_id)
                     })
-                    .ok_or(anyhow!("couldn't find campus from restaurant id"))?;
+                    .ok_or_else(|| anyhow!("couldn't find campus from restaurant id"))?;
 
                 let rest = campus
                     .restaurants
                     .iter()
-                    .find(|r| &r.id == restaurant_id)
-                    .ok_or(anyhow!("couldn't find restaurant id"))?
+                    .find(|r| r.id == restaurant_id)
+                    .ok_or_else(|| anyhow!("couldn't find restaurant id"))?
                     .clone();
 
                 let k = RestaurantCacheKey::new(restaurant_id.to_string());
@@ -271,9 +257,8 @@ impl Usp {
                 Ok(meals.clone())
             }
             None => {
-                log::debug!("checking for date: {:?}", date);
                 log::debug!("Cache miss for key {:?}", key);
-                let menu = self.get_menu(&restaurant_id).await?;
+                let menu = self.get_menu(restaurant_id).await?;
 
                 // Collect every restaurant in the list to eagerly cache them.
                 // if .map().find() was used instead, it would stop caching in the first match,
@@ -284,13 +269,12 @@ impl Usp {
                     .map(|meals| {
                         let k = MealCacheKey::new(meals.date, restaurant_id.to_string());
                         self.meal_cache.cache_set(k, meals.clone());
-                        log::debug!("cached meal: {:?}", meals);
                         meals
                     })
                     .filter(|meals| meals.date == date)
                     .collect();
 
-                meals.pop().ok_or(anyhow!("couldn't fetch meals"))
+                meals.pop().ok_or_else(|| anyhow!("couldn't fetch meals"))
             }
         }
     }

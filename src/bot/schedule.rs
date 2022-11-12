@@ -19,6 +19,7 @@ pub async fn spawn_schedules(bot: Arc<Bot>) {
         .at(11, 00, 00)
         .in_timezone(&chrono::FixedOffset::west(3 * hour))
         .perform(handler);
+
     let dinner_schedule = every(1)
         .day()
         .at(17, 00, 00)
@@ -28,6 +29,6 @@ pub async fn spawn_schedules(bot: Arc<Bot>) {
     join!(
         lunch_schedule,
         dinner_schedule,
-        every(20).seconds().perform(handler) // test
+        // every(20).seconds().perform(handler) // test
     );
 }

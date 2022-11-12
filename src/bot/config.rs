@@ -53,13 +53,12 @@ fn selected_restaurants<'a>(
         |campus: &'a Campus, id: &str| campus.restaurants.iter().find(|r| r.id == id);
 
     configs
-        .into_iter()
-        .map(|c| {
+        .iter()
+        .filter_map(|c| {
             let campus = find_campus(&c.restaurant_id);
             let restaurant = campus.and_then(|camp| find_restaurant(camp, &c.restaurant_id));
             Some((campus?, restaurant?))
         })
-        .filter_map(|c| c)
         .collect::<Vec<(&Campus, &Restaurant)>>()
 }
 
@@ -93,10 +92,7 @@ pub fn select_restaurant_menu(
         .into_iter()
         .map(|restaurant| {
             let restaurant_alias = restaurant.normalized_name();
-            let checked = configs
-                .iter()
-                .find(|c| restaurant.id == c.restaurant_id)
-                .is_some();
+            let checked = configs.iter().any(|c| restaurant.id == c.restaurant_id);
             (
                 format!("{} {}", is_checked_emoji(checked), restaurant_alias),
                 CallbackCommand::SelectRestaurant(restaurant.id, !checked),
@@ -117,7 +113,7 @@ pub fn select_campus_menu(campi: Vec<Campus>, configs: Vec<Config>) -> anyhow::R
             let campus_alias = campus.normalized_name();
             match campus.restaurants.as_slice() {
                 [r] => {
-                    let checked = configs.iter().find(|c| r.id == c.restaurant_id).is_some();
+                    let checked = configs.iter().any(|c| r.id == c.restaurant_id);
                     (
                         format!("{} {}", is_checked_emoji(checked), campus_alias),
                         CallbackCommand::SelectRestaurant(r.id.clone(), !checked),
@@ -126,8 +122,7 @@ pub fn select_campus_menu(campi: Vec<Campus>, configs: Vec<Config>) -> anyhow::R
                 rs => {
                     let checked = rs
                         .iter()
-                        .find(|r| configs.iter().find(|c| r.id == c.restaurant_id).is_some())
-                        .is_some();
+                        .any(|r| configs.iter().any(|c| r.id == c.restaurant_id));
                     (
                         format!("{} {} ▶️", is_checked_emoji(checked), campus_alias),
                         CallbackCommand::SelectCampus(campus.name.clone()),

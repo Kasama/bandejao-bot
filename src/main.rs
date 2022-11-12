@@ -21,15 +21,18 @@ use self::database::DB;
 pub struct Context {
     usp_client: Mutex<Usp>,
     db: DB,
-    // config: Arc<Config>,
+    // config: Arc<App>,
 }
 
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
 struct App {
     // Usp Parameters
+
+    // Api key for USP rucard restaurants API
     #[arg(long, env = "USP_API_KEY", required = true)]
     usp_api_key: String,
+    // Base url for USP's rucard restaurants API
     #[arg(
         long,
         env = "USP_BASE_URL",
@@ -38,14 +41,22 @@ struct App {
     usp_base_url: String,
 
     // Database Parameters
+
+    // Database URL, in the format postgres://username:password@address:port/database
     #[arg(long, env = "DATABASE_URL", required = true)]
     database_url: String,
 
     // Bot parameters
-    #[arg(long, env = "TELOXIDE_TOKEN", required = true)]
+
+    // Telegram bot token
+    #[arg(long, env = "BOT_TOKEN", required = true)]
     bot_token: String,
+    // Telegram ID of the user that is considered the bot admin
     #[arg(long, env = "ADMIN_ID", default_value = "41487359")] // @Kasama's id by default
     admin_id: i64,
+    // if DEBUG_MODE is true, the bot will only send messages to the ADMIN_ID
+    #[arg(long, env = "DEBUG_MODE", default_value = "false")]
+    debug_mode: bool,
 }
 
 #[tokio::main]
@@ -63,7 +74,6 @@ async fn main() -> Result<(), anyhow::Error> {
     let context = Arc::new(Context {
         usp_client: Mutex::new(usp),
         db,
-        // config: app.clone(),
     });
 
     // Telegram bot

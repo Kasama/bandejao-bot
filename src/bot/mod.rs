@@ -4,10 +4,12 @@ pub mod config;
 pub mod help;
 pub mod keyboard;
 pub mod meal;
+pub mod papoco;
 pub mod schedule;
 pub mod subscription;
 
 use std::sync::Arc;
+use std::time::Duration;
 
 use anyhow::anyhow;
 use futures::future::join_all;
@@ -18,6 +20,7 @@ use teloxide::requests::{Request, Requester};
 use teloxide::types::ParseMode::Html;
 use teloxide::types::{CallbackQuery, ChatId, Message, Update};
 use teloxide::{dptree, respond};
+use tokio::time::Instant;
 
 use crate::database::schedule::DayPeriod;
 use crate::database::users::{User, UserId};
@@ -50,7 +53,7 @@ pub enum Response {
     Meals(Vec<MealResponse>),
     Buttons(Option<String>, Vec<(String, String)>),
     Text(String),
-    Noop,
+    Fireworks,
 }
 
 #[derive(Debug, Clone)]
@@ -58,7 +61,7 @@ pub struct HandlerContext(Arc<Context>);
 
 impl HandlerContext {
     pub fn new(ctx: Arc<Context>) -> Self {
-        Self { 0: ctx }
+        Self(ctx)
     }
 
     pub async fn message_handler(self, bot: teloxide::Bot, msg: Message) -> anyhow::Result<()> {
@@ -76,7 +79,7 @@ impl HandlerContext {
         {
             Ok(resp) => match resp {
                 Response::Meals(meal_responses) => {
-                    if meal_responses.len() == 0 {
+                    if meal_responses.is_empty() {
                         bot.send_message(
                             msg.chat.id,
                             "nenhum restaurante está selecionado. Use /config para configurar um",
@@ -94,7 +97,7 @@ impl HandlerContext {
                 Response::Buttons(text, buttons) => {
                     bot.send_message(
                         msg.chat.id,
-                        text.unwrap_or(msg.text().unwrap_or("").to_string()),
+                        text.unwrap_or_else(|| msg.text().unwrap_or("").to_string()),
                     )
                     .parse_mode(Html)
                     .reply_markup(keyboard::create_inline(buttons))
@@ -104,7 +107,13 @@ impl HandlerContext {
                     let msg = bot.send_message(msg.chat.id, txt).parse_mode(Html);
                     msg.send().await?;
                 }
-                Response::Noop => (),
+                Response::Fireworks => {
+                    let fireworks = papoco::generate_papoco();
+                    for (firework, duration) in fireworks {
+                        bot.send_message(msg.chat.id, firework).parse_mode(Html).send().await?;
+                        tokio::time::sleep_until(Instant::now() + Duration::from_millis(duration)).await;
+                    }
+                }
             },
             Err(err) => {
                 bot.send_message(msg.chat.id, format!("failed: {:?}", err))
@@ -122,12 +131,12 @@ impl HandlerContext {
         bot: teloxide::Bot,
         q: CallbackQuery,
     ) -> anyhow::Result<()> {
-        let data = q.data.ok_or(anyhow!("got empty callback data"))?;
+        let data = q.data.ok_or_else(|| anyhow!("got empty callback data"))?;
         let callback_command: CallbackCommand = serde_json::from_str(data.as_str())?;
 
         let msg = q
             .message
-            .ok_or(anyhow!("clicked a button without message"))?;
+            .ok_or_else(|| anyhow!("clicked a button without message"))?;
 
         match callback::execute_callback(self, callback_command, q.from.id.0 as UserId).await? {
             Response::Meals(_) => (),
@@ -135,7 +144,7 @@ impl HandlerContext {
                 bot.edit_message_text(
                     msg.chat.id,
                     msg.id,
-                    text.unwrap_or(msg.text().unwrap_or("").to_string()),
+                    text.unwrap_or_else(|| msg.text().unwrap_or("").to_string()),
                 )
                 .parse_mode(Html)
                 .reply_markup(keyboard::create_inline(buttons))
@@ -144,7 +153,7 @@ impl HandlerContext {
             Response::Text(text) => {
                 bot.edit_message_text(msg.chat.id, msg.id, text).await?;
             }
-            Response::Noop => (),
+            Response::Fireworks => (),
         };
 
         bot.answer_callback_query(q.id).await?;
@@ -153,14 +162,6 @@ impl HandlerContext {
 }
 
 impl Bot {
-    pub fn from_env(context: HandlerContext, configs: BotConfigs) -> Self {
-        Bot {
-            bot: teloxide::Bot::from_env(),
-            context,
-            configs,
-        }
-    }
-
     pub fn new(token: String, context: HandlerContext, configs: BotConfigs) -> Self {
         Bot {
             bot: teloxide::Bot::new(token),
@@ -178,7 +179,7 @@ impl Bot {
             last_name: tu.last_name.clone(),
         };
 
-        return Some(user);
+        Some(user)
     }
 
     pub fn dispatcher(
@@ -205,7 +206,7 @@ impl Bot {
     pub async fn notify_subscribed_users(&self) -> Result<(), anyhow::Error> {
         let now = chrono::offset::Local::now();
         let (period, moment) = command::get_next(now);
-        let weekday = moment.into_weekday(now);
+        let weekday = moment.weekday(now);
         let day_period = DayPeriod::from((period, weekday));
 
         let chats = self.context.0.db.get_scheduled_chats(&day_period).await?;

@@ -131,27 +131,28 @@ pub static ref DEFAULT_CONFIG: HashSet<DayPeriod> = HashSet::from([
 }
 
 impl DB {
-    pub async fn get_schedules(&self, chat_id: i64) -> Result<Schedule, anyhow::Error> {
-        let zipped = sqlx::query!(r#"SELECT * FROM schedules WHERE chat_id = $1"#, chat_id)
-            .map(|s| {
-                (
-                    serde_json::from_str::<DayPeriod>(&s.configuration),
-                    s.user_id,
-                )
-            })
-            .fetch_all(&self.pool)
-            .await?
-            .into_iter()
-            .map(|(res, a)| res.map(|r| (r, a)))
-            .collect::<Result<Vec<(DayPeriod, UserId)>, serde_json::Error>>()
-            .map_err(anyhow::Error::new)?;
-        let (schedules, uids): (Vec<_>, Vec<_>) = zipped.into_iter().unzip();
-        Ok(Schedule {
-            chat_id,
-            user_id: *uids.first().unwrap_or(&chat_id),
-            configuration: HashSet::from_iter(schedules.into_iter()),
-        })
-    }
+    //////////
+    // pub async fn get_schedules(&self, chat_id: i64) -> Result<Schedule, anyhow::Error> {
+    //     let zipped = sqlx::query!(r#"SELECT * FROM schedules WHERE chat_id = $1"#, chat_id)
+    //         .map(|s| {
+    //             (
+    //                 serde_json::from_str::<DayPeriod>(&s.configuration),
+    //                 s.user_id,
+    //             )
+    //         })
+    //         .fetch_all(&self.pool)
+    //         .await?
+    //         .into_iter()
+    //         .map(|(res, a)| res.map(|r| (r, a)))
+    //         .collect::<Result<Vec<(DayPeriod, UserId)>, serde_json::Error>>()
+    //         .map_err(anyhow::Error::new)?;
+    //     let (schedules, uids): (Vec<_>, Vec<_>) = zipped.into_iter().unzip();
+    //     Ok(Schedule {
+    //         chat_id,
+    //         user_id: *uids.first().unwrap_or(&chat_id),
+    //         configuration: HashSet::from_iter(schedules.into_iter()),
+    //     })
+    // }
 
     pub async fn get_scheduled_chats(
         &self,
@@ -194,7 +195,7 @@ impl DB {
             prev.extend(Some(next));
             prev
         })
-        .ok_or(anyhow::Error::msg("couldn't get postgres query results"))
+        .ok_or_else(|| anyhow::Error::msg("couldn't get postgres query results"))
     }
 
     pub async fn delete_schedules(
@@ -209,22 +210,5 @@ impl DB {
         )
         .execute(&self.pool)
         .await
-    }
-
-    pub async fn delete_schedule(
-        &self,
-        config: Schedule,
-    ) -> Result<sqlx::postgres::PgQueryResult, anyhow::Error> {
-        let config_configuration = serde_json::to_string(&config.configuration)?;
-        sqlx::query!(
-            r#"DELETE FROM "schedules"
-               WHERE chat_id = $1 AND configuration = $2
-            "#,
-            config.chat_id,
-            config_configuration,
-        )
-        .execute(&self.pool)
-        .await
-        .map_err(anyhow::Error::new)
     }
 }

@@ -26,7 +26,7 @@ fn pt_weekday_name(w: &Weekday) -> &str {
     }
 }
 
-fn format_calories(calories: &String) -> String {
+fn format_calories(calories: &str) -> String {
     if let Ok(calories) = calories.parse::<i32>() {
         if calories > 0 {
             return format!("\n\n<i>Valor energético médio: ⚡️ {}Kcal</i>", calories);
@@ -76,7 +76,7 @@ pub async fn get_meal(
             |(config, (period, moment))| async move {
                 let mut usp = usp_client.lock().await;
                 let meal = usp
-                    .get_meal(&config.restaurant_id, moment.into_date(today))
+                    .get_meal(&config.restaurant_id, moment.date(today))
                     .await
                     .ok();
                 let (campus, restaurant) = usp.get_restaurant_by_id(&config.restaurant_id).await?;

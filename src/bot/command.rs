@@ -24,6 +24,7 @@ pub enum Command {
     Fireworks,
     Help,
     Next,
+    Start,
     Subscribe(SubscriptionType),
     Unsubscribe,
     Config,
@@ -37,7 +38,7 @@ pub enum Moment {
 }
 
 impl Moment {
-    pub fn into_weekday<T: chrono::Datelike>(&self, today: T) -> chrono::Weekday {
+    pub fn weekday<T: chrono::Datelike>(&self, today: T) -> chrono::Weekday {
         match self {
             Moment::Explicit(weekday) => *weekday,
             Moment::Today => today.weekday(),
@@ -45,7 +46,7 @@ impl Moment {
         }
     }
 
-    pub fn into_date<T: chrono::Datelike>(&self, today: T) -> chrono::NaiveDate {
+    pub fn date<T: chrono::Datelike>(&self, today: T) -> chrono::NaiveDate {
         let current_week = today.iso_week().week();
         let year = today.year();
         let today_weekday = today.weekday();
@@ -72,9 +73,9 @@ mod period_tests {
         let today = chrono::NaiveDate::from_ymd(2022, 10, 16); // it's sunday
         let current_weekday = today.weekday();
         let target_weekday = today.weekday().pred();
-        let period = Moment::Explicit(target_weekday.clone());
+        let period = Moment::Explicit(target_weekday);
 
-        let date = period.into_date(today);
+        let date = period.date(today);
         println!(
             "Got {:?} ({:?}) for today {:?} ({:?}) and target {:?}",
             date,
@@ -91,9 +92,9 @@ mod period_tests {
         let today = chrono::NaiveDate::from_ymd(2022, 10, 17); // it's monday
         let current_weekday = Weekday::Mon;
         let target_weekday = Weekday::Sun;
-        let period = Moment::Explicit(target_weekday.clone());
+        let period = Moment::Explicit(target_weekday);
 
-        let date = period.into_date(today);
+        let date = period.date(today);
         let six_days_before_date = date.checked_add_signed(Duration::days(-6)).unwrap();
         assert!(
             six_days_before_date == today,
@@ -112,7 +113,7 @@ mod period_tests {
         let today = chrono::NaiveDate::from_isoywd(2022, 13, current_weekday);
         let period = Moment::Tomorrow;
 
-        let date = period.into_date(today);
+        let date = period.date(today);
         assert!(
             date == today.succ(),
             "Expected {:?} ({:?}) to be tomorrow of {:?} ({:?})",
@@ -129,7 +130,7 @@ mod period_tests {
         let today = chrono::NaiveDate::from_isoywd(2022, 13, current_weekday);
         let period = Moment::Today;
 
-        let date = period.into_date(today);
+        let date = period.date(today);
         assert!(
             date == today,
             "Expected {:?} ({:?}) to be the same as {:?} ({:?})",
@@ -142,10 +143,10 @@ mod period_tests {
 }
 
 fn one_of_is_contained_in(checks: &[&str], haystack: &str) -> bool {
-    checks.iter().any(|c| return c.is_contained_in(haystack))
+    checks.iter().any(|c| c.is_contained_in(haystack))
 }
 
-fn parse_period(command: &String) -> Moment {
+fn parse_period(command: &str) -> Moment {
     if one_of_is_contained_in(&["seg", "mon"], command) {
         return Moment::Explicit(Weekday::Mon);
     }
@@ -178,7 +179,7 @@ fn parse_period(command: &String) -> Moment {
         return Moment::Tomorrow;
     }
 
-    return Moment::Today;
+    Moment::Today
 }
 
 pub fn parse_command(command: &Message) -> Command {
@@ -225,6 +226,10 @@ pub fn parse_command(command: &Message) -> Command {
 
     if one_of_is_contained_in(&["config", "preferencias", "preferências"], &lower_cmd) {
         return Command::Config;
+    }
+
+    if one_of_is_contained_in(&["start"], &lower_cmd) {
+        return Command::Start;
     }
 
     match parse_period(&lower_cmd) {
@@ -314,6 +319,7 @@ pub async fn execute_command(
             }
         }
         Command::Help => Ok(Response::Text(help::help_text())),
-        Command::Fireworks => Ok(Response::Noop),
+        Command::Fireworks => Ok(Response::Fireworks),
+        Command::Start => Ok(Response::Text("Olá! Boas vindas ao BandejaoBot. envie /ajuda para uma descrição detalhada de funcionalidades. Envie /config para alterar as suas preferências.".to_owned())),
     };
 }

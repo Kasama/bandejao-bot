@@ -171,6 +171,7 @@ dependencies = [
  "inflection-rs",
  "log",
  "pretty_env_logger",
+ "rand",
  "regex",
  "reqwest",
  "rocket",
