@@ -110,8 +110,12 @@ impl HandlerContext {
                 Response::Fireworks => {
                     let fireworks = papoco::generate_papoco();
                     for (firework, duration) in fireworks {
-                        bot.send_message(msg.chat.id, firework).parse_mode(Html).send().await?;
-                        tokio::time::sleep_until(Instant::now() + Duration::from_millis(duration)).await;
+                        bot.send_message(msg.chat.id, firework)
+                            .parse_mode(Html)
+                            .send()
+                            .await?;
+                        tokio::time::sleep_until(Instant::now() + Duration::from_millis(duration))
+                            .await;
                     }
                 }
             },
@@ -177,6 +181,8 @@ impl Bot {
             username: tu.username.clone(),
             first_name: tu.first_name.clone(),
             last_name: tu.last_name.clone(),
+            created_at: None,
+            updated_at: None,
         };
 
         Some(user)

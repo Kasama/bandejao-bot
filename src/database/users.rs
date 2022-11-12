@@ -1,3 +1,5 @@
+use rocket::time::PrimitiveDateTime;
+
 use super::config::Config;
 use super::DB;
 
@@ -9,6 +11,8 @@ pub struct User {
     pub username: Option<String>,
     pub first_name: String,
     pub last_name: Option<String>,
+    pub created_at: Option<PrimitiveDateTime>,
+    pub updated_at: Option<PrimitiveDateTime>,
 }
 
 impl DB {
@@ -23,15 +27,15 @@ impl DB {
         user: User,
     ) -> Result<sqlx::postgres::PgQueryResult, sqlx::Error> {
         let query = sqlx::query!(
-            r#"INSERT INTO users (id, username, first_name, last_name)
-               VALUES ($1, $2, $3, $4)
+            r#"INSERT INTO users (id, username, first_name, last_name, created_at, updated_at)
+               VALUES ($1, $2, $3, $4, now(), now())
                ON CONFLICT (id) DO
-                   UPDATE SET username = $2, first_name = $3, last_name = $4
+                   UPDATE SET username = $2, first_name = $3, last_name = $4, updated_at = now()
             "#,
             user.id,
             user.username,
             user.first_name,
-            user.last_name
+            user.last_name,
         );
         if let Err(sqlx::Error::RowNotFound) = self.get_user(user.id).await {
             let mut result = query.execute(&self.pool).await?;

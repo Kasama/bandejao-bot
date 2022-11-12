@@ -69,9 +69,11 @@ for user in old_cur.fetchall():
     username = user[1]
     first_name = user[2]
     last_name = user[3]
+    created_at = user[4]
+    updated_at = user[5]
 
-    new_cur.execute("INSERT INTO users VALUES (%s, %s, %s, %s)",
-                    (user_id, username, first_name, last_name))
+    new_cur.execute("INSERT INTO users VALUES (%s, %s, %s, %s, %s, %s)",
+                    (user_id, username, first_name, last_name, created_at, updated_at))
 
     prefs = yaml.safe_load(user[7])
     for pref in prefs:

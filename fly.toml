@@ -1,0 +1,8 @@
+# fly.toml file generated for bandejao-bot on 2022-11-12T17:17:57-03:00
+
+app = "bandejao-bot"
+
+[env]
+  DEBUG_MODE = "false"
+  RUST_LOG = "debug"
+  USP_BASE_URL = "https://uspdigital.usp.br/rucard/servicos"
