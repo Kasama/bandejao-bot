@@ -200,7 +200,7 @@ impl DB {
 
     pub async fn delete_schedules(
         &self,
-        chat_id: i64,
+        chat_id: &i64,
     ) -> Result<sqlx::postgres::PgQueryResult, sqlx::Error> {
         sqlx::query!(
             r#"DELETE FROM "schedules"

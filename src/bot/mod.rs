@@ -2,6 +2,7 @@ pub mod callback;
 pub mod command;
 pub mod config;
 pub mod help;
+pub mod internal;
 pub mod keyboard;
 pub mod meal;
 pub mod papoco;
@@ -14,11 +15,11 @@ use std::time::Duration;
 use anyhow::anyhow;
 use futures::future::join_all;
 use teloxide::dispatching::UpdateFilterExt;
-use teloxide::payloads::{EditMessageTextSetters, SendMessageSetters};
+use teloxide::payloads::EditMessageTextSetters;
 use teloxide::prelude::Dispatcher;
-use teloxide::requests::{Request, Requester};
+use teloxide::requests::Requester;
 use teloxide::types::ParseMode::Html;
-use teloxide::types::{CallbackQuery, ChatId, Message, Update};
+use teloxide::types::{CallbackQuery, ChatId, Message, Recipient, Update};
 use teloxide::{dptree, respond};
 use tokio::time::Instant;
 
@@ -64,6 +65,19 @@ impl HandlerContext {
         Self(ctx)
     }
 
+    pub fn send_message<C, T>(
+        &self,
+        bot: &teloxide::Bot,
+        chat_id: C,
+        text: T,
+    ) -> internal::BotRequest
+    where
+        T: Into<String>,
+        C: Into<Recipient>,
+    {
+        internal::BotRequest::send_message(bot, chat_id, text).parse_mode(Html)
+    }
+
     pub async fn message_handler(self, bot: teloxide::Bot, msg: Message) -> anyhow::Result<()> {
         if let Some(user) = Bot::get_user(msg.from()) {
             self.0.db.upsert_user(user).await?;
@@ -74,13 +88,14 @@ impl HandlerContext {
 
         let command = command::parse_command(&msg);
 
-        match command::execute_command(self, &command, msg.from().unwrap().id.0 as UserId, &bot)
+        match command::execute_command(&self, &command, msg.from().unwrap().id.0 as UserId, &bot)
             .await
         {
             Ok(resp) => match resp {
                 Response::Meals(meal_responses) => {
                     if meal_responses.is_empty() {
-                        bot.send_message(
+                        self.send_message(
+                            &bot,
                             msg.chat.id,
                             "nenhum restaurante está selecionado. Use /config para configurar um",
                         )
@@ -89,29 +104,29 @@ impl HandlerContext {
                     } else {
                         for meal_response in meal_responses {
                             let message = meal::format_message(meal_response);
-                            let msg = bot.send_message(msg.chat.id, message).parse_mode(Html);
+                            let msg = self.send_message(&bot, msg.chat.id, message);
                             msg.send().await?;
                         }
                     }
                 }
                 Response::Buttons(text, buttons) => {
-                    bot.send_message(
+                    self.send_message(
+                        &bot,
                         msg.chat.id,
                         text.unwrap_or_else(|| msg.text().unwrap_or("").to_string()),
                     )
-                    .parse_mode(Html)
                     .reply_markup(keyboard::create_inline(buttons))
+                    .send()
                     .await?;
                 }
                 Response::Text(txt) => {
-                    let msg = bot.send_message(msg.chat.id, txt).parse_mode(Html);
+                    let msg = self.send_message(&bot, msg.chat.id, txt);
                     msg.send().await?;
                 }
                 Response::Fireworks => {
                     let fireworks = papoco::generate_papoco();
                     for (firework, duration) in fireworks {
-                        bot.send_message(msg.chat.id, firework)
-                            .parse_mode(Html)
+                        self.send_message(&bot, msg.chat.id, firework)
                             .send()
                             .await?;
                         tokio::time::sleep_until(Instant::now() + Duration::from_millis(duration))
@@ -120,8 +135,7 @@ impl HandlerContext {
                 }
             },
             Err(err) => {
-                bot.send_message(msg.chat.id, format!("failed: {:?}", err))
-                    .parse_mode(Html)
+                self.send_message(&bot, msg.chat.id, format!("failed: {:?}", err))
                     .send()
                     .await?;
             }
@@ -150,7 +164,6 @@ impl HandlerContext {
                     msg.id,
                     text.unwrap_or_else(|| msg.text().unwrap_or("").to_string()),
                 )
-                .parse_mode(Html)
                 .reply_markup(keyboard::create_inline(buttons))
                 .await?;
             }
@@ -194,6 +207,7 @@ impl Bot {
         let handler = dptree::entry()
             .branch(Update::filter_message().endpoint(
                 |bot: teloxide::Bot, ctx: HandlerContext, msg: Message| async {
+                    log::info!("handling message for user {:?}", msg.from().map(|u| u.id));
                     ctx.message_handler(bot, msg).await
                 },
             ))
@@ -228,16 +242,17 @@ impl Bot {
                 .await?;
                 if let Response::Meals(resp) = meal {
                     match resp.len() {
-                        0 => self.bot.send_message(ChatId(chat), "nenhum restaurante está selecionado. Use /config para configurar um")
+                        0 => self.context.send_message(&self.bot, ChatId(chat), "nenhum restaurante está selecionado. Use /config para configurar um")
+                            .send()
                             .await
                             .map(|a| vec![a])
                             .map_err(anyhow::Error::new),
                         _ => join_all(resp.into_iter().map(|r| async {
                             let txt = meal::format_message(r);
-                            self.bot
-                                .send_message(ChatId(chat), txt)
-                                .parse_mode(Html)
-                            .await
+                            self.context
+                                .send_message(&self.bot, ChatId(chat), txt)
+                                .send()
+                                .await
                         }))
                         .await
                         .into_iter()
@@ -262,21 +277,18 @@ impl Bot {
             let admin_id = self.configs.admin_id;
 
             if let Err(e) = self
-                .bot
+                .context
                 .send_message(
+                    &self.bot,
                     ChatId(admin_id),
                     format!(
-                        "Got {}/{} successess and {} errors:{}",
+                        "Got {}/{} successess and {} errors:",
                         successes.len(),
                         total_subscriptions,
                         errors.len(),
-                        errors
-                            .iter()
-                            .map(|e| format!("\n- {}", e))
-                            .collect::<Vec<_>>()
-                            .join(""),
                     ),
                 )
+                .send()
                 .await
             {
                 log::error!(
@@ -286,6 +298,34 @@ impl Bot {
                     total_subscriptions,
                 )
             };
+
+            // let a =
+            join_all(errors.iter().map(|e| async move {
+                self.context
+                    .send_message(&self.bot, ChatId(admin_id), e)
+                    .send()
+                    .await
+            }))
+            .await;
+            // TODO: automatically fix MigrateToChatId errors
+            // join_all(
+            //     a.iter()
+            //         .map(|e| async move {
+            //             if let Err(teloxide::RequestError::MigrateToChatId(id)) = e {
+            //                 if let Ok(user_id) = self.context.0.db.get_schedule_user(id).await {
+            //                     if (subscribe_user(&self.context.0.db, *id, user_id).await).is_ok()
+            //                     {
+            //                         return unsubscribe_user(&self.context.0.db, id)
+            //                             .await
+            //                             .map(|_| ());
+            //                     }
+            //                 }
+            //             }
+            //             Ok(())
+            //         })
+            //         .collect::<Vec<_>>(),
+            // )
+            // .await;
         }
 
         Ok(())

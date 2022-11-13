@@ -253,7 +253,7 @@ where
 }
 
 pub async fn execute_command(
-    ctx: HandlerContext,
+    ctx: &HandlerContext,
     command: &Command,
     user_id: UserId,
     bot: &Bot,
@@ -311,7 +311,7 @@ pub async fn execute_command(
             }
         }
         Command::Unsubscribe => {
-            let unsubscribed = subscription::unsubscribe_user(&ctx.0.db, user_id).await?;
+            let unsubscribed = subscription::unsubscribe_user(&ctx.0.db, &user_id).await?;
             if unsubscribed {
                 Ok(Response::Text("🔕 <b>Notificações desativadas com sucesso!</b>\nVocê pode ativá-las novamente /inscrever".to_owned()))
             } else {
