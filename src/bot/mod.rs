@@ -19,7 +19,9 @@ use teloxide::payloads::EditMessageTextSetters;
 use teloxide::prelude::Dispatcher;
 use teloxide::requests::Requester;
 use teloxide::types::ParseMode::Html;
-use teloxide::types::{CallbackQuery, ChatId, KeyboardButton, KeyboardMarkup, Message, Update};
+use teloxide::types::{
+    CallbackQuery, ChatId, KeyboardRemove, Message, Update,
+};
 use teloxide::{dptree, respond};
 use tokio::time::Instant;
 
@@ -74,47 +76,21 @@ impl HandlerContext {
     where
         T: Into<String>,
     {
-        internal::BotRequest::send_message(bot, chat_id, text)
-            .parse_mode(Html)
-            .reply_markup(KeyboardMarkup::new(vec![
-                vec![KeyboardButton {
-                    text: "🍱 Próximo".to_string(),
-                    request: None,
-                }],
-                vec![
-                    KeyboardButton {
-                        text: "☀️ Almoço".to_string(),
-                        request: None,
-                    },
-                    KeyboardButton {
-                        text: "🌙 Jantar".to_string(),
-                        request: None,
-                    },
-                ],
-                vec![KeyboardButton {
-                    text: (|| async {
-                        if let Ok(s) = self.0.db.get_schedules(chat_id.0).await {
-                            if s.configuration.is_empty() {
-                                return "🔔 Ativar Notificações";
-                            }
-                        }
-                        "🔕 Desativar Notificações"
-                    })()
-                    .await
-                    .to_string(),
-                    request: None,
-                }],
-                vec![
-                    KeyboardButton {
-                        text: "⚙️ Configurações".to_string(),
-                        request: None,
-                    },
-                    KeyboardButton {
-                        text: "❓ Ajuda".to_string(),
-                        request: None,
-                    },
-                ],
-            ]))
+        let base_msg = internal::BotRequest::send_message(bot, chat_id, text).parse_mode(Html);
+        if chat_id.is_user() {
+            let has_schedules = (|| async {
+                if let Ok(s) = self.0.db.get_schedules(chat_id.0).await {
+                    if s.configuration.is_empty() {
+                        return true;
+                    }
+                }
+                false
+            })()
+            .await;
+            base_msg.reply_markup(keyboard::create_keyboard(has_schedules))
+        } else {
+            base_msg.reply_markup(KeyboardRemove::new())
+        }
     }
 
     pub async fn message_handler(self, bot: teloxide::Bot, msg: Message) -> anyhow::Result<()> {
