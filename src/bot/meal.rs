@@ -1,4 +1,4 @@
-use chrono::{DateTime, Datelike, Local, Weekday};
+use chrono::{Datelike, Weekday};
 
 use crate::database::config::Config;
 use crate::usp::model::Period;
@@ -63,34 +63,28 @@ pub fn format_message(response: MealResponse) -> String {
     }
 }
 
-pub async fn get_meal(
+pub async fn get_meal<T: Datelike>(
     period: &Period,
     moment: &Moment,
     configs: Vec<Config>,
     usp_client: &futures::lock::Mutex<Usp>,
-    today: DateTime<Local>,
+    today: T,
 ) -> anyhow::Result<Response> {
-    let zipper = (0..configs.len()).into_iter().map(|_| (period, moment));
-    let a: anyhow::Result<Vec<MealResponse>> =
-        futures::future::join_all(configs.into_iter().zip(zipper).map(
-            |(config, (period, moment))| async move {
-                let mut usp = usp_client.lock().await;
-                let meal = usp
-                    .get_meal(&config.restaurant_id, moment.date(today))
-                    .await
-                    .ok();
-                let (campus, restaurant) = usp.get_restaurant_by_id(&config.restaurant_id).await?;
-                Ok(MealResponse {
-                    campus: campus.normalized_name(),
-                    restaurant: restaurant.normalized_alias(),
-                    period: period.clone(),
-                    meal,
-                })
-            },
-        ))
+    let date = moment.date(today);
+    let meals_result: anyhow::Result<Vec<MealResponse>> =
+        futures::future::join_all(configs.iter().map(|config| async {
+            let mut usp = usp_client.lock().await;
+            let meal = usp.get_meal(&config.restaurant_id, date).await.ok();
+            let (campus, restaurant) = usp.get_restaurant_by_id(&config.restaurant_id).await?;
+            Ok(MealResponse {
+                campus: campus.normalized_name(),
+                restaurant: restaurant.normalized_alias(),
+                period: period.clone(),
+                meal,
+            })
+        }))
         .await
         .into_iter()
         .collect();
-    let meals = a?;
-    Ok(Response::Meals(meals))
+    Ok(Response::Meals(meals_result?))
 }

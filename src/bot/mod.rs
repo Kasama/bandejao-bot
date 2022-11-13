@@ -20,7 +20,7 @@ use teloxide::prelude::Dispatcher;
 use teloxide::requests::Requester;
 use teloxide::types::ParseMode::Html;
 use teloxide::types::{CallbackQuery, ChatId, KeyboardRemove, Message, Update};
-use teloxide::{dptree, respond};
+use teloxide::{dptree, respond, RequestError};
 use tokio::time::Instant;
 
 use crate::database::schedule::DayPeriod;
@@ -261,7 +261,8 @@ impl Bot {
     }
 
     pub async fn notify_subscribed_users(&self) -> Result<(), anyhow::Error> {
-        let now = chrono::offset::Local::now();
+        let timezone = chrono_tz::America::Sao_Paulo;
+        let now = chrono::offset::Utc::now().with_timezone(&timezone);
         let (period, moment) = command::get_next(now);
         let weekday = moment.weekday(now);
         let day_period = DayPeriod::from((period, weekday));
@@ -270,33 +271,50 @@ impl Bot {
 
         let total_subscriptions = chats.len();
 
+        #[derive(Debug)]
+        enum SubscriptionError {
+            ClosedRestaurant,
+            TelegramError(RequestError),
+            AnyError(anyhow::Error),
+            SqlxError(sqlx::Error),
+        }
         let (successes, failures): (Vec<_>, Vec<_>) =
             join_all(chats.into_iter().map(|(chat, user)| async move {
                 let (period, moment) = command::get_next(now);
-                let configs = self.context.0.db.get_configs(user).await?;
+                let configs = self.context.0.db.get_configs(user)
+                    .await
+                    .map_err(SubscriptionError::SqlxError)?;
                 let meal =
-                meal::get_meal(&period, &moment, configs, &self.context.0.usp_client, now)
-                .await?;
+                    meal::get_meal(&period, &moment, configs, &self.context.0.usp_client, now)
+                        .await
+                        .map_err(SubscriptionError::AnyError)?;
                 if let Response::Meals(resp) = meal {
                     match resp.len() {
                         0 => self.context.send_message(&self.bot, ChatId(chat), "nenhum restaurante está selecionado. Use /config para configurar um")
-                        .await
+                            .await
                             .send()
                             .await
                             .map(|a| vec![a])
-                            .map_err(anyhow::Error::new),
+                            .map_err(SubscriptionError::TelegramError),
                         _ => join_all(resp.into_iter().map(|r| async {
                             let txt = meal::format_message(r);
-                            self.context
-                                .send_message(&self.bot, ChatId(chat), txt)
-                                .await
-                                .send()
-                                .await
+                            if txt.to_lowercase().contains("fechado") {
+                                Err(SubscriptionError::ClosedRestaurant)
+                            } else {
+                                self.context
+                                    .send_message(&self.bot, ChatId(chat), txt)
+                                    .await
+                                    .send()
+                                    .await
+                                    .map_err(SubscriptionError::TelegramError)
+                            }
                         }))
                         .await
                         .into_iter()
+                        .filter(|r| {
+                            !matches!(r, Err(SubscriptionError::ClosedRestaurant))
+                        })
                         .collect::<Result<Vec<_>, _>>()
-                        .map_err(anyhow::Error::new)
                     }
                 } else {
                     Ok(vec![])
@@ -309,7 +327,7 @@ impl Bot {
         let errors: Vec<String> = failures
             .into_iter()
             .filter_map(|f| f.err())
-            .map(|e| e.to_string())
+            .map(|e| format!("{:?}", e))
             .collect();
 
         if total_subscriptions > 0 {
