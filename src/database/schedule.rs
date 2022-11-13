@@ -131,28 +131,27 @@ pub static ref DEFAULT_CONFIG: HashSet<DayPeriod> = HashSet::from([
 }
 
 impl DB {
-    //////////
-    // pub async fn get_schedules(&self, chat_id: i64) -> Result<Schedule, anyhow::Error> {
-    //     let zipped = sqlx::query!(r#"SELECT * FROM schedules WHERE chat_id = $1"#, chat_id)
-    //         .map(|s| {
-    //             (
-    //                 serde_json::from_str::<DayPeriod>(&s.configuration),
-    //                 s.user_id,
-    //             )
-    //         })
-    //         .fetch_all(&self.pool)
-    //         .await?
-    //         .into_iter()
-    //         .map(|(res, a)| res.map(|r| (r, a)))
-    //         .collect::<Result<Vec<(DayPeriod, UserId)>, serde_json::Error>>()
-    //         .map_err(anyhow::Error::new)?;
-    //     let (schedules, uids): (Vec<_>, Vec<_>) = zipped.into_iter().unzip();
-    //     Ok(Schedule {
-    //         chat_id,
-    //         user_id: *uids.first().unwrap_or(&chat_id),
-    //         configuration: HashSet::from_iter(schedules.into_iter()),
-    //     })
-    // }
+    pub async fn get_schedules(&self, chat_id: i64) -> Result<Schedule, anyhow::Error> {
+        let zipped = sqlx::query!(r#"SELECT * FROM schedules WHERE chat_id = $1"#, chat_id)
+            .map(|s| {
+                (
+                    serde_json::from_str::<DayPeriod>(&s.configuration),
+                    s.user_id,
+                )
+            })
+            .fetch_all(&self.pool)
+            .await?
+            .into_iter()
+            .map(|(res, a)| res.map(|r| (r, a)))
+            .collect::<Result<Vec<(DayPeriod, UserId)>, serde_json::Error>>()
+            .map_err(anyhow::Error::new)?;
+        let (schedules, uids): (Vec<_>, Vec<_>) = zipped.into_iter().unzip();
+        Ok(Schedule {
+            chat_id,
+            user_id: *uids.first().unwrap_or(&chat_id),
+            configuration: HashSet::from_iter(schedules.into_iter()),
+        })
+    }
 
     pub async fn get_scheduled_chats(
         &self,

@@ -283,7 +283,7 @@ pub async fn execute_command(
                 ))
             } else {
                 Ok(Response::Text(
-                    "Não foi possível ativar as notificações!\n talvez você já esteja inscrito(a) 🤔"
+                    "Não foi possível ativar as notificações!\nTalvez você já esteja inscrito(a) 🤔"
                         .to_string(),
                 ))
             }
@@ -297,16 +297,16 @@ pub async fn execute_command(
                 let subscribed = subscription::subscribe_user(&ctx.0.db, id.0, user_id).await?;
                 if subscribed {
                     Ok(Response::Text(
-                        "🔔 <b>Notificações ativadas com sucesso!</b>\n O grupo será notificado diariamente antes do horário de abertura do bandejão!".to_string(),
+                        "🔔 <b>Notificações ativadas com sucesso!</b>\nO grupo será notificado diariamente antes do horário de abertura do bandejão!".to_string(),
                     ))
                 } else {
                     Ok(Response::Text(
-                        "Não foi possível ativar as notificações!\n Talvez o grupo já esteja inscrito 🤔".to_string()
+                        "Não foi possível ativar as notificações!\nTalvez o grupo já esteja inscrito 🤔".to_string()
                     ))
                 }
             } else {
                 Ok(Response::Text(
-                    "Não foi possível ativar as notificações!\n Apenas administradores podem ativar as notificações 🤔".to_string()
+                    "Não foi possível ativar as notificações!\nApenas administradores podem ativar as notificações 🤔".to_string()
                 ))
             }
         }
@@ -315,7 +315,7 @@ pub async fn execute_command(
             if unsubscribed {
                 Ok(Response::Text("🔕 <b>Notificações desativadas com sucesso!</b>\nVocê pode ativá-las novamente /inscrever".to_owned()))
             } else {
-                Ok(Response::Text("Inscrição não existe".to_string()))
+                Ok(Response::Text("Não foi possível desativar as notificações!\nTalvez o você não esteja inscrito 🤔".to_string()))
             }
         }
         Command::Help => Ok(Response::Text(help::help_text())),

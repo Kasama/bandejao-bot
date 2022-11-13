@@ -81,6 +81,38 @@
     },
     "query": "INSERT INTO \"configurations\" (user_id, restaurant_id)\n               VALUES ($1, $2)\n               ON CONFLICT (user_id, restaurant_id) DO NOTHING\n            "
   },
+  "99306145c9ad09f8030d58297685c9415ca6095c548c39fb725ffca61b3fe310": {
+    "describe": {
+      "columns": [
+        {
+          "name": "chat_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "configuration",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM schedules WHERE chat_id = $1"
+  },
   "c0e58360037da19b6c295a0e9b3ce4230aa2ede213a9125e956e66d1ec00c3c7": {
     "describe": {
       "columns": [

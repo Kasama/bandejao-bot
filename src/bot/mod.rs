@@ -19,7 +19,7 @@ use teloxide::payloads::EditMessageTextSetters;
 use teloxide::prelude::Dispatcher;
 use teloxide::requests::Requester;
 use teloxide::types::ParseMode::Html;
-use teloxide::types::{CallbackQuery, ChatId, Message, Recipient, Update};
+use teloxide::types::{CallbackQuery, ChatId, KeyboardButton, KeyboardMarkup, Message, Update};
 use teloxide::{dptree, respond};
 use tokio::time::Instant;
 
@@ -65,17 +65,56 @@ impl HandlerContext {
         Self(ctx)
     }
 
-    pub fn send_message<C, T>(
+    pub async fn send_message<T>(
         &self,
         bot: &teloxide::Bot,
-        chat_id: C,
+        chat_id: ChatId,
         text: T,
     ) -> internal::BotRequest
     where
         T: Into<String>,
-        C: Into<Recipient>,
     {
-        internal::BotRequest::send_message(bot, chat_id, text).parse_mode(Html)
+        internal::BotRequest::send_message(bot, chat_id, text)
+            .parse_mode(Html)
+            .reply_markup(KeyboardMarkup::new(vec![
+                vec![KeyboardButton {
+                    text: "🍱 Próximo".to_string(),
+                    request: None,
+                }],
+                vec![
+                    KeyboardButton {
+                        text: "☀️ Almoço".to_string(),
+                        request: None,
+                    },
+                    KeyboardButton {
+                        text: "🌙 Jantar".to_string(),
+                        request: None,
+                    },
+                ],
+                vec![KeyboardButton {
+                    text: (|| async {
+                        if let Ok(s) = self.0.db.get_schedules(chat_id.0).await {
+                            if s.configuration.is_empty() {
+                                return "🔔 Ativar Notificações";
+                            }
+                        }
+                        "🔕 Desativar Notificações"
+                    })()
+                    .await
+                    .to_string(),
+                    request: None,
+                }],
+                vec![
+                    KeyboardButton {
+                        text: "⚙️ Configurações".to_string(),
+                        request: None,
+                    },
+                    KeyboardButton {
+                        text: "❓ Ajuda".to_string(),
+                        request: None,
+                    },
+                ],
+            ]))
     }
 
     pub async fn message_handler(self, bot: teloxide::Bot, msg: Message) -> anyhow::Result<()> {
@@ -99,13 +138,16 @@ impl HandlerContext {
                             msg.chat.id,
                             "nenhum restaurante está selecionado. Use /config para configurar um",
                         )
+                        .await
                         .send()
                         .await?;
                     } else {
                         for meal_response in meal_responses {
                             let message = meal::format_message(meal_response);
-                            let msg = self.send_message(&bot, msg.chat.id, message);
-                            msg.send().await?;
+                            self.send_message(&bot, msg.chat.id, message)
+                                .await
+                                .send()
+                                .await?;
                         }
                     }
                 }
@@ -115,18 +157,22 @@ impl HandlerContext {
                         msg.chat.id,
                         text.unwrap_or_else(|| msg.text().unwrap_or("").to_string()),
                     )
+                    .await
                     .reply_markup(keyboard::create_inline(buttons))
                     .send()
                     .await?;
                 }
                 Response::Text(txt) => {
-                    let msg = self.send_message(&bot, msg.chat.id, txt);
-                    msg.send().await?;
+                    self.send_message(&bot, msg.chat.id, txt)
+                        .await
+                        .send()
+                        .await?;
                 }
                 Response::Fireworks => {
                     let fireworks = papoco::generate_papoco();
                     for (firework, duration) in fireworks {
                         self.send_message(&bot, msg.chat.id, firework)
+                            .await
                             .send()
                             .await?;
                         tokio::time::sleep_until(Instant::now() + Duration::from_millis(duration))
@@ -136,6 +182,7 @@ impl HandlerContext {
             },
             Err(err) => {
                 self.send_message(&bot, msg.chat.id, format!("failed: {:?}", err))
+                    .await
                     .send()
                     .await?;
             }
@@ -243,6 +290,7 @@ impl Bot {
                 if let Response::Meals(resp) = meal {
                     match resp.len() {
                         0 => self.context.send_message(&self.bot, ChatId(chat), "nenhum restaurante está selecionado. Use /config para configurar um")
+                        .await
                             .send()
                             .await
                             .map(|a| vec![a])
@@ -251,6 +299,7 @@ impl Bot {
                             let txt = meal::format_message(r);
                             self.context
                                 .send_message(&self.bot, ChatId(chat), txt)
+                                .await
                                 .send()
                                 .await
                         }))
@@ -288,6 +337,7 @@ impl Bot {
                         errors.len(),
                     ),
                 )
+                .await
                 .send()
                 .await
             {
@@ -303,6 +353,7 @@ impl Bot {
             join_all(errors.iter().map(|e| async move {
                 self.context
                     .send_message(&self.bot, ChatId(admin_id), e)
+                    .await
                     .send()
                     .await
             }))
