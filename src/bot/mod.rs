@@ -19,9 +19,7 @@ use teloxide::payloads::EditMessageTextSetters;
 use teloxide::prelude::Dispatcher;
 use teloxide::requests::Requester;
 use teloxide::types::ParseMode::Html;
-use teloxide::types::{
-    CallbackQuery, ChatId, KeyboardRemove, Message, Update,
-};
+use teloxide::types::{CallbackQuery, ChatId, KeyboardRemove, Message, Update};
 use teloxide::{dptree, respond};
 use tokio::time::Instant;
 
@@ -94,6 +92,21 @@ impl HandlerContext {
     }
 
     pub async fn message_handler(self, bot: teloxide::Bot, msg: Message) -> anyhow::Result<()> {
+        // Ignore replies in group chats
+        // Only MessageKind::Common is allowed, and the bot will only respond if it was not a reply
+        if !msg.chat.is_private() {
+            if msg.via_bot.is_some() {
+                return Ok(());
+            }
+            if let teloxide::types::MessageKind::Common(ref m) = msg.kind {
+                if m.reply_to_message.is_some() {
+                    return Ok(());
+                }
+            } else {
+                return Ok(());
+            }
+        }
+
         if let Some(user) = Bot::get_user(msg.from()) {
             self.0.db.upsert_user(user).await?;
         }
