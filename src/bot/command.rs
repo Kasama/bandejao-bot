@@ -258,7 +258,8 @@ pub async fn execute_command(
     user_id: UserId,
     bot: &Bot,
 ) -> Result<Response, anyhow::Error> {
-    let today = chrono::offset::Local::now();
+    let timezone = chrono_tz::America::Sao_Paulo;
+    let today = chrono::offset::Utc::now().with_timezone(&timezone);
     let configs = ctx.0.db.get_configs(user_id).await?;
 
     let client = &ctx.0.usp_client;
