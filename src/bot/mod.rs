@@ -211,6 +211,7 @@ impl HandlerContext {
                     msg.id,
                     text.unwrap_or_else(|| msg.text().unwrap_or("").to_string()),
                 )
+                .parse_mode(Html)
                 .reply_markup(keyboard::create_inline(buttons))
                 .await?;
             }
