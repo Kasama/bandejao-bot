@@ -29,6 +29,7 @@ use crate::usp::model::{Meals, Period};
 use crate::Context;
 
 use self::callback::CallbackCommand;
+use self::command::Command;
 
 pub struct Bot {
     bot: teloxide::Bot,
@@ -111,10 +112,15 @@ impl HandlerContext {
             self.0.db.upsert_user(user).await?;
         }
 
+        let command = command::parse_command(&msg);
+
+        // ignore unknown commands in group chats
+        if !msg.chat.is_private() && matches!(command, Command::Unknown) {
+            return Ok(())
+        };
+
         bot.send_chat_action(msg.chat.id, teloxide::types::ChatAction::Typing)
             .await?;
-
-        let command = command::parse_command(&msg);
 
         match command::execute_command(&self, &command, msg.from().unwrap().id.0 as UserId, &bot)
             .await

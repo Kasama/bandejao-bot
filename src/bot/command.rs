@@ -28,6 +28,7 @@ pub enum Command {
     Subscribe(SubscriptionType),
     Unsubscribe,
     Config,
+    Unknown,
 }
 
 #[derive(Debug, Clone)]
@@ -233,7 +234,7 @@ pub fn parse_command(command: &Message) -> Command {
     }
 
     match parse_period(&lower_cmd) {
-        Moment::Today => Command::Next,
+        Moment::Today => Command::Unknown,
         others => Command::Meal(Period::Lunch, others),
     }
 }
@@ -268,7 +269,7 @@ pub async fn execute_command(
         Command::Meal(period, moment) => {
             meal::get_meal(period, moment, configs, client, today).await
         }
-        Command::Next => {
+        Command::Unknown | Command::Next => {
             let (period, moment) = get_next(today.time());
             meal::get_meal(&period, &moment, configs, client, today).await
         }
