@@ -116,7 +116,7 @@ impl HandlerContext {
 
         // ignore unknown commands in group chats
         if !msg.chat.is_private() && matches!(command, Command::Unknown) {
-            return Ok(())
+            return Ok(());
         };
 
         bot.send_chat_action(msg.chat.id, teloxide::types::ChatAction::Typing)
@@ -280,7 +280,7 @@ impl Bot {
         #[derive(Debug)]
         enum SubscriptionError {
             ClosedRestaurant,
-            TelegramError(RequestError),
+            TelegramError((RequestError, ChatId)),
             AnyError(anyhow::Error),
             SqlxError(sqlx::Error),
         }
@@ -301,7 +301,7 @@ impl Bot {
                             .send()
                             .await
                             .map(|a| vec![a])
-                            .map_err(SubscriptionError::TelegramError),
+                            .map_err(|e| (SubscriptionError::TelegramError((e, ChatId(chat))))),
                         _ => join_all(resp.into_iter().map(|r| async {
                             let txt = meal::format_message(r);
                             if txt.to_lowercase().contains("fechado") {
@@ -312,7 +312,7 @@ impl Bot {
                                     .await
                                     .send()
                                     .await
-                                    .map_err(SubscriptionError::TelegramError)
+                                    .map_err(|e| (SubscriptionError::TelegramError((e, ChatId(chat)))))
                             }
                         }))
                         .await
@@ -330,10 +330,50 @@ impl Bot {
             .into_iter()
             .partition(|r| r.is_ok());
 
-        let errors: Vec<String> = failures
+        let original_failures = failures.len();
+
+        // Automatically resolve errors that can be resolved like blocking, kicking, migrating to
+        // another chat, etc
+        let remaining_errors: Vec<anyhow::Error> =
+            join_all(failures.into_iter().filter_map(|f| f.err()).map(|e| async {
+                let se = match e {
+                    SubscriptionError::TelegramError(e) => e,
+                    _ => return Ok(()),
+                };
+
+                match se.0 {
+                    teloxide::RequestError::Api(api_error) => match api_error {
+                        teloxide::ApiError::BotBlocked
+                        | teloxide::ApiError::ChatNotFound
+                        | teloxide::ApiError::UserNotFound
+                        | teloxide::ApiError::GroupDeactivated
+                        | teloxide::ApiError::BotKicked
+                        | teloxide::ApiError::BotKickedFromSupergroup
+                        | teloxide::ApiError::UserDeactivated
+                        | teloxide::ApiError::CantInitiateConversation => {
+                            log::info!(
+                                "Removing schedule for chat {} because it was {api_error}",
+                                se.1 .0,
+                            );
+                            self.context.0.db.delete_schedules(&se.1 .0).await?;
+                        }
+                        _ => return Ok(()),
+                    },
+                    teloxide::RequestError::MigrateToChatId(new_chat_id) => {
+                        log::info!("Migrating {} to chat {}", se.1 .0, new_chat_id);
+                        let mut schedule = self.context.0.db.get_schedules(se.1 .0).await?;
+                        schedule.chat_id = new_chat_id;
+                        self.context.0.db.delete_schedules(&se.1 .0).await?;
+                        self.context.0.db.upsert_schedule(schedule).await?;
+                        log::info!("    Migrated {} to {}", se.1 .0, new_chat_id);
+                    }
+                    _ => return Ok(()),
+                };
+                Ok(())
+            }))
+            .await
             .into_iter()
-            .filter_map(|f| f.err())
-            .map(|e| format!("{:?}", e))
+            .filter_map(|r| r.err())
             .collect();
 
         if total_subscriptions > 0 {
@@ -345,10 +385,11 @@ impl Bot {
                     &self.bot,
                     ChatId(admin_id),
                     format!(
-                        "Got {}/{} successess and {} errors:",
+                        "Got {}/{} successess and {} errors. {} auto-fixed:",
                         successes.len(),
                         total_subscriptions,
-                        errors.len(),
+                        remaining_errors.len(),
+                        original_failures - remaining_errors.len()
                     ),
                 )
                 .await
@@ -364,33 +405,14 @@ impl Bot {
             };
 
             // let a =
-            join_all(errors.iter().map(|e| async move {
+            join_all(remaining_errors.iter().map(|e| async move {
                 self.context
-                    .send_message(&self.bot, ChatId(admin_id), e)
+                    .send_message(&self.bot, ChatId(admin_id), e.to_string())
                     .await
                     .send()
                     .await
             }))
             .await;
-            // TODO: automatically fix MigrateToChatId errors
-            // join_all(
-            //     a.iter()
-            //         .map(|e| async move {
-            //             if let Err(teloxide::RequestError::MigrateToChatId(id)) = e {
-            //                 if let Ok(user_id) = self.context.0.db.get_schedule_user(id).await {
-            //                     if (subscribe_user(&self.context.0.db, *id, user_id).await).is_ok()
-            //                     {
-            //                         return unsubscribe_user(&self.context.0.db, id)
-            //                             .await
-            //                             .map(|_| ());
-            //                     }
-            //                 }
-            //             }
-            //             Ok(())
-            //         })
-            //         .collect::<Vec<_>>(),
-            // )
-            // .await;
         }
 
         Ok(())
