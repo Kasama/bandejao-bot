@@ -338,7 +338,7 @@ impl Bot {
             join_all(failures.into_iter().filter_map(|f| f.err()).map(|e| async {
                 let se = match e {
                     SubscriptionError::TelegramError(e) => e,
-                    _ => return Ok(()),
+                    _ => return Err(anyhow::anyhow!("{e:?}")),
                 };
 
                 match se.0 {
@@ -357,7 +357,7 @@ impl Bot {
                             );
                             self.context.0.db.delete_schedules(&se.1 .0).await?;
                         }
-                        _ => return Ok(()),
+                        _ => return Err(anyhow::anyhow!("{api_error:?}")),
                     },
                     teloxide::RequestError::MigrateToChatId(new_chat_id) => {
                         log::info!("Migrating {} to chat {}", se.1 .0, new_chat_id);
@@ -367,7 +367,7 @@ impl Bot {
                         self.context.0.db.upsert_schedule(schedule).await?;
                         log::info!("    Migrated {} to {}", se.1 .0, new_chat_id);
                     }
-                    _ => return Ok(()),
+                    _ => return Err(anyhow::anyhow!("{se:?}")),
                 };
                 Ok(())
             }))
