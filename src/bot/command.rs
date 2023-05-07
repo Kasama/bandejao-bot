@@ -212,8 +212,7 @@ pub fn parse_command(command: &Message) -> Command {
     }
 
     if one_of_is_contained_in(&["inscrever", "subscribe", "ativar"], &lower_cmd) {
-        let private_chat = command.chat.is_private();
-        if private_chat {
+        if command.chat.is_private() {
             return Command::Subscribe(SubscriptionType::User(
                 command
                     .from()
@@ -265,7 +264,7 @@ pub async fn execute_command(
 
     let client = &ctx.0.usp_client;
 
-    return match command {
+    match command {
         Command::Meal(period, moment) => {
             meal::get_meal(period, moment, configs, client, today).await
         }
@@ -323,5 +322,5 @@ pub async fn execute_command(
         Command::Help => Ok(Response::Text(help::help_text())),
         Command::Fireworks => Ok(Response::Fireworks),
         Command::Start => Ok(Response::Text("Olá! Boas vindas ao BandejaoBot. envie /ajuda para uma descrição detalhada de funcionalidades. Envie /config para alterar as suas preferências.".to_owned())),
-    };
+    }
 }

@@ -54,7 +54,7 @@ impl Usp {
     }
 
     async fn get_campi_raw(&self) -> Result<Vec<Campus>, anyhow::Error> {
-        return self.request_usp(USP_RESTAURANTS_ENDPOINT).await;
+        self.request_usp(USP_RESTAURANTS_ENDPOINT).await
     }
 
     #[allow(unreachable_code)]
@@ -140,9 +140,8 @@ impl Usp {
     }
 
     async fn get_menu_raw<'r>(&self, restaurant_id: &'r str) -> Result<Menu, anyhow::Error> {
-        return self
-            .request_usp(format!("{}/{}", USP_MENU_ENDPOINT, restaurant_id))
-            .await;
+        self.request_usp(format!("{}/{}", USP_MENU_ENDPOINT, restaurant_id))
+            .await
     }
 
     #[allow(unreachable_code)]

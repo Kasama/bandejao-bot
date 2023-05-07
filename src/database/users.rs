@@ -1,4 +1,4 @@
-use rocket::time::PrimitiveDateTime;
+use chrono::naive::NaiveDateTime;
 
 use super::config::Config;
 use super::DB;
@@ -11,8 +11,8 @@ pub struct User {
     pub username: Option<String>,
     pub first_name: String,
     pub last_name: Option<String>,
-    pub created_at: Option<PrimitiveDateTime>,
-    pub updated_at: Option<PrimitiveDateTime>,
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>,
 }
 
 impl DB {

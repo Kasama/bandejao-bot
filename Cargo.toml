@@ -24,11 +24,10 @@ sqlx = { version = "0.6", features = [
   "offline",
   "postgres",
   "migrate",
-  "time",
+  "chrono",
 ] }
 teloxide = { version = "0.12", features = ["macros", "auto-send"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "full"] }
 rand = "0.8"
-rocket = { version = "0.5.0-rc.3", features = ["json"] }
 clap = { version = "4", features = ["derive", "env"] }
 tokio_schedule = "0.3.0"
