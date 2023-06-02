@@ -353,19 +353,26 @@ impl Bot {
                         | teloxide::ApiError::CantInitiateConversation => {
                             log::info!(
                                 "Removing schedule for chat {} because it was {api_error}",
-                                se.1 .0,
+                                se.1,
                             );
+                            self.context.0.db.delete_schedules(&se.1 .0).await?;
+                        }
+                        teloxide::ApiError::Unknown(e)
+                            if e == "Forbidden: bot was kicked from the group chat"
+                                || e == "Forbidden: the group chat was deleted" =>
+                        {
+                            log::info!("Removing schedule for chat {} because it was {e}", se.1,);
                             self.context.0.db.delete_schedules(&se.1 .0).await?;
                         }
                         _ => return Err(anyhow::anyhow!("{api_error:?}")),
                     },
                     teloxide::RequestError::MigrateToChatId(new_chat_id) => {
-                        log::info!("Migrating {} to chat {}", se.1 .0, new_chat_id);
+                        log::info!("Migrating {} to chat {}", se.1, new_chat_id);
                         let mut schedule = self.context.0.db.get_schedules(se.1 .0).await?;
                         schedule.chat_id = new_chat_id;
                         self.context.0.db.delete_schedules(&se.1 .0).await?;
                         self.context.0.db.upsert_schedule(schedule).await?;
-                        log::info!("    Migrated {} to {}", se.1 .0, new_chat_id);
+                        log::info!("    Migrated {} to {}", se.1, new_chat_id);
                     }
                     _ => return Err(anyhow::anyhow!("{se:?}")),
                 };
