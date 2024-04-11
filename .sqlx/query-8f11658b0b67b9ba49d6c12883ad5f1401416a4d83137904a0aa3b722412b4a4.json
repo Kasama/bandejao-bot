@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO \"configurations\" (user_id, restaurant_id)\n               VALUES ($1, $2)\n               ON CONFLICT (user_id, restaurant_id) DO NOTHING\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8f11658b0b67b9ba49d6c12883ad5f1401416a4d83137904a0aa3b722412b4a4"
+}

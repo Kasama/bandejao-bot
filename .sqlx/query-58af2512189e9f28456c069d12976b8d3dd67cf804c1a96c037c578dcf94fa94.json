@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM \"configurations\"\n               WHERE user_id = $1 AND restaurant_id = $2\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "58af2512189e9f28456c069d12976b8d3dd67cf804c1a96c037c578dcf94fa94"
+}

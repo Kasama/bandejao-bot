@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM \"schedules\"\n               WHERE chat_id = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "de3ea23749c8d3eb7cf2e9bd74c00928d63f4a28e8c6fb7cee6180bf47d34892"
+}

@@ -159,7 +159,7 @@ impl Usp {
                         menu: "comidas quase verdes\nsuco de azul".to_string(),
                         calories: "281".to_string(),
                     },
-                    date: NaiveDate::from_ymd(2022, 10, 16),
+                    date: NaiveDate::from_ymd_opt(2022, 10, 16).expect("couldn't create date"),
                 },
                 Meals {
                     dinner: Meal {
@@ -170,7 +170,7 @@ impl Usp {
                         menu: "comidas quase verdes\nsuco de azul".to_string(),
                         calories: "281".to_string(),
                     },
-                    date: NaiveDate::from_ymd(2022, 10, 17),
+                    date: NaiveDate::from_ymd_opt(2022, 10, 17).expect("couldn't create date"),
                 },
                 Meals {
                     dinner: Meal {
@@ -181,7 +181,7 @@ impl Usp {
                         menu: "comidas quase verdes\nsuco de azul".to_string(),
                         calories: "281".to_string(),
                     },
-                    date: NaiveDate::from_ymd(2022, 10, 18),
+                    date: NaiveDate::from_ymd_opt(2022, 10, 18).expect("couldn't create date"),
                 },
                 Meals {
                     dinner: Meal {
@@ -192,7 +192,7 @@ impl Usp {
                         menu: "comidas quase verdes\nsuco de azul".to_string(),
                         calories: "281".to_string(),
                     },
-                    date: NaiveDate::from_ymd(2022, 10, 19),
+                    date: NaiveDate::from_ymd_opt(2022, 10, 19).expect("couldn't create date"),
                 },
                 Meals {
                     dinner: Meal {
@@ -203,7 +203,7 @@ impl Usp {
                         menu: "comidas quase verdes\nsuco de azul".to_string(),
                         calories: "281".to_string(),
                     },
-                    date: NaiveDate::from_ymd(2022, 10, 20),
+                    date: NaiveDate::from_ymd_opt(2022, 10, 20).expect("couldn't create date"),
                 },
                 Meals {
                     dinner: Meal {
@@ -214,7 +214,7 @@ impl Usp {
                         menu: "comidas quase verdes\nsuco de azul".to_string(),
                         calories: "281".to_string(),
                     },
-                    date: NaiveDate::from_ymd(2022, 10, 21),
+                    date: NaiveDate::from_ymd_opt(2022, 10, 21).expect("couldn't create date"),
                 },
                 Meals {
                     dinner: Meal {
@@ -225,7 +225,7 @@ impl Usp {
                         menu: "comidas quase verdes\nsuco de azul".to_string(),
                         calories: "281".to_string(),
                     },
-                    date: NaiveDate::from_ymd(2022, 10, 22),
+                    date: NaiveDate::from_ymd_opt(2022, 10, 22).expect("couldn't create date"),
                 },
                 Meals {
                     dinner: Meal {
@@ -236,7 +236,7 @@ impl Usp {
                         menu: "comidas quase verdes\nsuco de azul".to_string(),
                         calories: "281".to_string(),
                     },
-                    date: NaiveDate::from_ymd(2022, 10, 23),
+                    date: NaiveDate::from_ymd_opt(2022, 10, 23).expect("couldn't create date"),
                 },
             ],
         })

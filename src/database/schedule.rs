@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use cached::lazy_static::lazy_static;
+use lazy_static::lazy_static;
 use chrono::Weekday;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 

@@ -1,4 +1,4 @@
-FROM rustlang/rust:nightly-bullseye as builder
+FROM rustlang/rust:nightly as builder
 
 # create a new empty shell project
 RUN USER=root cargo new --bin bandejao-bot
@@ -9,12 +9,13 @@ COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 
 # this build step will cache your dependencies
-RUN cargo build --release
+RUN SQLX_OFFLINE=1 cargo build --release
 RUN rm src/*.rs || true
 
 # copy your source tree
 COPY ./src ./src
 COPY ./sqlx-data.json ./sqlx-data.json
+COPY ./.sqlx ./.sqlx
 COPY ./migrations ./migrations
 
 # build for release

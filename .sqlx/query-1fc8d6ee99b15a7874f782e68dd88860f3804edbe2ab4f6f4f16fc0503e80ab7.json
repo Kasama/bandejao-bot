@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO users (id, username, first_name, last_name, created_at, updated_at)\n               VALUES ($1, $2, $3, $4, now(), now())\n               ON CONFLICT (id) DO\n                   UPDATE SET username = $2, first_name = $3, last_name = $4, updated_at = now()\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1fc8d6ee99b15a7874f782e68dd88860f3804edbe2ab4f6f4f16fc0503e80ab7"
+}

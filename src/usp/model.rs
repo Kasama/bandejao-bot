@@ -1,6 +1,6 @@
-use cached::lazy_static::lazy_static;
 use chrono::{Datelike, NaiveDate};
-use inflection_rs::inflection::Inflection;
+use inflection_rs::inflection;
+use lazy_static::lazy_static;
 use regex::Regex;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -44,8 +44,6 @@ fn normalize_name(name: &'_ str) -> String {
         static ref PUSP: Regex = Regex::new(r#"(?i)pusp.(c)"#).unwrap();
     }
 
-    let mut inflection = Inflection::new();
-
     let replaced = vec![
         (&*QUOTE, ""),
         (&*CAMPUS, ""),
@@ -58,11 +56,11 @@ fn normalize_name(name: &'_ str) -> String {
         re.replace_all(&val, replacement).to_string()
     });
 
-    // let singular = inflection.singularize(replaced);
-    let titlelized = inflection.titleize(replaced);
+    // let singular = inflection::singularize(replaced);
+    let titlelized = inflection::titleize(replaced);
 
     // Titleize a second time to handle edge cases with acronyms
-    inflection.titleize(titlelized)
+    inflection::titleize(titlelized)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]

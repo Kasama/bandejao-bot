@@ -53,11 +53,11 @@ impl Moment {
         let today_weekday = today.weekday();
         match self {
             Moment::Explicit(weekday) => {
-                chrono::NaiveDate::from_isoywd(year, current_week, *weekday)
+                chrono::NaiveDate::from_isoywd_opt(year, current_week, *weekday).expect("Invalid date")
             }
-            Moment::Today => chrono::NaiveDate::from_isoywd(year, current_week, today_weekday),
+            Moment::Today => chrono::NaiveDate::from_isoywd_opt(year, current_week, today_weekday).expect("Invalid date"),
             Moment::Tomorrow => {
-                chrono::NaiveDate::from_isoywd(year, current_week, today_weekday).succ()
+                chrono::NaiveDate::from_isoywd_opt(year, current_week, today_weekday).and_then(|d| d.succ_opt()).expect("Invalid date")
             }
         }
     }

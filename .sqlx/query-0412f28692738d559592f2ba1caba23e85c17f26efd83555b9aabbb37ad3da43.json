@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO \"schedules\" (chat_id, user_id, configuration)\n               VALUES ($1, $2, $3)\n               ON CONFLICT (chat_id, configuration) DO NOTHING",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0412f28692738d559592f2ba1caba23e85c17f26efd83555b9aabbb37ad3da43"
+}
