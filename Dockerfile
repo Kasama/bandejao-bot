@@ -23,7 +23,7 @@ RUN rm -rf ./target/release || true
 RUN SQLX_OFFLINE=1 cargo build --release
 
 # our final base
-FROM rust:1.65.0-slim
+FROM rustlang/rust:nightly
 
 # copy the build artifact from the build stage
 COPY --from=builder /bandejao-bot/target/release/bandejao-bot .
